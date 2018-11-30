@@ -30,8 +30,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.test.Helpers._
-
-import uk.gov.hmrc.twowaymessage.model.TwoWayMessage
+import uk.gov.hmrc.twowaymessage.model.{TwoWayMessage, TwoWayMessageReply}
 import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
 import scala.concurrent.Future
@@ -84,27 +83,45 @@ class TwoWayMessageControllerSpec extends WordSpec with Matchers with GuiceOneAp
       |      "content":"SGVsbG8gV29ybGQ="
       |    }""".stripMargin)
 
+  val twoWayMessageReplyGood = Json.parse(
+    """
+      |    {
+      |      "recipient":{
+      |        "taxIdentifier":{
+      |          "name":"HMRC_ID",
+      |          "value":"AB123456C"
+      |        },
+      |        "email":"someEmail@test.com"
+      |      },
+      |      "subject":"QUESTION",
+      |      "content":"Some base64-encoded HTML",
+      |      "replyTo":"01234567"
+      |    }""".stripMargin)
 
   "TwoWayMessageController" should {
 
     "return 201 (Created) when a message is successfully created in the message service " in {
       when(mockMessageService.post(any[TwoWayMessage])).thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
-      val result = await(controller.validate(twoWayMessageGood))
+      val result = await(controller.validateOriginalMessage(twoWayMessageGood))
       result.header.status shouldBe Status.CREATED
     }
 
     "return 400 (Bad Request) if the tax identifier is not supported " in {
-      val result = await(controller.validate(twoWayMessageBadIdentifier))
+      val result = await(controller.validateOriginalMessage(twoWayMessageBadIdentifier))
       result.header.status shouldBe Status.BAD_REQUEST
     }
 
+    "return 201 (Created) when a reply is successfully created in the message service " in {
+      when(mockMessageService.post(any[TwoWayMessageReply])).thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
+      val result = await(controller.validateReplyMessage(twoWayMessageReplyGood))
+      result.header.status shouldBe Status.CREATED
+    }
+
     "return 400 (Bad Request) if the body is not as per the definition " in {
-      val result = await(controller.validate(twoWayMessageBadContent))
+      val result = await(controller.validateReplyMessage(twoWayMessageBadContent))
       result.header.status shouldBe Status.BAD_REQUEST
     }
 
     SharedMetricRegistries.clear
-
   }
-
 }

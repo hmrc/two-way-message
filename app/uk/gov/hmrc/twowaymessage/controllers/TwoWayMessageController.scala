@@ -21,9 +21,8 @@ import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
-import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import uk.gov.hmrc.twowaymessage.model.TwoWayMessageFormat._
-import uk.gov.hmrc.twowaymessage.model.TwoWayMessage
+import uk.gov.hmrc.twowaymessage.model.{TwoWayMessage, TwoWayMessageReply}
 import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,19 +32,28 @@ class TwoWayMessageController @Inject()(twms: TwoWayMessageService)
 
   private val logger = Logger(this.getClass)
 
-
   def createMessage(queueId: String): Action[JsValue] = Action.async(parse.json) {
-        logger.debug("Queue ID:" + queueId)
+    logger.info("Queue ID:" + queueId)
     implicit request =>
-      validate(request.body)
+      validateOriginalMessage(request.body)
   }
 
-  def validate(requestBody: JsValue): Future[Result] = {
+  def validateOriginalMessage(requestBody: JsValue): Future[Result] = {
     requestBody.validate[TwoWayMessage] match {
       case s: JsSuccess[_] => twms.post(requestBody.as[TwoWayMessage])
       case e: JsError => Future.successful(BadRequest(Json.obj("error" -> "OK", "message" -> JsError.toJson(e))))
     }
   }
 
+  def createAdvisorResponse(replyTo: String): Action[JsValue] = Action.async(parse.json) {
+    implicit request =>
+      validateReplyMessage(request.body)
+  }
 
+  def validateReplyMessage(requestBody: JsValue): Future[Result] = {
+    requestBody.validate[TwoWayMessageReply] match {
+      case s: JsSuccess[_] => twms.post(requestBody.as[TwoWayMessageReply])
+      case e: JsError => Future.successful(BadRequest(Json.obj("error" -> "OK", "message" -> JsError.toJson(e))))
+    }
+  }
 }

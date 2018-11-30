@@ -106,6 +106,23 @@ class MessageConnectorSpec extends WordSpec with WithWireMock with Matchers with
     SharedMetricRegistries.clear
   }
 
+  "GET message connector" should {
+    "return 200" in {
+
+      val replyTo = "replyToId"
+      givenThat(
+        get(urlEqualTo(s"/getMessageById/${replyTo}")).
+          willReturn(aResponse().
+            withStatus(Status.OK)
+          ))
+
+      val result = await(messageConnector.validateAndGetEmailAddress(replyTo)(new HeaderCarrier()))
+      result.status shouldBe(200)
+    }
+    SharedMetricRegistries.clear
+  }
+
+
 }
 
 trait WithWireMock extends BeforeAndAfterAll with BeforeAndAfterEach {

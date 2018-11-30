@@ -30,8 +30,8 @@ object MessageFormat {
 
 }
 
-case class Message(externalRef: ExternalRef, recipient: Recipient, messageType: String, subject: String, content: String, details: Details)
+case class Message(externalRef: ExternalRef, recipient: Recipient, messageType: String, subject: String, content: String, details: Details, email: Option[String] = None)
 
 case class ExternalRef(id: String, source: String)
 
-case class Details(formId: String)
+case class Details(formId: String, replyTo: Option[String] = None)

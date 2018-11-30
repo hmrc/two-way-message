@@ -25,11 +25,11 @@ object TwoWayMessageFormat {
   implicit val twoWayMessage: Reads[TwoWayMessage] = Json.reads[TwoWayMessage]
   implicit val twoWayMessageWrites: Writes[TwoWayMessage] = Json.writes[TwoWayMessage]
 
+  implicit val twoWayMessageReply: Reads[TwoWayMessageReply] = Json.reads[TwoWayMessageReply]
+  implicit val twoWayMessagReplyeWrites: Writes[TwoWayMessageReply] = Json.writes[TwoWayMessageReply]
+
 }
 
-case class TwoWayMessage(recipient: Recipient,
-                         subject: String,
-                         content: Option[String] = None
-                        )
-
+case class TwoWayMessage(recipient: Recipient, subject: String, content: Option[String] = None )
+case class TwoWayMessageReply(recipient: Recipient, subject: String, content: Option[String] = None, replyTo: String)
 

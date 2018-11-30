@@ -18,6 +18,7 @@ package uk.gov.hmrc.twowaymessage.services
 
 import java.util.UUID
 import java.util.UUID.randomUUID
+import java.util.concurrent.TimeUnit
 
 import com.google.inject.Inject
 import play.api.http.Status._
@@ -30,7 +31,8 @@ import uk.gov.hmrc.twowaymessage.model.CommonFormats._
 import uk.gov.hmrc.twowaymessage.model.Error
 import uk.gov.hmrc.twowaymessage.model._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class TwoWayMessageService @Inject()(messageConnector: MessageConnector)(implicit ec: ExecutionContext) {
 
@@ -62,4 +64,36 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector)(implici
       })
   }
 
+  def post(twoWayMessage: TwoWayMessageReply): Future[Result] = {
+    val originalMessageEmail = blockingGetEmailAddressForId(twoWayMessage)
+    val body = createJsonBodyForReply(twoWayMessage, originalMessageEmail)
+    messageConnector.postMessage(body) map (response =>
+      response.status match {
+        case OK => Ok(Json.toJson("id" -> UUID.randomUUID().toString))
+        case _ => BadGateway(Json.toJson(Error(response.status,response.body)))
+      })
+  }
+
+  def blockingGetEmailAddressForId(twoWayMessageReply: TwoWayMessageReply): String = {
+    val originalMessageEmail = messageConnector.validateAndGetEmailAddress(twoWayMessageReply.replyTo)
+    Await.result(originalMessageEmail, Duration.apply(20, TimeUnit.SECONDS)).body
+  }
+
+  def createJsonBodyForReply(twoWayMessageReply: TwoWayMessageReply, originalEmail: String): Message = {
+    Message(
+      ExternalRef(
+        randomUUID.toString(),
+        "2WSM-ADVISOR"
+      ),
+      twoWayMessageReply.recipient,
+      "2wsm-advisor",
+      twoWayMessageReply.subject,
+      twoWayMessageReply.content.getOrElse(""),
+      Details(
+        "2WSM-question",
+        Option.apply(twoWayMessageReply.replyTo)
+      ),
+      email=Option.apply(originalEmail)
+    )
+  }
 }

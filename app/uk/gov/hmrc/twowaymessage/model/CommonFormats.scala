@@ -31,6 +31,7 @@ object CommonFormats {
           value
         )
     }
+
   implicit val taxIdentifierWrites: Writes[TaxIdentifier] = Json.writes[TaxIdentifier]
 
   implicit val recipientReads: Reads[Recipient] = Json.reads[Recipient]
@@ -45,9 +46,3 @@ case class Recipient(taxIdentifier: TaxIdentifier, email: String)
 case class TaxIdentifier(name: String, value: String)
 
 case class Error(error: Int, message: String)
-
-
-
-
-
-

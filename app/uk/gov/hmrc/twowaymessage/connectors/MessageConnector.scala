@@ -34,4 +34,9 @@ class MessageConnector @Inject()(httpClient: HttpClient, servicesConfig: Service
   def postMessage(body: Message)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient.POST(s"$messageBaseUrl/messages",body)
   }
+
+  def validateAndGetEmailAddress(replyTo: String)(implicit hc: HeaderCarrier): Future[HttpResponse] ={
+    httpClient.GET(s"$messageBaseUrl/getMessageById/${replyTo}")
+  }
+
 }
