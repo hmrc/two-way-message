@@ -31,9 +31,10 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
-import uk.gov.hmrc.twowaymessage.model.{Message, Recipient, TaxIdentifier, TwoWayMessage}
+import uk.gov.hmrc.twowaymessage.model._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.parsing.json.JSONObject
 
 class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -61,7 +62,21 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       "someEmail@test.com"
     ),
     "Question",
-    Some("SGVsbG8gV29ybGQ=")
+    Some("SGVsbG8gV29ybGQ="),
+    Option.empty
+  )
+
+  val twoWayMessageReplyExample = TwoWayMessage(
+    Recipient(
+      TaxIdentifier(
+        "HMRC_ID",
+        "AB123456C"
+      ),
+      "someEmail@test.com"
+    ),
+    "Question",
+    Some("SGVsbG8gV29ybGQ="),
+    Option.apply("replyId")
   )
 
   "TwoWayMessageService should" should {
@@ -80,5 +95,43 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
 
     SharedMetricRegistries.clear
   }
+
+  "Correct json should be generated" should {
+    "when an original message is sent, then it should generate correct message" in {
+      val expected =
+        Message(
+          ExternalRef("123412342314", "2WSM-CUSTOMER"),
+          Recipient(TaxIdentifier("nino", "AB123456C"), "email@test.com"),
+          "2wsm-customer",
+          "QUESTION",
+          "some base64-encodedhtml",
+          Details("2WSM-question")
+        )
+
+      val originalMessage = TwoWayMessage(Recipient(TaxIdentifier("nino", "AB123456C"), "email@test.com"), "QUESTION", Option.apply("some base64-encodedhtml"))
+      val actual = messageService.createJsonForOriginalMessage(originalMessage, "123412342314")
+
+      assert(actual.equals(expected))
+    }
+
+   "when a reply is sent, the correct json should be generated" in {
+     val expected =
+       Message(
+         ExternalRef("54321", "2WSM-ADVISOR"),
+         Recipient(TaxIdentifier("nino", "AB123456C"), "email@test.com"),
+         "2wsm-advisor",
+         "REPLY",
+         "some base64-encodedhtml",
+         Details("2WSM-advisor", Option.apply("replyToId")),
+         Option.apply("replyTo@test.com")
+       )
+
+     val originalMessage = TwoWayMessage(Recipient(TaxIdentifier("nino", "AB123456C"), "email@test.com"), "REPLY", Option.apply("some base64-encodedhtml"), Option.apply("replyToId"))
+     val actual = messageService.createJsonForReplyMessage(originalMessage, "54321" ,"replyTo@test.com")
+
+     assert(actual.equals(expected))
+  }
+
+ }
 
 }

@@ -38,24 +38,8 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector)(implici
 
   implicit val hc = HeaderCarrier()
 
-  def createJsonBody(twoWayMessage: TwoWayMessage): Message = {
-    Message(
-      ExternalRef(
-        randomUUID.toString(),
-        "2WSM-CUSTOMER"
-        ),
-      twoWayMessage.recipient,
-      "2WSM-customer",
-      twoWayMessage.subject,
-      twoWayMessage.content.getOrElse(""),
-      Details(
-        "2WSM-question"
-      )
-    )
-  }
-
   def post(twoWayMessage: TwoWayMessage): Future[Result] = {
-    val body = createJsonBody(twoWayMessage)
+    val body = createJsonForOriginalMessage(twoWayMessage, randomUUID.toString())
     messageConnector.postMessage(body) map (
       response =>
         response.status match {
@@ -64,9 +48,9 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector)(implici
       })
   }
 
-  def post(twoWayMessage: TwoWayMessageReply): Future[Result] = {
+  def postReply(twoWayMessage: TwoWayMessage): Future[Result] = {
     val originalMessageEmail = blockingGetEmailAddressForId(twoWayMessage)
-    val body = createJsonBodyForReply(twoWayMessage, originalMessageEmail)
+    val body = createJsonForReplyMessage(twoWayMessage, randomUUID.toString(), originalMessageEmail)
     messageConnector.postMessage(body) map (response =>
       response.status match {
         case OK => Ok(Json.toJson("id" -> UUID.randomUUID().toString))
@@ -74,26 +58,35 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector)(implici
       })
   }
 
-  def blockingGetEmailAddressForId(twoWayMessageReply: TwoWayMessageReply): String = {
-    val originalMessageEmail = messageConnector.validateAndGetEmailAddress(twoWayMessageReply.replyTo)
+  def blockingGetEmailAddressForId(twoWayMessageReply: TwoWayMessage): String = {
+    val originalMessageEmail = messageConnector.validateAndGetEmailAddress(twoWayMessageReply.replyTo.get)
     Await.result(originalMessageEmail, Duration.apply(20, TimeUnit.SECONDS)).body
   }
 
-  def createJsonBodyForReply(twoWayMessageReply: TwoWayMessageReply, originalEmail: String): Message = {
+  def createJsonForOriginalMessage(twoWayMessage: TwoWayMessage, id: String) = {
+    createJsonBody(id, twoWayMessage, "2wsm-customer", "2WSM-question")
+  }
+
+  def createJsonForReplyMessage(twoWayMessage: TwoWayMessage, id: String, originalMessageEmail: String) = {
+    createJsonBody(id, twoWayMessage, "2wsm-advisor", "2WSM-advisor", Option.apply(originalMessageEmail))
+
+  }
+
+  private def createJsonBody(id: String, twoWayMessageReply: TwoWayMessage, messageType: String, formId: String, originalEmail: Option[String] = None): Message = {
     Message(
       ExternalRef(
-        randomUUID.toString(),
-        "2WSM-ADVISOR"
+        id,
+        messageType.toUpperCase()
       ),
       twoWayMessageReply.recipient,
-      "2wsm-advisor",
+      messageType,
       twoWayMessageReply.subject,
       twoWayMessageReply.content.getOrElse(""),
       Details(
-        "2WSM-question",
-        Option.apply(twoWayMessageReply.replyTo)
+        formId,
+        twoWayMessageReply.replyTo
       ),
-      email=Option.apply(originalEmail)
+      email=originalEmail
     )
   }
 }

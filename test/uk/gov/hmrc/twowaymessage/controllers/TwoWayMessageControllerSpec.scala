@@ -30,7 +30,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.test.Helpers._
-import uk.gov.hmrc.twowaymessage.model.{TwoWayMessage, TwoWayMessageReply}
+import uk.gov.hmrc.twowaymessage.model.{TwoWayMessage}
 import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
 import scala.concurrent.Future
@@ -112,7 +112,7 @@ class TwoWayMessageControllerSpec extends WordSpec with Matchers with GuiceOneAp
     }
 
     "return 201 (Created) when a reply is successfully created in the message service " in {
-      when(mockMessageService.post(any[TwoWayMessageReply])).thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
+      when(mockMessageService.postReply(any[TwoWayMessage])).thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
       val result = await(controller.validateReplyMessage(twoWayMessageReplyGood))
       result.header.status shouldBe Status.CREATED
     }
