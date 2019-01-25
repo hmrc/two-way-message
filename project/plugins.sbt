@@ -23,3 +23,5 @@ addSbtPlugin("org.scalastyle" % "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
 
 addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.6")
+
+addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.15")
