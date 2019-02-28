@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.twowaymessage.services
 
+import java.io.File
+
 import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HttpEntity.Strict
 import play.api.inject.bind
@@ -53,6 +55,14 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
 
 
   val messageService = injector.instanceOf[TwoWayMessageService]
+  val pdfService = injector.instanceOf[TestPdfCreator]
+
+  val twoWayMessageReplyExample = TwoWayMessage(
+    ContactDetails("someEmail@test.com"),
+    "Question",
+    "SGVsbG8gV29ybGQ=",
+    Option.apply("replyId")
+  )
 
   "TwoWayMessageService.post" should {
 
@@ -62,13 +72,6 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       "Question",
       "SGVsbG8gV29ybGQ=",
       Option.empty
-    )
-
-    val twoWayMessageReplyExample = TwoWayMessage(
-      ContactDetails("someEmail@test.com"),
-      "Question",
-      "SGVsbG8gV29ybGQ=",
-      Option.apply("replyId")
     )
 
     "return 201 (Created) when a message is successfully created by the message service" in {
@@ -268,4 +271,21 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       assert(actual.equals(expected))
   }
  }
+
+  val htmlMessageExample = TwoWayMessage(
+    ContactDetails("someEmail@test.com"),
+    "This looks wrong I need it changed",
+    "SSB0aGluayB0aGF0IHRoZSBhc3Nlc3NtZW50IGZvciBsYXN0IHllYXIgaXMgaW5jb3JyZWN0LiBJdCBzaG93cyBteSBDb21wYW55IGNhciB3aXRoIEImUSBhbmQgaXQgYWxzbyBzaG93cyB0aGF0IEkgd2FzIHJlY2VpdmluZyBhIGZ1ZWwgYmVuZWZpdC4KCkkgZGlkIHN0aWxsIGhhdmUgbXkgRm9yZCBGb2N1cyBjb21wYW55IGNhciBsYXN0IHllYXIgYnV0IEImUSBjaGFuZ2VkIHRoZWlyIHBvbGljeSBvbiBmdWVsLiBXZSBub3cgc3VibWl0IGEgbW9udGhseSBzaGVldCBzaG93aW5nIGFsbCBvdXIgYnVzaW5lc3MgYW5kIHBlcnNvbmFsIG1pbGVhZ2UuIEImUSBwYXlyb2xsIHRoZW4gY2hhcmdlIHVzIGJhY2sgdGhlIHBlcmNlbnRhZ2Ugb2YgcGVyc29uYWwgbWlsZWFnZSBpbiBvdXIgbmV4dCBwYXkgc2xpcC4KCkImUSBjaGFuZ2VkIHRoZSBwb2xpY3kgaW4gQXByaWwgMjAxOC4KCkkgdGhpbmsgdGhpcyBtZWFucyB5b3Ugd2lsbCBvd2UgbWUgc29tZSBtb25leSBvbiB0YXggcmF0aGVyIHRoYW4gbXkgb3duaW5nIG1vbmV5IHRvIHlvdS4=",
+    Option.empty
+  )
+
+  "TwoWayMessageService.createHtmlMessage" should {
+    "return HTML as a string" in {
+      val expectedHtml = <p id="nino" class="govuk-body-l"><span class="govuk-font-weight-bold">National insurance number</span>AA112211A</p>.mkString
+      val actualHtml = messageService.createHtmlMessage("123", Nino("AA112211A"), htmlMessageExample)
+      pdfService.createPdf(actualHtml,new File("/Users/hmrc/Source/GitHub/hmrc/two-way-message/result.pdf"))
+      assert(actualHtml.contains(expectedHtml))
+    }
+  }
+
 }

@@ -25,11 +25,14 @@ object AppDependencies {
     "uk.gov.hmrc" %% "play-health" % "3.8.0-play-26",
     "com.google.inject" % "guice" % "4.2.0",
     "com.kenshoo" %% "metrics-play" % "2.6.6_0.6.2",
-    "com.typesafe.play" %% "play" % "2.6.10",
+    "com.typesafe.play" %% "play" % "2.6.20",
     "com.typesafe.play" %% "play-functional" % "2.6.10",
     "com.typesafe.play" %% "play-json" % "2.6.10",
-    "uk.gov.hmrc"       %% "domain"  % "5.3.0",
-    "javax.inject" % "javax.inject" % "1"
+    "uk.gov.hmrc" %% "domain"  % "5.3.0",
+    "javax.inject" % "javax.inject" % "1",
+    "com.typesafe.play" %% "twirl-api" % "1.3.15",
+    "commons-codec" % "commons-codec" % "1.10",
+    "uk.gov.hmrc" %% "auth-client" % "2.11.0-play-26"
   )
 
   val test = Set(
@@ -41,7 +44,8 @@ object AppDependencies {
     "org.mockito" % "mockito-core" % "2.23.4" % "test",
     "org.pegdown" % "pegdown" % "1.6.0" % "test,it",
     "com.github.tomakehurst" % "wiremock-standalone" % "2.19.0" % "test,it",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test,it"
+    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test,it",
+    "io.github.cloudify" %% "spdf" % "1.3.1"
   )
 
   val overrides = Set()

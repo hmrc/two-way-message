@@ -16,24 +16,31 @@
 
 package uk.gov.hmrc.twowaymessage.services
 
+import java.io.{BufferedReader, InputStreamReader}
 import java.util.UUID.randomUUID
 
 import com.google.inject.Inject
+import org.apache.commons.codec.binary.Base64
 import play.api.http.Status._
 import play.api.libs.json._
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import play.api.Environment
+import play.twirl.api.{BufferedContent, Html}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.model.Error._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 import uk.gov.hmrc.twowaymessage.model.{Error, _}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
+import scala.io.Source
 
-class TwoWayMessageService @Inject()(messageConnector: MessageConnector)(implicit ec: ExecutionContext) {
+class TwoWayMessageService @Inject()(messageConnector: MessageConnector, servicesConfig: ServicesConfig)(implicit ec: ExecutionContext) {
 
   implicit val hc = HeaderCarrier()
 
@@ -112,4 +119,12 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector)(implici
       Details(formId, Some(replyTo))
     )
   }
+
+  def createHtmlMessage(messageId: String, nino: Nino, message: TwoWayMessage): String = {
+    val frontendUrl: String = servicesConfig.baseUrl("two-way-message-adviser-frontend")
+    val url = s"$frontendUrl/two-way-message-adviser-frontend/message/$messageId/reply"
+    val content = new String(Base64.decodeBase64(message.content), "UTF-8")
+    uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, nino.nino, message.subject, content).body
+  }
+
 }
