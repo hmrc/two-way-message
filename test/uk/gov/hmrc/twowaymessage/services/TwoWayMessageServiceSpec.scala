@@ -31,13 +31,13 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.mvc.Http
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.model._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -45,14 +45,12 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
   implicit val mockHeaderCarrier = mock[HeaderCarrier]
   val mockMessageConnector = mock[MessageConnector]
 
-
   lazy val mockhttpClient = mock[HttpClient]
   lazy val mockServiceConfig = mock[ServicesConfig]
 
   val injector = new GuiceApplicationBuilder()
     .overrides(bind[MessageConnector].to(mockMessageConnector))
     .injector()
-
 
   val messageService = injector.instanceOf[TwoWayMessageService]
   val pdfService = injector.instanceOf[TestPdfCreator]
@@ -75,8 +73,9 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     )
 
     "return 201 (Created) when a message is successfully created by the message service" in {
-      when(mockMessageConnector
-        .postMessage(any[Message])(any[HeaderCarrier]))
+      when(
+        mockMessageConnector
+          .postMessage(any[Message])(any[HeaderCarrier]))
         .thenReturn(
           Future.successful(
             HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))
@@ -111,16 +110,16 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return 201 (Created) when a message is successfully created by the message service" in {
 
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
-          .thenReturn(Future.successful(messageMetadata))
+        .thenReturn(Future.successful(messageMetadata))
 
-      when(mockMessageConnector
-        .postMessage(any[Message])(any[HeaderCarrier]))
-        .thenReturn(
-          Future.successful(
-            HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))))
+      when(
+        mockMessageConnector
+          .postMessage(any[Message])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(
+          HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))))
 
-      val messageResult = await(messageService.postAdvisorReply(
-        TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+      val messageResult =
+        await(messageService.postAdvisorReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
       messageResult.header.status shouldBe 201
     }
 
@@ -129,14 +128,17 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(messageMetadata))
 
-      val postMessageResponse = HttpResponse(Http.Status.CONFLICT,
-        responseString = Some("POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'"))
+      val postMessageResponse = HttpResponse(
+        Http.Status.CONFLICT,
+        responseString = Some(
+          "POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'")
+      )
 
       when(mockMessageConnector.postMessage(any[Message])(any[HeaderCarrier]))
         .thenReturn(Future.successful(postMessageResponse))
 
-      val messageResult = await(messageService.postAdvisorReply(
-        TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+      val messageResult =
+        await(messageService.postAdvisorReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
       messageResult.header.status shouldBe 502
       messageResult.body.asInstanceOf[Strict].data.utf8String shouldBe
         "{\"error\":409,\"message\":\"POST of 'http://localhost:8910/messages' returned 409. Response body: '{\\\"reason\\\":\\\"Duplicated message content or external reference ID\\\"}'\"}"
@@ -152,8 +154,8 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           )
         )
 
-      val messageResult = await(messageService.postCustomerReply(
-        TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+      val messageResult =
+        await(messageService.postCustomerReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
       messageResult.header.status shouldBe 502
       messageResult.body.asInstanceOf[Strict].data.utf8String shouldBe
         "{\"error\":400,\"message\":\"GET of 'http://localhost:8910/messages/5c2dec526900006b000d53b/metadata' returned 400 (Bad Request). Response body '{ \\\"status\\\": 400, \\\"message\\\": \\\"A client error occurred: ID 5c2dec526900006b000d53b was invalid\\\" } '\"}"
@@ -176,16 +178,16 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return 201 (Created) when a message is successfully created by the message service" in {
 
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
-          .thenReturn(Future.successful(messageMetadata))
+        .thenReturn(Future.successful(messageMetadata))
 
-      when(mockMessageConnector
-        .postMessage(any[Message])(any[HeaderCarrier]))
-        .thenReturn(
-          Future.successful(
-            HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))))
+      when(
+        mockMessageConnector
+          .postMessage(any[Message])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(
+          HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))))
 
-      val messageResult = await(messageService.postCustomerReply(
-        TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+      val messageResult =
+        await(messageService.postCustomerReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
       messageResult.header.status shouldBe 201
     }
 
@@ -194,14 +196,17 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(messageMetadata))
 
-      val postMessageResponse = HttpResponse(Http.Status.CONFLICT,
-        responseString = Some("POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'"))
+      val postMessageResponse = HttpResponse(
+        Http.Status.CONFLICT,
+        responseString = Some(
+          "POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'")
+      )
 
       when(mockMessageConnector.postMessage(any[Message])(any[HeaderCarrier]))
         .thenReturn(Future.successful(postMessageResponse))
 
-      val messageResult = await(messageService.postCustomerReply(
-        TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+      val messageResult =
+        await(messageService.postCustomerReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
       messageResult.header.status shouldBe 502
       messageResult.body.asInstanceOf[Strict].data.utf8String shouldBe
         "{\"error\":409,\"message\":\"POST of 'http://localhost:8910/messages' returned 409. Response body: '{\\\"reason\\\":\\\"Duplicated message content or external reference ID\\\"}'\"}"
@@ -217,8 +222,8 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           )
         )
 
-      val messageResult = await(messageService.postCustomerReply(
-        TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+      val messageResult =
+        await(messageService.postCustomerReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
       messageResult.header.status shouldBe 502
       messageResult.body.asInstanceOf[Strict].data.utf8String shouldBe
         "{\"error\":404,\"message\":\"GET of 'http://localhost:8910/messages/5c2dec526900006b000d53b1/metadata' returned 404 (Not Found). Response body: ''\"}"
@@ -240,14 +245,15 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           Details(FormId.Question)
         )
 
-        val originalMessage = TwoWayMessage(
-          ContactDetails("email@test.com"),
-          "QUESTION",
-          "some base64-encoded-html"
+      val originalMessage = TwoWayMessage(
+        ContactDetails("email@test.com"),
+        "QUESTION",
+        "some base64-encoded-html"
       )
 
       val nino = Nino("AB123456C")
-      val actual = messageService.createJsonForMessage("123412342314",  MessageType.Customer, FormId.Question, originalMessage, nino)
+      val actual = messageService
+        .createJsonForMessage("123412342314", MessageType.Customer, FormId.Question, originalMessage, nino)
       assert(actual.equals(expected))
     }
 
@@ -256,21 +262,22 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
         ExternalRef("some-random-id", "2WSM"),
         Recipient(TaxIdentifier("nino", "AB123456C"), "email@test.com"),
         MessageType.Advisor,
-        "RE: QUESTION",
+        "QUESTION",
         "some base64-encoded-html",
         Details(FormId.Reply, Some("reply-to-id"))
-       )
+      )
 
       val metadata = MessageMetadata(
-       "mongo-id",
-       TaxEntity("regime", TaxIdWithName("nino", "AB123456C"), Some("email@test.com")),
-       "QUESTION")
+        "mongo-id",
+        TaxEntity("regime", TaxIdWithName("nino", "AB123456C"), Some("email@test.com")),
+        "QUESTION")
 
       val reply = TwoWayMessageReply("some base64-encoded-html")
-      val actual = messageService.createJsonForReply("some-random-id", MessageType.Advisor, FormId.Reply, metadata, reply, "reply-to-id")
+      val actual = messageService
+        .createJsonForReply("some-random-id", MessageType.Advisor, FormId.Reply, metadata, reply, "reply-to-id")
       assert(actual.equals(expected))
+    }
   }
- }
 
   val htmlMessageExample = TwoWayMessage(
     ContactDetails("someEmail@test.com"),
