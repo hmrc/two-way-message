@@ -25,6 +25,8 @@ import play.api.libs.json._
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.gform.dms.{DmsHtmlSubmission, DmsMetadata}
+import uk.gov.hmrc.gform.gformbackend.GformConnector
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
@@ -35,14 +37,16 @@ import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TwoWayMessageService @Inject()(messageConnector: MessageConnector, servicesConfig: ServicesConfig)(implicit ec: ExecutionContext) {
+class TwoWayMessageService @Inject()(messageConnector: MessageConnector,
+                                     gformConnector: GformConnector,
+                                     servicesConfig: ServicesConfig)(implicit ec: ExecutionContext) {
 
   implicit val hc = HeaderCarrier()
 
-  def post(nino: Nino, twoWayMessage: TwoWayMessage): Future[Result] = {
+  def post(nino: Nino, twoWayMessage: TwoWayMessage, dmsMetaData: DmsMetadata): Future[Result] = {
     val body = createJsonForMessage(randomUUID.toString, MessageType.Customer, FormId.Question, twoWayMessage, nino)
-    messageConnector.postMessage(body) map {
-      handleResponse
+    messageConnector.postMessage(body) map { response =>
+      handleResponse(twoWayMessage,response,dmsMetaData)
     } recover handleError
   }
 
@@ -69,6 +73,20 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector, service
   def handleResponse(response: HttpResponse): Result = response.status match {
     case CREATED => Created(Json.parse(response.body))
     case _       => errorResponse(response.status, response.body)
+  }
+
+  def handleResponse(message: TwoWayMessage, response: HttpResponse, dmsMetaData: DmsMetadata): Result = response.status match {
+    case CREATED => {
+      response.json.validate[Identifier].asOpt match {
+        case Some(identifier) => {
+          val dmsSubmission = DmsHtmlSubmission(createHtmlMessage(identifier.id,Nino(dmsMetaData.customerId),message), dmsMetaData)
+          gformConnector.submitToDmsViaGform(dmsSubmission)
+          Created(Json.parse(response.body))
+        }
+        case None =>  errorResponse(INTERNAL_SERVER_ERROR, "Failed to create enquiry reference")
+      }
+    }
+    case _ => errorResponse(response.status, response.body)
   }
 
   def handleError(): PartialFunction[Throwable, Result] = {

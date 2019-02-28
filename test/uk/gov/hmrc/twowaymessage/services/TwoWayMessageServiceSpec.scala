@@ -31,13 +31,14 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.mvc.Http
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.gform.dms.DmsMetadata
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.model._
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -62,6 +63,8 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     Option.apply("replyId")
   )
 
+  val dmsMetadataExample = DmsMetadata("", "AB123456C", "", "")
+
   "TwoWayMessageService.post" should {
 
     val nino = Nino("AB123456C")
@@ -82,14 +85,14 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           )
         )
 
-      val messageResult = await(messageService.post(nino, twoWayMessageExample))
+      val messageResult = await(messageService.post(nino, twoWayMessageExample,dmsMetadataExample))
       messageResult.header.status shouldBe 201
     }
 
     "return 502 (Bad Gateway) when posting a message to the message service fails" in {
       when(mockMessageConnector.postMessage(any[Message])(any[HeaderCarrier]))
         .thenReturn(Future.successful(HttpResponse(Http.Status.BAD_REQUEST)))
-      val messageResult = await(messageService.post(nino, twoWayMessageExample))
+      val messageResult = await(messageService.post(nino, twoWayMessageExample,dmsMetadataExample))
       messageResult.header.status shouldBe 502
     }
 
