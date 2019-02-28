@@ -67,10 +67,10 @@ class TwoWayMessageController @Inject()(
   }
 
   // Validates the customer's message payload and then posts the message
-  def validateAndPostMessage(queueId:String, nino: Nino, requestBody: JsValue)(implicit hc: HeaderCarrier): Future[Result] =
+  def validateAndPostMessage(queueId: String, nino: Nino, requestBody: JsValue)(
+    implicit hc: HeaderCarrier): Future[Result] =
     requestBody.validate[TwoWayMessage] match {
       case _: JsSuccess[_] =>
-
         Enquiry(queueId) match {
           case Some(enquiryId) => {
             val dmsMetaData = DmsMetadata(enquiryId.dmsFormId, nino.nino, enquiryId.classificationType, enquiryId.businessArea)

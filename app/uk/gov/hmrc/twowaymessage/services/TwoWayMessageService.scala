@@ -95,32 +95,27 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector,
     case e: HttpException       => errorResponse(e.responseCode, e.message)
   }
 
-  def createJsonForMessage(
-    id: String,
-    messageType: MessageType,
-    formId: FormId,
-    twoWayMessage: TwoWayMessage,
-    nino: Nino): Message = {
+  def createJsonForMessage(refId: String, twoWayMessage: TwoWayMessage, nino: Nino, queueId: String): Message = {
     val recipient = Recipient(TaxIdentifier(nino.name, nino.value), twoWayMessage.contactDetails.email)
     Message(
-      ExternalRef(id, "2WSM"),
+      ExternalRef(refId, "2WSM"),
       recipient,
-      messageType,
+      MessageType.Customer,
       twoWayMessage.subject,
       twoWayMessage.content,
-      Details(formId, None)
+      Details(FormId.Question, None, None, inquiryType = Some(queueId))
     )
   }
 
   def createJsonForReply(
-    id: String,
+    refId: String,
     messageType: MessageType,
     formId: FormId,
     metadata: MessageMetadata,
     reply: TwoWayMessageReply,
     replyTo: String): Message =
     Message(
-      ExternalRef(id, "2WSM"),
+      ExternalRef(refId, "2WSM"),
       Recipient(
         TaxIdentifier(metadata.recipient.identifier.name, metadata.recipient.identifier.value),
         metadata.recipient.email.getOrElse("")
@@ -128,7 +123,7 @@ class TwoWayMessageService @Inject()(messageConnector: MessageConnector,
       messageType,
       metadata.subject,
       reply.content,
-      Details(formId, Some(replyTo))
+      Details(formId, Some(replyTo), metadata.details.threadId, metadata.details.enquiryType, metadata.details.adviser)
     )
 
   def createHtmlMessage(messageId: String, nino: Nino, message: TwoWayMessage): String = {

@@ -108,7 +108,12 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
         TaxIdWithName("HMRC-NI", "AB123456C"),
         Some("someEmail@test.com")
       ),
-      "SUBJECT")
+      "SUBJECT",
+      details = MetadataDetails(
+        threadId = Some("5c18eb166f0000110204b160"),
+        enquiryType = Some("P800"),
+        adviser = Some(Adviser("adviser-id")))
+    )
 
     "return 201 (Created) when a message is successfully created by the message service" in {
 
@@ -170,13 +175,18 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
   "TwoWayMessageService.postCustomerReply" should {
 
     val messageMetadata = MessageMetadata(
-      "5c18eb166f0000110204b160",
-      TaxEntity(
+      id = "5c18eb166f0000110204b160",
+      recipient = TaxEntity(
         "REGIME",
         TaxIdWithName("HMRC-NI", "AB123456C"),
         Some("someEmail@test.com")
       ),
-      "SUBJECT")
+      subject = "SUBJECT",
+      details = MetadataDetails(
+        threadId = Some("5c18eb166f0000110204b160"),
+        enquiryType = Some("P800"),
+        adviser = Some(Adviser("adviser-id")))
+    )
 
     "return 201 (Created) when a message is successfully created by the message service" in {
 
@@ -245,7 +255,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           MessageType.Customer,
           "QUESTION",
           "some base64-encoded-html",
-          Details(FormId.Question)
+          Details(FormId.Question, None, None, inquiryType = Some("p800"))
         )
 
       val originalMessage = TwoWayMessage(
@@ -256,7 +266,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
 
       val nino = Nino("AB123456C")
       val actual = messageService
-        .createJsonForMessage("123412342314", MessageType.Customer, FormId.Question, originalMessage, nino)
+        .createJsonForMessage("123412342314", originalMessage, nino, "p800")
       assert(actual.equals(expected))
     }
 
@@ -267,13 +277,23 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
         MessageType.Advisor,
         "QUESTION",
         "some base64-encoded-html",
-        Details(FormId.Reply, Some("reply-to-id"))
+        Details(
+          FormId.Reply,
+          Some("reply-to-id"),
+          Some("thread-id"),
+          Some("P800"), // enquiryType or queueId
+          Some(Adviser(pidId = "adviser-id")))
       )
 
       val metadata = MessageMetadata(
         "mongo-id",
         TaxEntity("regime", TaxIdWithName("nino", "AB123456C"), Some("email@test.com")),
-        "QUESTION")
+        "QUESTION",
+        MetadataDetails(
+          threadId = Some("thread-id"),
+          enquiryType = Some("P800"),
+          adviser = Some(Adviser(pidId = "adviser-id")))
+      )
 
       val reply = TwoWayMessageReply("some base64-encoded-html")
       val actual = messageService
