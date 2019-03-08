@@ -73,10 +73,12 @@ class TwoWayMessageController @Inject()(
       case _: JsSuccess[_] =>
         Enquiry(queueId) match {
           case Some(enquiryId) => {
-            val dmsMetaData = DmsMetadata(enquiryId.dmsFormId, nino.nino, enquiryId.classificationType, enquiryId.businessArea)
+            val dmsMetaData =
+              DmsMetadata(enquiryId.dmsFormId, nino.nino, enquiryId.classificationType, enquiryId.businessArea)
             twms.post(queueId, nino, requestBody.as[TwoWayMessage], dmsMetaData)
           }
-          case None => Future.successful(BadRequest(Json.obj("error" -> 400, "message" -> s"Invalid EnquityId: $queueId")))
+          case None =>
+            Future.successful(BadRequest(Json.obj("error" -> 400, "message" -> s"Invalid EnquityId: $queueId")))
         }
 
       case e: JsError => Future.successful(BadRequest(Json.obj("error" -> 400, "message" -> JsError.toJson(e))))
@@ -86,19 +88,23 @@ class TwoWayMessageController @Inject()(
   def createAdvisorResponse(replyTo: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     {
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
-      authorised(AuthProviders(PrivilegedApplication)) {
-        validateAndPostAdvisorResponse(request.body, replyTo)
-      }.recoverWith {
-        case _ => Future.successful(Forbidden)
-      }
+      authorised(AuthProviders(PrivilegedApplication))
+        .retrieve(Retrievals.internalId) {
+          case pidId => {
+            validateAndPostAdvisorResponse(request.body, replyTo, pidId)
+          }
+        }
+        .recoverWith {
+          case _ => Future.successful(Forbidden)
+        }
     }
   }
 
   // Validates the advisor response payload and then posts the reply
-  def validateAndPostAdvisorResponse(requestBody: JsValue, replyTo: String)(
+  def validateAndPostAdvisorResponse(requestBody: JsValue, replyTo: String, pidId: Option[String])(
     implicit hc: HeaderCarrier): Future[Result] =
     requestBody.validate[TwoWayMessageReply] match {
-      case _: JsSuccess[_] => twms.postAdvisorReply(requestBody.as[TwoWayMessageReply], replyTo)
+      case _: JsSuccess[_] => twms.postAdvisorReply(requestBody.as[TwoWayMessageReply], replyTo, pidId)
       case e: JsError      => Future.successful(BadRequest(Json.obj("error" -> 400, "message" -> JsError.toJson(e))))
     }
 

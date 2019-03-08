@@ -51,19 +51,23 @@ class TwoWayMessageService @Inject()(
     } recover handleError
   }
 
-  def postReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String, messageType: MessageType, formId: FormId)(
-    implicit hc: HeaderCarrier): Future[Result] =
+  def postReply(
+    twoWayMessageReply: TwoWayMessageReply,
+    replyTo: String,
+    messageType: MessageType,
+    formId: FormId,
+    pidId: Option[String] = None)(implicit hc: HeaderCarrier): Future[Result] =
     (for {
       metadata <- messageConnector.getMessageMetadata(replyTo)
-      body = createJsonForReply(randomUUID.toString, messageType, formId, metadata, twoWayMessageReply, replyTo)
+      body = createJsonForReply(randomUUID.toString, messageType, formId, metadata, twoWayMessageReply, replyTo, pidId)
       resp <- messageConnector.postMessage(body)
     } yield resp) map {
       handleResponse
     } recover handleError
 
-  def postAdvisorReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
+  def postAdvisorReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String, pidId: Option[String])(
     implicit hc: HeaderCarrier): Future[Result] =
-    postReply(twoWayMessageReply, replyTo, MessageType.Advisor, FormId.Reply)
+    postReply(twoWayMessageReply, replyTo, MessageType.Advisor, FormId.Reply, pidId)
 
   def postCustomerReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
     implicit hc: HeaderCarrier): Future[Result] =
@@ -120,7 +124,11 @@ class TwoWayMessageService @Inject()(
     formId: FormId,
     metadata: MessageMetadata,
     reply: TwoWayMessageReply,
-    replyTo: String): Message =
+    replyTo: String,
+    pidId: Option[String]): Message = {
+
+    val adviser = pidId.flatMap(x => Some(Adviser(x)))
+
     Message(
       ExternalRef(refId, "2WSM"),
       Recipient(
@@ -130,8 +138,9 @@ class TwoWayMessageService @Inject()(
       messageType,
       metadata.subject,
       reply.content,
-      Details(formId, Some(replyTo), metadata.details.threadId, metadata.details.enquiryType, metadata.details.adviser)
+      Details(formId, Some(replyTo), metadata.details.threadId, metadata.details.enquiryType, adviser)
     )
+  }
 
   def createHtmlMessage(messageId: String, nino: Nino, message: TwoWayMessage): String = {
     val frontendUrl: String = servicesConfig.getString("pdf-admin-prefix")

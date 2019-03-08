@@ -126,7 +126,8 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))))
 
       val messageResult =
-        await(messageService.postAdvisorReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+        await(
+          messageService.postAdvisorReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id", Some("pid")))
       messageResult.header.status shouldBe 201
     }
 
@@ -145,7 +146,8 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
         .thenReturn(Future.successful(postMessageResponse))
 
       val messageResult =
-        await(messageService.postAdvisorReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
+        await(
+          messageService.postAdvisorReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id", Some("pid")))
       messageResult.header.status shouldBe 502
       messageResult.body.asInstanceOf[Strict].data.utf8String shouldBe
         "{\"error\":409,\"message\":\"POST of 'http://localhost:8910/messages' returned 409. Response body: '{\\\"reason\\\":\\\"Duplicated message content or external reference ID\\\"}'\"}"
@@ -288,15 +290,19 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
         "mongo-id",
         TaxEntity("regime", TaxIdWithName("nino", "AB123456C"), Some("email@test.com")),
         "QUESTION",
-        MetadataDetails(
-          threadId = Some("thread-id"),
-          enquiryType = Some("P800"),
-          adviser = Some(Adviser(pidId = "adviser-id")))
+        MetadataDetails(threadId = Some("thread-id"), enquiryType = Some("P800"), adviser = None)
       )
 
       val reply = TwoWayMessageReply("some base64-encoded-html")
       val actual = messageService
-        .createJsonForReply("some-random-id", MessageType.Advisor, FormId.Reply, metadata, reply, "reply-to-id")
+        .createJsonForReply(
+          "some-random-id",
+          MessageType.Advisor,
+          FormId.Reply,
+          metadata,
+          reply,
+          "reply-to-id",
+          Some("adviser-id"))
       assert(actual.equals(expected))
     }
   }
@@ -305,7 +311,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     ContactDetails("someEmail@test.com"),
     "This looks wrong I need it changed",
     "SSB0aGluayB0aGF0IHRoZSBhc3Nlc3NtZW50IGZvciBsYXN0IHllYXIgaXMgaW5jb3JyZWN0LiBJdCBzaG93cyBteSBDb21wYW55IGNhciB3aXRoIEImUSBhbmQgaXQgYWxzbyBzaG93cyB0aGF0IEkgd2FzIHJlY2VpdmluZyBhIGZ1ZWwgYmVuZWZpdC4KCkkgZGlkIHN0aWxsIGhhdmUgbXkgRm9yZCBGb2N1cyBjb21wYW55IGNhciBsYXN0IHllYXIgYnV0IEImUSBjaGFuZ2VkIHRoZWlyIHBvbGljeSBvbiBmdWVsLiBXZSBub3cgc3VibWl0IGEgbW9udGhseSBzaGVldCBzaG93aW5nIGFsbCBvdXIgYnVzaW5lc3MgYW5kIHBlcnNvbmFsIG1pbGVhZ2UuIEImUSBwYXlyb2xsIHRoZW4gY2hhcmdlIHVzIGJhY2sgdGhlIHBlcmNlbnRhZ2Ugb2YgcGVyc29uYWwgbWlsZWFnZSBpbiBvdXIgbmV4dCBwYXkgc2xpcC4KCkImUSBjaGFuZ2VkIHRoZSBwb2xpY3kgaW4gQXByaWwgMjAxOC4KCkkgdGhpbmsgdGhpcyBtZWFucyB5b3Ugd2lsbCBvd2UgbWUgc29tZSBtb25leSBvbiB0YXggcmF0aGVyIHRoYW4gbXkgb3duaW5nIG1vbmV5IHRvIHlvdS4=",
-    Option.empty
+    None
   )
 
   "TwoWayMessageService.createHtmlMessage" should {

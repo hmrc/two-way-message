@@ -34,7 +34,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.twowaymessage.model.{TwoWayMessage, TwoWayMessageReply}
+import uk.gov.hmrc.twowaymessage.model.{ TwoWayMessage, TwoWayMessageReply }
 import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
 import scala.concurrent.Future
@@ -74,21 +74,24 @@ class TwoWayMessageControllerSpec extends WordSpec with Matchers with GuiceOneAp
 
     "return 201 (Created) when a message is successfully created in the message service " in {
       val nino = Nino("AB123456C")
-      when(mockMessageService.post(anyString, org.mockito.ArgumentMatchers.eq(nino), any[TwoWayMessage],any[DmsMetadata]))
+      when(
+        mockMessageService.post(anyString, org.mockito.ArgumentMatchers.eq(nino), any[TwoWayMessage], any[DmsMetadata]))
         .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
       val result = await(controller.validateAndPostMessage("p800", nino, twoWayMessageGood))
       result.header.status shouldBe Status.CREATED
     }
 
     "return 201 (Created) when an advisor reply is successfully created in the message service " in {
-      when(mockMessageService.postAdvisorReply(any[TwoWayMessageReply], any[String])(any[HeaderCarrier]))
+      when(
+        mockMessageService.postAdvisorReply(any[TwoWayMessageReply], any[String], any[Option[String]])(
+          any[HeaderCarrier]))
         .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
-      val result = await(controller.validateAndPostAdvisorResponse(twoWayMessageReplyGood, "replyToId"))
+      val result = await(controller.validateAndPostAdvisorResponse(twoWayMessageReplyGood, "replyToId", Some("pid")))
       result.header.status shouldBe Status.CREATED
     }
 
     "return 400 (Bad Request) if the advisor reply body is not as per the definition " in {
-      val result = await(controller.validateAndPostAdvisorResponse(twoWayMessageBadContent, "replyToId"))
+      val result = await(controller.validateAndPostAdvisorResponse(twoWayMessageBadContent, "replyToId", Some("pid")))
       result.header.status shouldBe Status.BAD_REQUEST
     }
 
