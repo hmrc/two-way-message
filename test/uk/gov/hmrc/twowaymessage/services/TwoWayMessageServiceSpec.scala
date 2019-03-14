@@ -188,7 +188,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       subject = "SUBJECT",
       details = MetadataDetails(
         threadId = Some("5c18eb166f0000110204b160"),
-        enquiryType = Some("P800"),
+        enquiryType = Some("p800"),
         adviser = Some(Adviser("adviser-id")))
     )
 
@@ -338,6 +338,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       val actualHtml = await(messageService.createHtmlMessage("123", Nino("AA112211A"), htmlMessageExample))
       PdfTestUtil.generatePdfFromHtml(actualHtml.get,"result.pdf")
       assert(actualHtml.get.contains(expectedHtml))
+
     }
 
     "return an empty string" in {
