@@ -126,8 +126,8 @@ class TwoWayMessageService @Inject()(
     (for {
       metadata <- getMessageMetaData(replyTo)
       queueId <- metadata.details.enquiryType
-          .fold[Future[String]](Future.failed(new Exception(s"Unable to get DMS queue id for ${replyTo}")))(Future.successful(_))
-      enquiryId <- Enquiry(queueId).fold[Future[EnquiryTemplate]](Future.failed(new Exception(s"Unknown ${queueId}")))(Future.successful(_))
+          .fold[Future[String]](Future.failed(new Exception(s"Unable to get DMS queue id for $replyTo")))(Future.successful)
+      enquiryId <- Enquiry(queueId).fold[Future[EnquiryTemplate]](Future.failed(new Exception(s"Unknown $queueId")))(Future.successful)
       dmsMetaData = DmsMetadata(enquiryId.dmsFormId, metadata.recipient.identifier.value, enquiryId.classificationType, enquiryId.businessArea)
       body = TwoWayMessageService.createJsonForReply(randomUUID.toString, MessageType.Customer, FormId.Question, metadata, twoWayMessageReply, replyTo)
       postMessageResponse <- messageConnector.postMessage(body)
@@ -184,81 +184,5 @@ class TwoWayMessageService @Inject()(
         case None => Future.successful(None)
       })
   }
-
-//  def handleResponse(content: String, subject: String, response: HttpResponse, dmsMetaData: DmsMetadata): Future[Result] =
-//    response.status match {
-//      case CREATED => {
-//        response.json.validate[Identifier].asOpt match {
-//          case Some(identifier) => {
-//            val htmlMessage = createHtmlMessage(identifier.id, Nino(dmsMetaData.customerId), content, subject)
-//            val dmsSubmission = DmsHtmlSubmission(encodeToBase64String(htmlMessage), dmsMetaData)
-//            Future.successful(Created(Json.parse(response.body))).andThen {
-//              case _ => gformConnector.submitToDmsViaGform(dmsSubmission)
-//            }
-//          }
-//          case None => Future.successful(errorResponse(INTERNAL_SERVER_ERROR, "Failed to create enquiry reference"))
-//        }
-//      }
-//      case _ => Future.successful(errorResponse(response.status, response.body))
-//    }
-
-
-//  def postCustomerReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
-//    implicit hc: HeaderCarrier): Future[Result] =
-//      (for {
-//        metadata <- getMessageMetaData(replyTo)
-//        queueId <- metadata.details.enquiryType
-//            .fold[Future[String]](Future.failed(new Exception(s"Unable to get DMS queue id for ${replyTo}")))(Future.successful(_))
-//        enquiryId <- Enquiry(queueId).fold[Future[EnquiryTemplate]](Future.failed(new Exception(s"Unknown ${queueId}")))(Future.successful(_))
-//        dmsMetaData = DmsMetadata(enquiryId.dmsFormId, metadata.recipient.identifier.value, enquiryId.classificationType, enquiryId.businessArea)
-//        body = createJsonForReply(randomUUID.toString, MessageType.Customer, FormId.Question, metadata, twoWayMessageReply, replyTo)
-//        postMessageResponse <- messageConnector.postMessage(body)
-//        dmsHandleResponse <- handleResponse(twoWayMessageReply.content, metadata.subject, postMessageResponse, dmsMetaData)
-//      } yield dmsHandleResponse) recover handleError
-//
-//  val errorResponse = (status: Int, message: String) => BadGateway(Json.toJson(Error(status, message)))
-//
-//  def handleResponse(response: HttpResponse): Result = response.status match {
-//    case CREATED => Created(Json.parse(response.body))
-//    case _       => errorResponse(response.status, response.body)
-//  }
-//
-//  def getMessageMetaData(messageId: String)(implicit hc: HeaderCarrier): Future[MessageMetadata] = messageConnector.getMessageMetadata(messageId)
-
-
-
-
-
-
-
-
-
-
-
-
-
-//  def post(queueId: String, nino: Nino, twoWayMessage: TwoWayMessage, dmsMetaData: DmsMetadata): Future[Result] = {
-//    val body = TwoWayMessageService.createJsonForMessage(randomUUID.toString, twoWayMessage, nino, queueId)
-//    messageConnector.postMessage(body) flatMap { response =>
-//      handleResponse(twoWayMessage, response, dmsMetaData)
-//    } recover TwoWayMessageService.handleError
-//  }
-//
-//
-//
-//
-
-
-
-
-
-//=======
-//  def createHtmlMessage(messageId: String, nino: Nino, messageContent: String, subject: String): String = {
-//    val frontendUrl: String = servicesConfig.getString("pdf-admin-prefix")
-//    val url = s"$frontendUrl/message/$messageId/reply"
-//    val content = new String(Base64.decodeBase64(messageContent), "UTF-8")
-//    uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, nino.nino, subject, content).body
-//>>>>>>> 703250a02b9ca8be6fa162d881e5bbf8f31dc086
-//  }
 
 }
