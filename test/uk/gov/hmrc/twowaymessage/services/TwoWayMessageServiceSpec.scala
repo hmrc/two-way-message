@@ -335,7 +335,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       )
       val expectedHtml =
         <p class="govuk-body-l"><span id="nino" class="govuk-font-weight-bold">National insurance number</span>AA112211A</p>.mkString
-      val actualHtml = await(messageService.createHtmlMessage("123", Nino("AA112211A"), htmlMessageExample))
+      val actualHtml = await(messageService.createHtmlMessage("123", Nino("AA112211A"), htmlMessageExample.content, htmlMessageExample.subject))
       PdfTestUtil.generatePdfFromHtml(actualHtml.get,"result.pdf")
       assert(actualHtml.get.contains(expectedHtml))
 
@@ -345,7 +345,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       when(mockMessageConnector.getMessageContent(any[String])(any[HeaderCarrier])).thenReturn(
         Future.successful(HttpResponse(Http.Status.BAD_GATEWAY))
       )
-      val actualHtml = await(messageService.createHtmlMessage("123", Nino("AA112211A"), htmlMessageExample))
+      val actualHtml = await(messageService.createHtmlMessage("123", Nino("AA112211A"), htmlMessageExample.content, htmlMessageExample.subject))
       actualHtml shouldBe None
     }
   }

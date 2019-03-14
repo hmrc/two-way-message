@@ -109,10 +109,12 @@ class TwoWayMessageService @Inject()(
     xml.child
   }
 
+  def getMessageMetaData(messageId: String)(implicit hc: HeaderCarrier): Future[MessageMetadata] = messageConnector.getMessageMetadata(messageId)
+
   def post(queueId: String, nino: Nino, twoWayMessage: TwoWayMessage, dmsMetaData: DmsMetadata): Future[Result] = {
     val body = TwoWayMessageService.createJsonForMessage(randomUUID.toString, twoWayMessage, nino, queueId)
     messageConnector.postMessage(body) flatMap { response =>
-      handleResponse(twoWayMessage, response, dmsMetaData)
+      handleResponse(twoWayMessage.content, twoWayMessage.subject, response, dmsMetaData)
     } recover TwoWayMessageService.handleError
   }
 
@@ -120,9 +122,17 @@ class TwoWayMessageService @Inject()(
     implicit hc: HeaderCarrier): Future[Result] =
     postReply(twoWayMessageReply, replyTo, MessageType.Advisor, FormId.Reply)
 
-  def postCustomerReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
-    implicit hc: HeaderCarrier): Future[Result] =
-    postReply(twoWayMessageReply, replyTo, MessageType.Customer, FormId.Question)
+  def postCustomerReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(implicit hc: HeaderCarrier): Future[Result] =
+    (for {
+      metadata <- getMessageMetaData(replyTo)
+      queueId <- metadata.details.enquiryType
+          .fold[Future[String]](Future.failed(new Exception(s"Unable to get DMS queue id for ${replyTo}")))(Future.successful(_))
+      enquiryId <- Enquiry(queueId).fold[Future[EnquiryTemplate]](Future.failed(new Exception(s"Unknown ${queueId}")))(Future.successful(_))
+      dmsMetaData = DmsMetadata(enquiryId.dmsFormId, metadata.recipient.identifier.value, enquiryId.classificationType, enquiryId.businessArea)
+      body = TwoWayMessageService.createJsonForReply(randomUUID.toString, MessageType.Customer, FormId.Question, metadata, twoWayMessageReply, replyTo)
+      postMessageResponse <- messageConnector.postMessage(body)
+      dmsHandleResponse <- handleResponse(twoWayMessageReply.content, metadata.subject, postMessageResponse, dmsMetaData)
+    } yield dmsHandleResponse) recover TwoWayMessageService.handleError
 
   def createDmsSubmission(html: String, response: HttpResponse, dmsMetaData: DmsMetadata): Future[Result] = {
     val dmsSubmission = DmsHtmlSubmission(TwoWayMessageService.encodeToBase64String(html), dmsMetaData)
@@ -131,14 +141,14 @@ class TwoWayMessageService @Inject()(
     }
   }
 
-  def createHtmlMessage(messageId: String, nino: Nino, message: TwoWayMessage): Future[Option[String]] = {
+  def createHtmlMessage(messageId: String, nino: Nino, messageContent: String, subject: String): Future[Option[String]] = {
     import XmlTransformService._
     val frontendUrl: String = servicesConfig.getString("pdf-admin-prefix")
     val url = s"$frontendUrl/message/$messageId/reply"
     getMessageContent(messageId).flatMap {
       case Some(content) =>
         val htmlText = updateDatePara(stripH1(stripH2(content))).mkString
-        Future.successful(Some(uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, nino.nino, message.subject, Html(htmlText)).body))
+        Future.successful(Some(uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, nino.nino, subject, Html(htmlText)).body))
       case None => Future.successful(None)
     }
   }
@@ -153,12 +163,12 @@ class TwoWayMessageService @Inject()(
       TwoWayMessageService.handleResponse
     } recover TwoWayMessageService.handleError
 
-  private def handleResponse(message: TwoWayMessage, response: HttpResponse, dmsMetaData: DmsMetadata): Future[Result] =
+  private def handleResponse(content: String, subject: String, response: HttpResponse, dmsMetaData: DmsMetadata): Future[Result] =
     response.status match {
       case CREATED =>
         response.json.validate[Identifier].asOpt match {
           case Some(identifier) =>
-            createHtmlMessage(identifier.id, Nino(dmsMetaData.customerId), message).flatMap {
+            createHtmlMessage(identifier.id, Nino(dmsMetaData.customerId), content, subject).flatMap {
               case Some(html) => createDmsSubmission(html,response,dmsMetaData)
               case _ => Future.successful(TwoWayMessageService.errorResponse(INTERNAL_SERVER_ERROR, "Failed to create HTML for DMS submission"))
             }
