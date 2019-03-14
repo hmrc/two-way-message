@@ -24,83 +24,27 @@ import play.api.http.Status._
 import play.api.libs.json._
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import play.twirl.api.Html
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.gform.dms.{ DmsHtmlSubmission, DmsMetadata }
+import uk.gov.hmrc.gform.dms.{DmsHtmlSubmission, DmsMetadata}
 import uk.gov.hmrc.gform.gformbackend.GformConnector
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
-import uk.gov.hmrc.twowaymessage.model.{ Error, _ }
+import uk.gov.hmrc.twowaymessage.model.{Error, _}
 import uk.gov.hmrc.twowaymessage.model.Error._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
+import scala.xml.Node
 
-class TwoWayMessageService @Inject()(
-  messageConnector: MessageConnector,
-  gformConnector: GformConnector,
-  servicesConfig: ServicesConfig)(implicit ec: ExecutionContext) {
+object TwoWayMessageService {
 
-  implicit val hc = HeaderCarrier()
+  type ErrorFunction = (Int,String) => Result
 
-  def post(queueId: String, nino: Nino, twoWayMessage: TwoWayMessage, dmsMetaData: DmsMetadata): Future[Result] = {
-    val body = createJsonForMessage(randomUUID.toString, twoWayMessage, nino, queueId)
-    messageConnector.postMessage(body) flatMap { response =>
-      handleResponse(twoWayMessage, response, dmsMetaData)
-    } recover handleError
-  }
-
-  def postReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String, messageType: MessageType, formId: FormId)(
-    implicit hc: HeaderCarrier): Future[Result] =
-    (for {
-      metadata <- messageConnector.getMessageMetadata(replyTo)
-      body = createJsonForReply(randomUUID.toString, messageType, formId, metadata, twoWayMessageReply, replyTo)
-      resp <- messageConnector.postMessage(body)
-    } yield resp) map {
-      handleResponse
-    } recover handleError
-
-  def postAdvisorReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
-    implicit hc: HeaderCarrier): Future[Result] =
-    postReply(twoWayMessageReply, replyTo, MessageType.Advisor, FormId.Reply)
-
-  def postCustomerReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
-    implicit hc: HeaderCarrier): Future[Result] =
-    postReply(twoWayMessageReply, replyTo, MessageType.Customer, FormId.Question)
-
-  val errorResponse = (status: Int, message: String) => BadGateway(Json.toJson(Error(status, message)))
-
-  def handleResponse(response: HttpResponse): Result = response.status match {
-    case CREATED => Created(Json.parse(response.body))
-    case _       => errorResponse(response.status, response.body)
-  }
-
-  def handleResponse(message: TwoWayMessage, response: HttpResponse, dmsMetaData: DmsMetadata): Future[Result] =
-    response.status match {
-      case CREATED => {
-        response.json.validate[Identifier].asOpt match {
-          case Some(identifier) => {
-            val htmlMessage = createHtmlMessage(identifier.id, Nino(dmsMetaData.customerId), message)
-            val dmsSubmission = DmsHtmlSubmission(encodeToBase64String(htmlMessage), dmsMetaData)
-            Future.successful(Created(Json.parse(response.body))).andThen {
-              case _ => gformConnector.submitToDmsViaGform(dmsSubmission)
-            }
-          }
-          case None => Future.successful(errorResponse(INTERNAL_SERVER_ERROR, "Failed to create enquiry reference"))
-        }
-      }
-      case _ => Future.successful(errorResponse(response.status, response.body))
-    }
-
-  def encodeToBase64String(text: String): String =
-    Base64.encodeBase64String(text.getBytes("UTF-8"))
-
-  def handleError(): PartialFunction[Throwable, Result] = {
-    case e: Upstream4xxResponse => errorResponse(e.upstreamResponseCode, e.message)
-    case e: Upstream5xxResponse => errorResponse(e.upstreamResponseCode, e.message)
-    case e: HttpException       => errorResponse(e.responseCode, e.message)
-  }
+  val errorResponse: ErrorFunction = (status: Int, message: String) => BadGateway(Json.toJson(Error(status, message)))
 
   def createJsonForMessage(refId: String, twoWayMessage: TwoWayMessage, nino: Nino, queueId: String): Message = {
     val recipient = Recipient(TaxIdentifier(nino.name, nino.value), twoWayMessage.contactDetails.email)
@@ -114,13 +58,8 @@ class TwoWayMessageService @Inject()(
     )
   }
 
-  def createJsonForReply(
-    refId: String,
-    messageType: MessageType,
-    formId: FormId,
-    metadata: MessageMetadata,
-    reply: TwoWayMessageReply,
-    replyTo: String): Message =
+  def createJsonForReply(refId: String, messageType: MessageType, formId: FormId, metadata: MessageMetadata,
+                         reply: TwoWayMessageReply, replyTo: String): Message =
     Message(
       ExternalRef(refId, "2WSM"),
       Recipient(
@@ -133,11 +72,106 @@ class TwoWayMessageService @Inject()(
       Details(formId, Some(replyTo), metadata.details.threadId, metadata.details.enquiryType, metadata.details.adviser)
     )
 
-  def createHtmlMessage(messageId: String, nino: Nino, message: TwoWayMessage): String = {
+  def encodeToBase64String(text: String): String =
+    Base64.encodeBase64String(text.getBytes("UTF-8"))
+
+
+  protected def getContent(response: HttpResponse): Option[String] = {
+    response.status match {
+      case OK => Some(response.body)
+      case _ => None
+    }
+  }
+
+  protected def handleResponse(response: HttpResponse): Result = response.status match {
+    case CREATED => Created(Json.parse(response.body))
+    case _       => errorResponse(response.status, response.body)
+  }
+
+  protected def handleError(): PartialFunction[Throwable, Result] = {
+    case e: Upstream4xxResponse => errorResponse(e.upstreamResponseCode, e.message)
+    case e: Upstream5xxResponse => errorResponse(e.upstreamResponseCode, e.message)
+    case e: HttpException       => errorResponse(e.responseCode, e.message)
+  }
+
+}
+
+class TwoWayMessageService @Inject()(
+  messageConnector: MessageConnector,
+  gformConnector: GformConnector,
+  servicesConfig: ServicesConfig)(implicit ec: ExecutionContext) {
+
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  implicit def stringToXml(string: String): Seq[Node] = {
+    val xml = scala.xml.XML.loadString("<root>" + string + "</root>")
+    xml.child
+  }
+
+  def post(queueId: String, nino: Nino, twoWayMessage: TwoWayMessage, dmsMetaData: DmsMetadata): Future[Result] = {
+    val body = TwoWayMessageService.createJsonForMessage(randomUUID.toString, twoWayMessage, nino, queueId)
+    messageConnector.postMessage(body) flatMap { response =>
+      handleResponse(twoWayMessage, response, dmsMetaData)
+    } recover TwoWayMessageService.handleError
+  }
+
+  def postAdvisorReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
+    implicit hc: HeaderCarrier): Future[Result] =
+    postReply(twoWayMessageReply, replyTo, MessageType.Advisor, FormId.Reply)
+
+  def postCustomerReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(
+    implicit hc: HeaderCarrier): Future[Result] =
+    postReply(twoWayMessageReply, replyTo, MessageType.Customer, FormId.Question)
+
+  def createDmsSubmission(html: String, response: HttpResponse, dmsMetaData: DmsMetadata): Future[Result] = {
+      val dmsSubmission = DmsHtmlSubmission(TwoWayMessageService.encodeToBase64String(html), dmsMetaData)
+      Future.successful(Created(Json.parse(response.body))).andThen {
+        case _ => gformConnector.submitToDmsViaGform(dmsSubmission)
+      }
+  }
+
+  def createHtmlMessage(messageId: String, nino: Nino, message: TwoWayMessage): Future[Option[String]] = {
+    import XmlTransformService._
     val frontendUrl: String = servicesConfig.getString("pdf-admin-prefix")
     val url = s"$frontendUrl/message/$messageId/reply"
-    val content = new String(Base64.decodeBase64(message.content), "UTF-8")
-    uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, nino.nino, message.subject, content).body
+    getMessageContent(messageId).flatMap {
+        case Some(content) =>
+          val htmlText = updateDatePara(stripH1(stripH2(content))).mkString
+          Future.successful(Some(uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, nino.nino, message.subject, Html(htmlText)).body))
+        case None => Future.successful(None)
+      }
+    }
+
+  private def postReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String, messageType: MessageType, formId: FormId)(
+    implicit hc: HeaderCarrier): Future[Result] =
+    (for {
+      metadata <- messageConnector.getMessageMetadata(replyTo)
+      body = TwoWayMessageService.createJsonForReply(randomUUID.toString, messageType, formId, metadata, twoWayMessageReply, replyTo)
+      resp <- messageConnector.postMessage(body)
+    } yield resp) map {
+      TwoWayMessageService.handleResponse
+    } recover TwoWayMessageService.handleError
+
+  private def handleResponse(message: TwoWayMessage, response: HttpResponse, dmsMetaData: DmsMetadata): Future[Result] =
+    response.status match {
+      case CREATED =>
+        response.json.validate[Identifier].asOpt match {
+          case Some(identifier) =>
+            createHtmlMessage(identifier.id, Nino(dmsMetaData.customerId), message).flatMap {
+              case Some(html) => createDmsSubmission(html,response,dmsMetaData)
+              case _ => Future.successful(TwoWayMessageService.errorResponse(INTERNAL_SERVER_ERROR, "Failed to create HTML for DMS submission"))
+            }
+          case None => Future.successful(TwoWayMessageService.errorResponse(INTERNAL_SERVER_ERROR, "Failed to create enquiry reference"))
+        }
+      case _ => Future.successful(TwoWayMessageService.errorResponse(response.status, response.body))
+    }
+
+  def getMessageContent(messageId: String): Future[Option[String]] = {
+    messageConnector.getMessageContent(messageId).flatMap(response =>
+      TwoWayMessageService.getContent(response) match {
+        case Some(content) => Future successful Some(content)
+        case None => Future.successful(None)
+      })
   }
 
 }
