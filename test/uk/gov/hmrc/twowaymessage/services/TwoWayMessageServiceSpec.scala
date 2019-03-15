@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.twowaymessage.services
 
-import java.io.File
-
 import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
@@ -27,10 +25,9 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HttpEntity.Strict
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{Json, JsString}
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.mvc.Http
-import play.twirl.api.Html
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}

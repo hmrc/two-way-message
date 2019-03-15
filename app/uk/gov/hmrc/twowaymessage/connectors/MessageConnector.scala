@@ -21,7 +21,7 @@ import play.api.http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.twowaymessage.model.{Message, MessageMetadata}
+import uk.gov.hmrc.twowaymessage.model.Message
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 
 import scala.concurrent.{ExecutionContext, Future}

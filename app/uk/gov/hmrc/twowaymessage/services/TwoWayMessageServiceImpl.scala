@@ -18,7 +18,6 @@ package uk.gov.hmrc.twowaymessage.services
 
 import java.util.UUID.randomUUID
 
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
 import com.google.inject.Inject
 import play.api.http.Status.{OK,CREATED, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.Json
