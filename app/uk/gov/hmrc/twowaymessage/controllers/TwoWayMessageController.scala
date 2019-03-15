@@ -61,9 +61,9 @@ class TwoWayMessageController @Inject()(
   def getRecipientMetadata(messageId: String): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     twms.getMessageMetaData(messageId).map {
-      case m => Ok(Json.toJson(m))
+      case Some(m) => Ok(Json.toJson(m))
+      case None => NotFound
     }
-
   }
 
   def handleAuthorizationError(): PartialFunction[Throwable, Result] = {
