@@ -269,7 +269,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       )
 
       val nino = Nino("AB123456C")
-      val actual = TwoWayMessageService.createJsonForMessage("123412342314", originalMessage, nino, "p800")
+      val actual = messageService.createJsonForMessage("123412342314", originalMessage, nino, "p800")
       assert(actual.equals(expected))
     }
 
@@ -299,7 +299,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       )
 
       val reply = TwoWayMessageReply("some base64-encoded-html")
-      val actual = TwoWayMessageService.createJsonForReply("some-random-id", MessageType.Advisor, FormId.Reply, metadata, reply, "reply-to-id")
+      val actual = messageService.createJsonForReply("some-random-id", MessageType.Advisor, FormId.Reply, metadata, reply, "reply-to-id")
       assert(actual.equals(expected))
     }
   }
