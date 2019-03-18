@@ -110,14 +110,14 @@ class TwoWayMessageControllerSpec extends WordSpec with Matchers with GuiceOneAp
 
     "return 200 (Ok) when metadata for a valid message id is requested correctly" in {
       val dummyMetadata = MessageMetadata("123", TaxEntity("abc", TaxIdWithName("a","b")), "subject", MetadataDetails(None,None,None))
-      when(mockMessageService.getMessageMetaData(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(Some(dummyMetadata)))
+      when(mockMessageService.getMessageMetadata(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(Some(dummyMetadata)))
       val result = await(controller.getRecipientMetadata("123")(FakeRequest()))
       result.header.status shouldBe Status.OK
     }
 
     "return 404 (Not Found) when metadata for a invalid message id is requested correctly" in {
       //val dummyMetadata = MessageMetadata("123", TaxEntity("abc", TaxIdWithName("a","b")), "subject", MetadataDetails(None,None,None))
-      when(mockMessageService.getMessageMetaData(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(None))
+      when(mockMessageService.getMessageMetadata(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(None))
       val result = await(controller.getRecipientMetadata("123")(FakeRequest()))
       result.header.status shouldBe Status.NOT_FOUND
     }

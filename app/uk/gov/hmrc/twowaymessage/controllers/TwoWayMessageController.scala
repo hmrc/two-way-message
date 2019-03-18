@@ -60,7 +60,7 @@ class TwoWayMessageController @Inject()(
 
   def getRecipientMetadata(messageId: String): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
-    twms.getMessageMetaData(messageId).map {
+    twms.getMessageMetadata(messageId).map {
       case Some(m) => Ok(Json.toJson(m))
       case None => NotFound
     }

@@ -50,7 +50,7 @@ class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector, gfo
     xml.child
   }
 
-  override def getMessageMetaData(messageId: String)(implicit hc: HeaderCarrier): Future[Option[MessageMetadata]] = {
+  override def getMessageMetadata(messageId: String)(implicit hc: HeaderCarrier): Future[Option[MessageMetadata]] = {
     messageConnector.getMessageMetadata(messageId).flatMap(  response =>
       response.status match {
         case OK =>
@@ -73,7 +73,7 @@ class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector, gfo
 
   override def postCustomerReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(implicit hc: HeaderCarrier): Future[Result] =
     (for {
-      metadata <- getMessageMetaData(replyTo)
+      metadata <- getMessageMetadata(replyTo)
       queueId <- metadata.get.details.enquiryType
         .fold[Future[String]](Future.failed(new Exception(s"Unable to get DMS queue id for $replyTo")))(Future.successful)
       enquiryId <- Enquiry(queueId).fold[Future[EnquiryTemplate]](Future.failed(new Exception(s"Unknown $queueId")))(Future.successful)
@@ -105,7 +105,7 @@ class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector, gfo
   private def postReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String, messageType: MessageType, formId: FormId)(
     implicit hc: HeaderCarrier): Future[Result] =
     (for {
-      metadata <- getMessageMetaData(replyTo)
+      metadata <- getMessageMetadata(replyTo)
       body = createJsonForReply(randomUUID.toString, messageType, formId, metadata.get, twoWayMessageReply, replyTo)
       resp <- messageConnector.postMessage(body)
     } yield resp) map {
