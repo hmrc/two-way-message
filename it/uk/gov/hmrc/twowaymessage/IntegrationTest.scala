@@ -77,7 +77,7 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec  {
       val message = MessageUtil.buildValidReplyMessage()
 
       val response = httpClient.url(resource("/two-way-message/message/customer/p800/submit"))
-        .withHeaders(AuthUtil.buildSaUserToken())
+        .withHttpHeaders(AuthUtil.buildSaUserToken())
         .post(message).futureValue
 
       response.status shouldBe 403

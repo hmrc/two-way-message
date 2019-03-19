@@ -17,7 +17,7 @@
 package uk.gov.hmrc.twowaymessage
 
 import com.google.common.io.BaseEncoding
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, JsString}
 
 object MessageUtil {
   import play.api.libs.json.{Json, Reads}
@@ -33,52 +33,33 @@ object MessageUtil {
   case class MessageId(id: String)
 
   def buildValidCustomerMessage(): JsObject = {
-    val jsonString =
-      s"""
-         | {
-         |   "contactDetails":{
-         |      "email": "someEmail@test.com"
-         |   },
-         |   "subject": "subject",
-         |   "content": "$generateContent",
-         |   "replyTo": "replyTo"
-         | }
-      """.stripMargin
-
-    Json.parse(jsonString).as[JsObject]
+    JsObject(Seq(
+      "contactDetails" ->
+        JsObject(Seq("email" -> JsString("someEmail@test.com"))),
+      "subject" -> JsString("subject"),
+      "content" -> JsString(generateContent()),
+      "replyTo" -> JsString("replyTo")
+    ))
   }
 
   def buildInvalidCustomerMessage: JsObject = {
-    val jsonString =
-      s"""
-         | {
-         |   "email": "test@test.com",
-         |   "content": "$generateContent",
-         |   "replyTo": "replyTo"
-         | }
-    """.stripMargin
-
-    Json.parse(jsonString).as[JsObject]
+    JsObject(Seq(
+      "email" -> JsString("test@test.com"),
+      "content" -> JsString(generateContent()),
+      "replyTo" -> JsString("replyTo")
+    ))
   }
 
   def buildValidReplyMessage(): JsObject = {
-    val jsonString =
-      s"""
-         | {
-         |   "content": "$generateContent"
-         | }
-      """.stripMargin
-    Json.parse(jsonString).as[JsObject]
+    JsObject(Seq(
+      "content" -> JsString(generateContent())
+    ))
   }
 
   def buildInvalidReplyMessage(): JsObject = {
-    val jsonString =
-      s"""
-         | {
-         |   "c": "$generateContent"
-         | }
-      """.stripMargin
-    Json.parse(jsonString).as[JsObject]
+    JsObject(Seq(
+      "c" -> JsString(generateContent())
+    ))
   }
 
 }
