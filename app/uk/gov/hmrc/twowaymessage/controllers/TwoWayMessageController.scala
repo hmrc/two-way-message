@@ -17,12 +17,13 @@
 package uk.gov.hmrc.twowaymessage.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
-import uk.gov.hmrc.auth.core.retrieve.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrievals, ~}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.gform.gformbackend.GformConnector
@@ -49,8 +50,8 @@ class TwoWayMessageController @Inject()(
   // Customer creating a two-way message
   def createMessage(queueId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
-    authorised(Enrolment("HMRC-NI")).retrieve(Retrievals.nino) {
-      case Some(ninoId) => validateAndPostMessage(queueId, Nino(ninoId), request.body)
+    authorised(Enrolment("HMRC-NI")).retrieve(Retrievals.nino and Retrievals.name) {
+      case Some(ninoId) ~ name => validateAndPostMessage(queueId, Nino(ninoId), request.body, name)
       case _ =>
         Logger.debug("Can not retrieve user's nino, returning Forbidden - Not Authorised Error")
         Future.successful(Forbidden(Json.toJson("Not authorised")))
@@ -84,14 +85,14 @@ class TwoWayMessageController @Inject()(
   }
 
   // Validates the customer's message payload and then posts the message
-  def validateAndPostMessage(queueId: String, nino: Nino, requestBody: JsValue)(
+  def validateAndPostMessage(queueId: String, nino: Nino, requestBody: JsValue, name: Name)(
     implicit hc: HeaderCarrier): Future[Result] =
     requestBody.validate[TwoWayMessage] match {
       case _: JsSuccess[_] =>
         Enquiry(queueId) match {
           case Some(enquiryId) => {
             val dmsMetaData = DmsMetadata(enquiryId.dmsFormId, nino.nino, enquiryId.classificationType, enquiryId.businessArea)
-            twms.post(queueId, nino, requestBody.as[TwoWayMessage], dmsMetaData)
+            twms.post(queueId, nino, requestBody.as[TwoWayMessage], dmsMetaData, name)
           }
           case None => Future.successful(BadRequest(Json.obj("error" -> 400, "message" -> s"Invalid EnquityId: $queueId")))
         }

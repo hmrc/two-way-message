@@ -22,6 +22,7 @@ import play.api.http.Status._
 import play.api.libs.json._
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.http._
@@ -42,7 +43,7 @@ trait TwoWayMessageService {
 
   def getMessageMetadata(messageId: String)(implicit hc: HeaderCarrier): Future[Option[MessageMetadata]]
 
-  def post(queueId: String, nino: Nino, twoWayMessage: TwoWayMessage, dmsMetaData: DmsMetadata)(implicit hc: HeaderCarrier): Future[Result]
+  def post(queueId: String, nino: Nino, twoWayMessage: TwoWayMessage, dmsMetaData: DmsMetadata, name: Name)(implicit hc: HeaderCarrier): Future[Result]
 
   def postAdvisorReply(twoWayMessageReply: TwoWayMessageReply, replyTo: String)(implicit hc: HeaderCarrier): Future[Result]
 
@@ -54,11 +55,16 @@ trait TwoWayMessageService {
 
   def getMessageContentBy(messageId: String)(implicit hc: HeaderCarrier): Future[Option[String]]
 
-  def createJsonForMessage(refId: String, twoWayMessage: TwoWayMessage, nino: Nino, queueId: String): Message = {
-    val recipient = Recipient(TaxIdentifier(nino.name, nino.value), twoWayMessage.contactDetails.email)
+  def createJsonForMessage(refId: String, twoWayMessage: TwoWayMessage, nino: Nino, queueId: String, name: Name): Message = {
     Message(
       ExternalRef(refId, "2WSM"),
-      recipient,
+      Recipient(
+        TaxIdentifier(nino.name, nino.value),
+        twoWayMessage.contactDetails.email,
+        Option(
+          TaxpayerName(forename = name.name, surname = name.lastName, line1 = Option(deriveAddressedName(name)))
+        )
+      ),
       MessageType.Customer,
       twoWayMessage.subject,
       twoWayMessage.content,
@@ -100,5 +106,7 @@ trait TwoWayMessageService {
     case e: Upstream5xxResponse => errorResponse(e.upstreamResponseCode, e.message)
     case e: HttpException       => errorResponse(e.responseCode, e.message)
   }
+
+  def deriveAddressedName(n: Name): String = if (n.name.nonEmpty && n.lastName.nonEmpty) s"${n.name.get} ${n.lastName.get}" else "Customer"
 
 }
