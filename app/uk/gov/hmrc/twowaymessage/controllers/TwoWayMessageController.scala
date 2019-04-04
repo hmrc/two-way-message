@@ -52,10 +52,10 @@ class TwoWayMessageController @Inject()(
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     authorised(Enrolment("HMRC-NI")).retrieve(Retrievals.nino and Retrievals.name) {
       case Some(ninoId) ~ name => validateAndPostMessage(queueId, Nino(ninoId), request.body, name)
-      case _ =>
-        Logger.debug("Can not retrieve user's nino, returning Forbidden - Not Authorised Error")
-        Future.successful(Forbidden(Json.toJson("Not authorised")))
-    } recover handleAuthorizationError
+      case None ~ name =>
+        Logger.info("No nino found for user")
+        Future.successful(Forbidden(Json.toJson("Not authenticated")))
+    } recover handleError
   }
 
   def getRecipientMetadata(messageId: String): Action[AnyContent] = Action.async { implicit request =>
@@ -74,14 +74,16 @@ class TwoWayMessageController @Inject()(
     }
   }
 
-  def handleAuthorizationError(): PartialFunction[Throwable, Result] = {
+  def handleError(): PartialFunction[Throwable, Result] = {
     case _: NoActiveSession =>
       Logger.debug("Request did not have an Active Session, returning Unauthorised - Unauthenticated Error")
       Unauthorized(Json.toJson("Not authenticated"))
-
-    case _ =>
+    case _: AuthorisationException =>
       Logger.debug("Request has an active session but was not authorised, returning Forbidden - Not Authorised Error")
       Forbidden(Json.toJson("Not authorised"))
+    case e: Exception =>
+      Logger.error(s"Unknown error: ${e.toString}")
+      InternalServerError
   }
 
   // Validates the customer's message payload and then posts the message
@@ -126,7 +128,7 @@ class TwoWayMessageController @Inject()(
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       authorised(Enrolment("HMRC-NI")) {
         validateAndPostCustomerResponse(request.body, replyTo)
-      } recover handleAuthorizationError
+      } recover handleError
   }
 
   // Validates the customer's response payload and then posts the reply

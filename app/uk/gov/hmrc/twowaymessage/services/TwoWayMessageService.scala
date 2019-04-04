@@ -62,7 +62,7 @@ trait TwoWayMessageService {
         TaxIdentifier(nino.name, nino.value),
         twoWayMessage.contactDetails.email,
         Option(
-          TaxpayerName(forename = name.name, surname = name.lastName, line1 = Option(deriveAddressedName(name)))
+          TaxpayerName(forename = name.name, surname = name.lastName, line1 = deriveAddressedName(name))
         )
       ),
       MessageType.Customer,
@@ -107,6 +107,9 @@ trait TwoWayMessageService {
     case e: HttpException       => errorResponse(e.responseCode, e.message)
   }
 
-  def deriveAddressedName(n: Name): String = if (n.name.nonEmpty && n.lastName.nonEmpty) s"${n.name.get} ${n.lastName.get}" else "Customer"
+  def deriveAddressedName(name: Name): Option[String] = (name.name, name.lastName) match {
+    case (Some(n), Some(l)) => Some(s"$n $l")
+    case _ => None
+  }
 
 }
