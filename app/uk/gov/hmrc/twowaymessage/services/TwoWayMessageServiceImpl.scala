@@ -31,7 +31,7 @@ import uk.gov.hmrc.gform.gformbackend.GformConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
-import uk.gov.hmrc.twowaymessage.enquiries.Enquiry
+import uk.gov.hmrc.twowaymessage.enquiries.{AdviserResponseMap, Enquiry}
 import uk.gov.hmrc.twowaymessage.enquiries.Enquiry.EnquiryTemplate
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
@@ -43,7 +43,7 @@ import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.Node
 
-class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector, gformConnector: GformConnector, servicesConfig: ServicesConfig)
+class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector, gformConnector: GformConnector, servicesConfig: ServicesConfig, val adviserResponseMap: AdviserResponseMap)
                                         (implicit ec: ExecutionContext) extends TwoWayMessageService {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()

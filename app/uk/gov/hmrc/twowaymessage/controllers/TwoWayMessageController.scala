@@ -29,8 +29,9 @@ import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.gform.gformbackend.GformConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
-import uk.gov.hmrc.twowaymessage.enquiries.Enquiry
+import uk.gov.hmrc.twowaymessage.enquiries.{AdviserResponseMap, Enquiry}
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.model.MessageMetadataFormat._
 import uk.gov.hmrc.twowaymessage.model.TwoWayMessageFormat._
@@ -43,7 +44,8 @@ import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 class TwoWayMessageController @Inject()(
   twms: TwoWayMessageService,
   val authConnector: AuthConnector,
-  val gformConnector: GformConnector)(implicit ec: ExecutionContext)
+  val gformConnector: GformConnector,
+  val adviserResponseMap: AdviserResponseMap)(implicit ec: ExecutionContext)
     extends InjectedController with WithJsonBody with AuthorisedFunctions {
 
   private val logger = Logger(this.getClass)
@@ -147,4 +149,13 @@ class TwoWayMessageController @Inject()(
       case _: JsSuccess[_] => twms.postCustomerReply(requestBody.as[TwoWayMessageReply], replyTo)
       case e: JsError      => Future.successful(BadRequest(Json.obj("error" -> 400, "message" -> JsError.toJson(e))))
     }
+
+
+  def getCurrentResponseTime(formType: String): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(
+      Ok(Json.obj(
+        "responseTime" -> adviserResponseMap.getResponseTimeForForm(formType)
+      ))
+    )
+  }
 }

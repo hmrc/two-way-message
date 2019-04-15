@@ -26,6 +26,7 @@ import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.twowaymessage.enquiries.AdviserResponseMap
 import uk.gov.hmrc.twowaymessage.model.{Error, _}
 import uk.gov.hmrc.twowaymessage.model.Error._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
@@ -38,6 +39,8 @@ import scala.language.implicitConversions
 trait TwoWayMessageService {
 
   type ErrorFunction = (Int,String) => Result
+
+  val adviserResponseMap: AdviserResponseMap
 
   val errorResponse: ErrorFunction = (status: Int, message: String) => BadGateway(Json.toJson(Error(status, message)))
 
@@ -56,6 +59,7 @@ trait TwoWayMessageService {
   def getMessageContentBy(messageId: String)(implicit hc: HeaderCarrier): Future[Option[String]]
 
   def createJsonForMessage(refId: String, twoWayMessage: TwoWayMessage, nino: Nino, queueId: String, name: Name): Message = {
+    val responseTime = adviserResponseMap.getResponseTimeForForm(queueId)
     Message(
       ExternalRef(refId, "2WSM"),
       Recipient(
@@ -66,7 +70,7 @@ trait TwoWayMessageService {
         )
       ),
       MessageType.Customer,
-      twoWayMessage.subject,
+      s"We will reply in $responseTime",
       twoWayMessage.content,
       Details(FormId.Question, None, None, enquiryType = Some(queueId))
     )
