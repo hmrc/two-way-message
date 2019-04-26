@@ -38,4 +38,8 @@ case class TaxEntity(regime: String, identifier: TaxIdWithName, email: Option[St
 
 case class MetadataDetails(threadId: Option[String], enquiryType: Option[String], adviser: Option[Adviser])
 
+<<<<<<< HEAD
 case class MessageMetadata(id: String, recipient: TaxEntity, subject: String, details: MetadataDetails, taxpayerName: TaxpayerName, messageDate: String)
+=======
+case class MessageMetadata(id: String, recipient: TaxEntity, subject: String, details: MetadataDetails, taxpayerName: Option[TaxpayerName] = None)
+>>>>>>> adfcd42c68c40a333037d8920ecf5bf5a53a0d9a
