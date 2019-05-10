@@ -70,7 +70,7 @@ object MessageType extends Enumeration {
 
   type MessageType = Value
 
-  val Advisor = Value("2wsm-advisor")
+  val Adviser = Value("2wsm-advisor")
   val Customer = Value("2wsm-customer")
 }
 
@@ -103,7 +103,8 @@ case class Details(
   replyTo: Option[String] = None,
   threadId: Option[String] = None,
   enquiryType: Option[String] = None,
-  adviser: Option[Adviser] = None)
+  adviser: Option[Adviser] = None,
+  waitTime: Option[String] = None)
 
 case class ConversationItemDetails(
   `type`: MessageType,
