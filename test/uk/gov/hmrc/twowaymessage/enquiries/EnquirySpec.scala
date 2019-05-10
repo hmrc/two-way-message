@@ -20,7 +20,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class EnquirySpec extends WordSpec with Matchers {
 
-  "for a P800 enquiry" should {
+  "for a 'P800' enquiry" should {
 
     "find a name for 'P800'" in {
       Enquiry("p800") match {
@@ -31,6 +31,13 @@ class EnquirySpec extends WordSpec with Matchers {
 
     "Case insensitive lookup for 'P800'" in {
       Enquiry("P800") match {
+        case None => fail("Invalid enquiry key")
+        case Some(meteadata) => meteadata.businessArea shouldBe ("PT Operations")
+      }
+    }
+
+    "find a businessArea for 'P800'" in {
+      Enquiry("p800") match {
         case None => fail("Invalid enquiry key")
         case Some(meteadata) => meteadata.businessArea shouldBe ("PT Operations")
       }
