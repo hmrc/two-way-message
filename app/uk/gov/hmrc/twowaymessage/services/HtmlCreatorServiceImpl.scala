@@ -91,7 +91,11 @@ class HtmlCreatorServiceImpl @Inject()()
         val formActionUrl = s"/two-way-message-frontend/message/customer/$enquiryType/" + conversationItem.id + "/reply"
         conversationItem.body.map(_.`type`) match {
           case Some(msgType) => msgType match {
-            case MessageType.Adviser => s"""<a href="$formActionUrl#reply-input-label">Send another message about this</a>"""
+            case MessageType.Adviser =>
+              val replyIconBase64 = "iVBORw0KGgoAAAANSUhEUgAAACYAAAAcCAYAAAAN3M1lAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KTMInWQAAApxJREFUWAnNl0trFEEURifxrRsRRBQjiltd6NYHbhQ3Ln0txLXgT1AE/4GK4MaNoAj+AsGNCkJAXApuojHBByKaheA7npPMN/Qk6c5kZjLthWPdqrp16+u61T2x0ai2lc3pdbSXYX11+PLPDrFFRG3HH4UpGAbN+YGbm0fAEfxJmIbXsAK0gQvLxm5+EX6BomQCMj9QYSmdp3WrKUZBEaewNeC8sd3iw6UiuOU29z49IVRBfwrYH4d+muJSgXl5c0q/mTkI92AE7LtI0YrSfDOPgXMmzThux2a+nzAGk81VybVgvgsEpWRpDQx/C37Gemnfk+8BHIaYAtvsDr1s4mnEX6h1vle8IsXcN+ivBq2ttJcYyCmlLS7st68wyynJ/Qg/H++Zk7Pm2iG4D9vAE8n9wm2ZSb63et073tWYIr0mq+AhHAdtSGEOelJbQXHW3WAtF9O4j3ACFJ5x3CWZeXbAKTgN9lNaX8SrcAVaJVVc7CZOjlgRirQ/Dv20oyR7B+bOFbIie6HNWioZ9S2NoB/4Lp4AL6lPaWy35MNMisYe+Azmzz638eeZJRLNe/cBXCRvIeIV16vlTbSk5k9JP+FvKUueD+8uAp6BC99AP4UVH+5xc4+8qefol1rEef/ugn/29FOYGyffeXwfPuW87mSVZaExZ6H4qlet63Qu12Y3C76B4uQpLGrFI180eIkByb2Jda8gwsaiuCqfwSboJLYqT9XcVyb9Tsamc48yUNbmScrmex1fS4INhSTDy3kKhX1K3ZRyIxEjhaip/0WYH9rN4C+N9rJuYbMyGo0zTcePrPZ8tqnn3xzKAbb3NzL32I/s/kzWIS33ayeb+5+c2CjOi3TqanMw/jn1BTy1k3WJmbtvxO1j4hrM/Nr8AwYd2Pnx6sUfAAAAAElFTkSuQmCC"
+              <a style="text-decoration:none;padding-right:0.5ex" href={s"$formActionUrl#reply-input-label"}>
+                <img style="vertical-align:baseline;" src={"data:image/png;base64," + replyIconBase64} alt="Send another message about this" width="24" height="24"/>
+              </a><a href={s"$formActionUrl#reply-input-label"}>Send another message about this</a>.mkString
             case _ => ""
           }
         }
