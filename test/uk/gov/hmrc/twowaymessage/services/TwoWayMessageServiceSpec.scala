@@ -417,7 +417,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
   "TwoWayMessageService.createHtmlMessage" should {
     "return HTML as a string" in {
 
-      val htmlString = <p>*** we are the children ***</p>.mkString
+      val htmlString = <p>*** we are the &amp; children ***</p>.mkString
 
       when(mockMessageConnector.getMessageContent(any[String])(any[HeaderCarrier])).thenReturn(
         Future.successful(
