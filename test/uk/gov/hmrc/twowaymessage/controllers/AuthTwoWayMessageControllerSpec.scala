@@ -155,7 +155,7 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
       mockAuthorise(Enrolment("HMRC-NI") or AuthProviders(PrivilegedApplication))(Future.successful(Some(nino.value)))
       when(
         mockMessageService.getConversation(any[String],any[ReplyType])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(Html.apply(""))))
+        .thenReturn(Future.successful(Right(List())))
       val result = await(testTwoWayMessageController.getContentBy("1", "Customer")(fakeRequest1).run())(Duration.Inf)
       status(result) shouldBe Status.OK
     }
