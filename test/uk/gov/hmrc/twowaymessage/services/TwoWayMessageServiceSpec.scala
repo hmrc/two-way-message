@@ -560,7 +560,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       )
 
       val result =
-        await(messageService.getConversation("5d02201b5b0000360151779e", RenderType.CustomerLink)(mockHeaderCarrier))
+        await(messageService.findMessagesBy("5d02201b5b0000360151779e")(mockHeaderCarrier))
       result.isRight
 
     }

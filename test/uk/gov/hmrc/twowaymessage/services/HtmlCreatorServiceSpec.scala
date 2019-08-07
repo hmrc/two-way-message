@@ -124,7 +124,7 @@ class HtmlCreatorServiceSpec
       val result =
         await(htmlCreatorService.createConversation(latestMessageId, listOfConversationItems, RenderType.Adviser))
       result shouldBe
-        Right(Html.apply(Xhtml.toXhtml(<p class="faded-text--small">13 June 2019 by HMRC:</p> ++
+        Right(Html(Xhtml.toXhtml(<p class="faded-text--small">13 June 2019 by HMRC:</p> ++
           Utility.trim(
             <div>
               <p>Dear TestUser</p>

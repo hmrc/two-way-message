@@ -17,7 +17,6 @@
 package uk.gov.hmrc.twowaymessage.services
 
 import com.google.inject.ImplementedBy
-import com.sun.javafx.sg.prism.NodeEffectInput.RenderType
 import org.apache.commons.codec.binary.Base64
 import play.api.http.Status._
 import play.api.libs.json._
@@ -54,8 +53,6 @@ trait TwoWayMessageService {
   def createDmsSubmission(html: String, response: HttpResponse, dmsMetaData: DmsMetadata)(implicit hc: HeaderCarrier): Future[Result]
 
   def getMessageContentBy(messageId: String)(implicit hc: HeaderCarrier): Future[Option[String]]
-
-  def getConversation(messageId: String, replyType: RenderType.ReplyType)(implicit hc: HeaderCarrier): Future[Either[String, List[ConversationItem]]]
 
   def getPreviousMessages(messageId: String)(implicit hc: HeaderCarrier): Future[Either[String, Html]]
 

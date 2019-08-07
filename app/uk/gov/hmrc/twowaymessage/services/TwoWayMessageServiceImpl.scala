@@ -102,7 +102,7 @@ class TwoWayMessageServiceImpl @Inject()(
   override def createDmsSubmission(html: String, response: HttpResponse, dmsMetaData: DmsMetadata)(
     implicit hc: HeaderCarrier): Future[Result] = {
     val dmsSubmission = DmsHtmlSubmission(encodeToBase64String(html), dmsMetaData)
-    Future.successful(Created(Json.parse(response.body))).andThen {
+    Future(Created(Json.parse(response.body))).andThen {
       case _ => gformConnector.submitToDmsViaGform(dmsSubmission)
     }
   }
@@ -150,7 +150,7 @@ class TwoWayMessageServiceImpl @Inject()(
       case CREATED =>
         response.json.validate[Identifier].asOpt match {
           case Some(identifier) =>
-            getConversation(identifier.id, RenderType.Adviser).flatMap {
+            findMessagesBy(identifier.id).flatMap {
               case Left(error) => Future.successful(errorResponse(INTERNAL_SERVER_ERROR, error))
               case Right(list) =>
                 htmlCreatorService.createHtmlForPdf(identifier.id, dmsMetaData.customerId, list, subject).flatMap {
@@ -171,12 +171,6 @@ class TwoWayMessageServiceImpl @Inject()(
           case Some(content) => Future successful Some(content)
           case None          => Future.successful(None)
       })
-
-  override def getConversation(messageId: String, replyType: RenderType.ReplyType)(implicit hc: HeaderCarrier): Future[Either[String, List[ConversationItem]]] =
-    findMessagesBy(messageId).flatMap {
-      case Left(error) => Future.successful(Left(error))
-      case Right(list) => Future.successful(Right(list))
-    }
 
   override def getLastestMessage(messageId: String)(implicit hc: HeaderCarrier): Future[Either[String, Html]] =
     findMessagesBy(messageId).flatMap {
