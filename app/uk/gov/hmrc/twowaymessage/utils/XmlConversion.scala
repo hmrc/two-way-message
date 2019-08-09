@@ -22,35 +22,18 @@ import scala.xml.{Node, SAXParseException, Text}
 object XmlConversion {
 
   /**
-    * Returns zero or one XML node parsed from the given string or an exception if the parsing fails.
-    * If the parsed XML turns out to be a sequence of nodes only the first is returned
-    * @param string
-    * @return
-    */
-  def stringToXmlNode(string: String): Try[Node] = {
-    try {
-      val xml = scala.xml.XML.loadString("<root>" + string.trim + "</root>")
-      val result = xml.child
-        if(result.isEmpty) {
-          Success(Text(""))
-        } else {
-          Success(result.head)
-        }
-    } catch {
-      case e: SAXParseException => Failure(e)
-    }
-  }
-
-  /**
-    * Returns zero or many XML nodes parsed from the given string or an exception if the parsing fails.
-    * @param string
-    * @return
+    * Returns one or more XML nodes parsed from the given string or an exception if the parsing fails.
+    * If the string is empty an empty text node will be returned.
     */
   def stringToXmlNodes(string: String): Try[Seq[Node]] = {
     try {
       val xml = scala.xml.XML.loadString("<root>" + string.trim + "</root>")
       val result = xml.child
-      Success(result)
+      if (result.isEmpty) {
+        Success(Text(""))
+      } else {
+        Success(result)
+      }
     } catch {
       case e: SAXParseException => Failure(e)
     }

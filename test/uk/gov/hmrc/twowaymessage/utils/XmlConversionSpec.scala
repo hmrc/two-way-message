@@ -19,56 +19,26 @@ package uk.gov.hmrc.twowaymessage.utils
 import org.scalatest.WordSpec
 import uk.gov.hmrc.play.test.UnitSpec
 
-import scala.util.Success
 import scala.xml.Text
 
 class XmlConversionSpec extends WordSpec with UnitSpec {
 
-  "stringToXmlNode" should {
-    "return an empty text node when passed an empty string" in {
-      val result = XmlConversion.stringToXmlNode("")
-      result shouldBe {
-        Success(Text(""))
-
-      }
+  "stringToXmlNodes" should {
+    "return an empty Text node when passed an empty string" in {
+      val result = XmlConversion.stringToXmlNodes("")
+      result.get.head shouldBe Text("")
     }
     "return an empty text node when passed a string containing only a carriage return" in {
-      val result = XmlConversion.stringToXmlNode("\n")
-      result shouldBe {
-        Success(Text(""))
-
-      }
+      val result = XmlConversion.stringToXmlNodes("\n")
+      result.get.head shouldBe Text("")
     }
-    "return an XML node when passed a valid XML string" in {
-      val result = XmlConversion.stringToXmlNode("<test>test</test>")
-      result shouldBe {
-        Success(<test>test</test>)
-
-      }
-    }
-    "return the first XML node when passed a valid XML string containing multiple nodes" in {
-      val result = XmlConversion.stringToXmlNode("<test>test1</test><test>test2</test>")
-      result shouldBe {
-        Success(<test>test1</test>)
-
-      }
-    }
-  }
-
-  "stringToXmlNodes" should {
-    "return an empty sequence when passed an empty string" in {
-      val result = XmlConversion.stringToXmlNodes("")
-      result shouldBe {
-        Success(Seq.empty)
-
-      }
+    "return a sequence containing one XML node when passed a valid XML string an single node" in {
+      val result = XmlConversion.stringToXmlNodes("<test>test</test>")
+      result.get shouldBe Seq(<test>test</test>)
     }
     "return a sequence of XML nodes when passed a valid XML string containing multiple nodes" in {
       val result = XmlConversion.stringToXmlNodes("<test>test1</test><test>test2</test>")
-      result shouldBe {
-        Success(<test>test1</test><test>test2</test>)
-
-      }
+      result.get shouldBe <test>test1</test><test>test2</test>
     }
   }
 

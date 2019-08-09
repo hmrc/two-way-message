@@ -57,8 +57,8 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig)(implicit 
     createConversation(latestMessageId, messages, RenderType.Adviser) map {
       case Left(error) => Left(error)
       case Right(html) =>
-        XmlConversion.stringToXmlNode(uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, customerId, Html(escapeForXhtml(subject)), html).body) match {
-          case Success(xml) => Right("<!DOCTYPE html>" + Xhtml.toXhtml(Utility.trim(xml)))
+        XmlConversion.stringToXmlNodes(uk.gov.hmrc.twowaymessage.views.html.two_way_message(url, customerId, Html(escapeForXhtml(subject)), html).body) match {
+          case Success(xml) => Right("<!DOCTYPE html>" + Xhtml.toXhtml(Utility.trim(xml.head)))
           case Failure(e) => Left("Unable to generate HTML for PDF due to: " + e.getMessage)
         }
     }
