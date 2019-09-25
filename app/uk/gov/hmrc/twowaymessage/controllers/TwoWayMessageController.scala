@@ -22,7 +22,7 @@ import play.api.libs.json._
 import play.api.mvc.{Action, _}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
-import uk.gov.hmrc.auth.core.retrieve.{~, Name, Retrievals}
+import uk.gov.hmrc.auth.core.retrieve.{Name, Retrievals, ~}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.gform.gformbackend.GformConnector
@@ -164,9 +164,10 @@ class TwoWayMessageController @Inject()(
     }
   }
 
-    def getEnquiryTypeDetails(enquiryType: String): Action[AnyContent] = Action.async { implicit request =>
-        Enquiry(enquiryType) match {
-            case Some(form) => Future.successful(Ok(Json.obj("responseTime" -> form.responseTime)))
+    def getEnquiryTypeDetails(enquiryTypeString: String): Action[AnyContent] = Action.async { implicit request =>
+        import uk.gov.hmrc.twowaymessage.enquiries.repos.EnquiryTypeFormat._
+        Enquiry(enquiryTypeString) match {
+            case Some(enquiryType) => Future.successful(Ok(Json.toJson(enquiryType)))
             case _          => Future.successful(NotFound)
         }
     }

@@ -23,8 +23,8 @@ object Enquiry {
   def apply (enq: String):Option[EnquiryType] = enquiries.get(enq.toLowerCase)
 
   private val enquiries = Map[String, EnquiryType](
-    "p800" -> P800,
-    "p800-over-payment" -> P800OverPayment
+    "p800" -> EnquiryTypes.P800,
+    "p800-over-payment" -> EnquiryTypes.P800OverPayment
   )
 
 

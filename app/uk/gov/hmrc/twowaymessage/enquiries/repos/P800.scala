@@ -17,6 +17,8 @@
 package uk.gov.hmrc.twowaymessage.enquiries.repos
 
 import play.api.Play
+import play.api.libs.json.{Json, Writes}
+//import uk.gov.hmrc.twowaymessage.enquiries.repos.P800.dmsFormId
 
 object DMSClassificationTypes {
   val PSA_DFS_Secure_Messaging_SA = "PSA-DFS Secure Messaging SA"
@@ -28,29 +30,36 @@ object DisplayNames {
   val P800 = "asdfasdfasdfasdf"
 }
 
-sealed trait EnquiryType {
-  val title: String
-  val dmsFormId: String
-  val classificationType: String
-  val businessArea: String
-  val responseTime: String
+object EnquiryTypeFormat {
+  implicit val enquiryTypeWrites: Writes[EnquiryType] = Json.writes[EnquiryType]
+
+}
+
+case class EnquiryType (
+  val title: String,
+  val dmsFormId: String,
+  val classificationType: String,
+  val businessArea: String,
+  val responseTime: String,
   val displayName: String
-}
+)
 
-case object P800 extends EnquiryType {
-  val title: String = "P800"
-  val dmsFormId: String = "P800"
-  val classificationType: String = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA
-  val businessArea: String = DMSBusinessArea.PT_Operations
-  lazy val responseTime: String = Play.current.configuration.getString("forms.p800.responseTime").get
-  val displayName = DisplayNames.P800
-}
+object EnquiryTypes  {
 
-case object P800OverPayment extends EnquiryType {
-    val title: String = "P800"
-    val dmsFormId: String = "P800"
-    val classificationType: String = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA
-    val businessArea: String = DMSBusinessArea.PT_Operations
-    lazy val responseTime: String = Play.current.configuration.getString("forms.p800.responseTime").get
-    val displayName = DisplayNames.P800
+  val P800 = EnquiryType(
+    title = "P800" ,
+    dmsFormId = "P800",
+    classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
+    businessArea = DMSBusinessArea.PT_Operations,
+    responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
+    displayName = DisplayNames.P800
+  )
+   val P800OverPayment = EnquiryType(
+        title = "P800" ,
+        dmsFormId = "P800",
+        classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
+        businessArea = DMSBusinessArea.PT_Operations,
+        responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
+        displayName = DisplayNames.P800
+    )
 }
