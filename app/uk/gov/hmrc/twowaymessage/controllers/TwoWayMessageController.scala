@@ -165,7 +165,6 @@ class TwoWayMessageController @Inject()(
   }
 
     def getEnquiryTypeDetails(enquiryTypeString: String): Action[AnyContent] = Action.async { implicit request =>
-        import uk.gov.hmrc.twowaymessage.enquiries.repos.EnquiryTypeFormat._
         Enquiry(enquiryTypeString) match {
             case Some(enquiryType) => Future.successful(Ok(Json.toJson(enquiryType)))
             case _          => Future.successful(NotFound)

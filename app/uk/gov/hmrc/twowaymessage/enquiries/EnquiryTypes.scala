@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.twowaymessage.enquiries.repos
+package uk.gov.hmrc.twowaymessage.enquiries
 
 import play.api.Play
 import play.api.libs.json.{Json, Writes}
@@ -36,11 +36,6 @@ object DisplayNames {
   val p800_UNDER_PAYMENT = "???"
 }
 
-object EnquiryTypeFormat {
-  implicit val enquiryTypeWrites: Writes[EnquiryType] = Json.writes[EnquiryType]
-
-}
-
 case class EnquiryType (
                          val name: String,
                          val dmsFormId: String,
@@ -49,6 +44,10 @@ case class EnquiryType (
                          val responseTime: String,
                          val displayName: String
 )
+
+object EnquiryType {
+  implicit val enquiryTypeWrites: Writes[EnquiryType] = Json.writes[EnquiryType]
+}
 
 object EnquiryTypes  {
 

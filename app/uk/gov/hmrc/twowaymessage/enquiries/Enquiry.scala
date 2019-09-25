@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.twowaymessage.enquiries
 
-import uk.gov.hmrc.twowaymessage.enquiries.repos._
-
 object Enquiry {
 
   def apply (enq: String):Option[EnquiryType] = enquiries.get(enq.toLowerCase)
