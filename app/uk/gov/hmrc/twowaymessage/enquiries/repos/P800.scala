@@ -27,7 +27,8 @@ object DMSBusinessArea {
   val PT_Operations = "PT Operations"
 }
 object DisplayNames {
-  val P800 = "asdfasdfasdfasdf"
+  val P800 = ""
+  val P800_OVER_PAYMENT = "P800 overpayment enquiry"
 }
 
 object EnquiryTypeFormat {
@@ -36,18 +37,18 @@ object EnquiryTypeFormat {
 }
 
 case class EnquiryType (
-  val title: String,
-  val dmsFormId: String,
-  val classificationType: String,
-  val businessArea: String,
-  val responseTime: String,
-  val displayName: String
+                         val name: String,
+                         val dmsFormId: String,
+                         val classificationType: String,
+                         val businessArea: String,
+                         val responseTime: String,
+                         val displayName: String
 )
 
 object EnquiryTypes  {
 
   val P800 = EnquiryType(
-    title = "P800" ,
+    name = "p800" ,
     dmsFormId = "P800",
     classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
     businessArea = DMSBusinessArea.PT_Operations,
@@ -55,11 +56,11 @@ object EnquiryTypes  {
     displayName = DisplayNames.P800
   )
    val P800OverPayment = EnquiryType(
-        title = "P800" ,
+        name = "p800-over-payment" ,
         dmsFormId = "P800",
         classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
         businessArea = DMSBusinessArea.PT_Operations,
         responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
-        displayName = DisplayNames.P800
+        displayName = DisplayNames.P800_OVER_PAYMENT
     )
 }

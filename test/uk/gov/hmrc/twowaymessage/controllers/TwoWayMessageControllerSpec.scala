@@ -31,6 +31,7 @@ import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -48,7 +49,8 @@ import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
-class TwoWayMessageControllerSpec extends WordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar with MockAuthConnector  {
+class TwoWayMessageControllerSpec
+    extends WordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar with MockAuthConnector {
 
   val mockMessageService = mock[TwoWayMessageService]
 
@@ -177,13 +179,46 @@ class TwoWayMessageControllerSpec extends WordSpec with Matchers with GuiceOneAp
     }
 
     "return response time when response time is requested for valid enquiry type" in {
-      val result = controller.getCurrentResponseTime("p800")(FakeRequest())
+      val result: Future[Result] = controller.getCurrentResponseTime("p800")(FakeRequest())
       contentAsString(result) shouldEqual """{"responseTime":"5 days"}"""
     }
 
     "return 404 when response time requested for invalid enquiry type" in {
       val result = await(controller.getCurrentResponseTime("IP4U")(FakeRequest()))
       result.header.status shouldBe 404
+    }
+
+    "return 200 when p800 enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("p800")(FakeRequest())
+      await(result).header.status shouldBe Status.OK
+      Json.parse(contentAsString(result)) shouldBe
+        Json.parse("""{
+                     |"name":"p800",
+                     |"dmsFormId":"P800",
+                     |"classificationType":"PSA-DFS Secure Messaging SA",
+                     |"businessArea":"PT Operations",
+                     |"responseTime":"5 days",
+                     |"displayName":""
+                     |}""".stripMargin)
+    }
+
+    "return 200 when p800-over-payment enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("p800-over-payment")(FakeRequest())
+      await(result).header.status shouldBe Status.OK
+      Json.parse(contentAsString(result)) shouldBe
+        Json.parse("""{
+                     |"name":"p800-over-payment",
+                     |"dmsFormId":"P800",
+                     |"classificationType":"PSA-DFS Secure Messaging SA",
+                     |"businessArea":"PT Operations",
+                     |"responseTime":"5 days",
+                     |"displayName":"P800 overpayment enquiry"
+                     |}""".stripMargin)
+    }
+
+    "return 404 when incorrect enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("i am not valid")(FakeRequest())
+      await(result).header.status shouldBe Status.NOT_FOUND
     }
 
     SharedMetricRegistries.clear
