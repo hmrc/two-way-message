@@ -229,11 +229,20 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec  {
   "TwoWayMessageController getEnquiryTypeDetails" should {
     "return 200" in {
       val response = httpClient
-        .url(resource(s"/message/admin/p800/details"))
+        .url(resource(s"/two-way-message/message/admin/p800/details"))
         .withHttpHeaders(AuthUtil.buildStrideToken())
         .get()
         .futureValue
       response.status shouldBe 200
+    }
+
+    "return 404" in {
+      val response = httpClient
+        .url(resource(s"/two-way-message/message/admin/XXXXXX/details"))
+        .withHttpHeaders(AuthUtil.buildStrideToken())
+        .get()
+        .futureValue
+      response.status shouldBe 404
     }
   }
 
