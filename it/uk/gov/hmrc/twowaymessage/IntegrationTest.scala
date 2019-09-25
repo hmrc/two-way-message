@@ -224,9 +224,19 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec  {
       val getPreviousMessages = for(div <- regex.findAllMatchIn(previousMessages.body)) yield div.group(1)
       getPreviousMessages.length shouldBe 1
     }
-
-
   }
+
+  "TwoWayMessageController getEnquiryTypeDetails" should {
+    "return 200" in {
+      val response = httpClient
+        .url(resource(s"/message/admin/p800/details"))
+        .withHttpHeaders(AuthUtil.buildStrideToken())
+        .get()
+        .futureValue
+      response.status shouldBe 200
+    }
+  }
+
 
   object AuthUtil {
     lazy val authPort = 8500
