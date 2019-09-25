@@ -216,6 +216,76 @@ class TwoWayMessageControllerSpec
                      |}""".stripMargin)
     }
 
+    "return 200 when p800-paid enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("p800-paid")(FakeRequest())
+      await(result).header.status shouldBe Status.OK
+      Json.parse(contentAsString(result)) shouldBe
+        Json.parse("""{
+                     |"name":"p800-paid",
+                     |"dmsFormId":"P800",
+                     |"classificationType":"PSA-DFS Secure Messaging SA",
+                     |"businessArea":"PT Operations",
+                     |"responseTime":"5 days",
+                     |"displayName":"P800 overpayment paid enquiry"
+                     |}""".stripMargin)
+    }
+
+    "return 200 when p800-processing enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("p800-processing")(FakeRequest())
+      await(result).header.status shouldBe Status.OK
+      Json.parse(contentAsString(result)) shouldBe
+        Json.parse("""{
+                     |"name":"p800-processing",
+                     |"dmsFormId":"P800",
+                     |"classificationType":"PSA-DFS Secure Messaging SA",
+                     |"businessArea":"PT Operations",
+                     |"responseTime":"5 days",
+                     |"displayName":"P800 overpayment processing enquiry"
+                     |}""".stripMargin)
+    }
+
+    "return 200 when p800-sent enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("p800-sent")(FakeRequest())
+      await(result).header.status shouldBe Status.OK
+      Json.parse(contentAsString(result)) shouldBe
+        Json.parse("""{
+                     |"name":"p800-sent",
+                     |"dmsFormId":"P800",
+                     |"classificationType":"PSA-DFS Secure Messaging SA",
+                     |"businessArea":"PT Operations",
+                     |"responseTime":"5 days",
+                     |"displayName":"P800 overpayment sent enquiry"
+                     |}""".stripMargin)
+    }
+
+    "return 200 when p800-not-available enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("p800-not-available")(FakeRequest())
+      await(result).header.status shouldBe Status.OK
+      Json.parse(contentAsString(result)) shouldBe
+        Json.parse("""{
+                     |"name":"p800-not-available",
+                     |"dmsFormId":"P800",
+                     |"classificationType":"PSA-DFS Secure Messaging SA",
+                     |"businessArea":"PT Operations",
+                     |"responseTime":"5 days",
+                     |"displayName":"P800 overpayment not available enquiry"
+                     |}""".stripMargin)
+    }
+
+    "return 200 when p800-underpayment enquiryType is requested" in {
+      val result = controller.getEnquiryTypeDetails("p800-underpayment")(FakeRequest())
+      await(result).header.status shouldBe Status.OK
+      Json.parse(contentAsString(result)) shouldBe
+        Json.parse("""{
+                     |"name":"p800-underpayment",
+                     |"dmsFormId":"P800",
+                     |"classificationType":"PSA-DFS Secure Messaging SA",
+                     |"businessArea":"PT Operations",
+                     |"responseTime":"5 days",
+                     |"displayName":"P800 overpayment sent enquiry"
+                     |}""".stripMargin)
+    }
+
     "return 404 when incorrect enquiryType is requested" in {
       val result = controller.getEnquiryTypeDetails("i am not valid")(FakeRequest())
       await(result).header.status shouldBe Status.NOT_FOUND
