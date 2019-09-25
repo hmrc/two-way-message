@@ -17,16 +17,40 @@
 package uk.gov.hmrc.twowaymessage.enquiries.repos
 
 import play.api.Play
-import uk.gov.hmrc.twowaymessage.enquiries.Enquiry.EnquiryTemplate
 
-object P800 extends EnquiryTemplate {
+object DMSClassificationTypes {
+  val PSA_DFS_Secure_Messaging_SA = "PSA-DFS Secure Messaging SA"
+}
+object DMSBusinessArea {
+  val PT_Operations = "PT Operations"
+}
+object DisplayNames {
+  val P800 = "asdfasdfasdfasdf"
+}
 
+sealed trait EnquiryType {
+  val title: String
+  val dmsFormId: String
+  val classificationType: String
+  val businessArea: String
+  val responseTime: String
+  val displayName: String
+}
+
+case object P800 extends EnquiryType {
   val title: String = "P800"
-
-  val dmsFormId:String = "P800"
-  val classificationType: String = "PSA-DFS Secure Messaging SA"
-  val businessArea: String = "PT Operations"
+  val dmsFormId: String = "P800"
+  val classificationType: String = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA
+  val businessArea: String = DMSBusinessArea.PT_Operations
   lazy val responseTime: String = Play.current.configuration.getString("forms.p800.responseTime").get
+  val displayName = DisplayNames.P800
+}
 
-
+case object P800OverPayment extends EnquiryType {
+    val title: String = "P800"
+    val dmsFormId: String = "P800"
+    val classificationType: String = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA
+    val businessArea: String = DMSBusinessArea.PT_Operations
+    lazy val responseTime: String = Play.current.configuration.getString("forms.p800.responseTime").get
+    val displayName = DisplayNames.P800
 }

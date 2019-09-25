@@ -32,7 +32,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.enquiries.Enquiry
-import uk.gov.hmrc.twowaymessage.enquiries.Enquiry.EnquiryTemplate
+import uk.gov.hmrc.twowaymessage.enquiries.repos.EnquiryType
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
@@ -81,7 +81,7 @@ class TwoWayMessageServiceImpl @Inject()(
                   .fold[Future[String]](Future.failed(new Exception(s"Unable to get DMS queue id for $replyTo")))(
                     Future.successful)
       enquiryId <- Enquiry(queueId)
-                    .fold[Future[EnquiryTemplate]](Future.failed(new Exception(s"Unknown $queueId")))(Future.successful)
+                    .fold[Future[EnquiryType]](Future.failed(new Exception(s"Unknown $queueId")))(Future.successful)
       dmsMetaData = DmsMetadata(
         enquiryId.dmsFormId,
         metadata.get.recipient.identifier.value,

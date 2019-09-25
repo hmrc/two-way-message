@@ -164,6 +164,13 @@ class TwoWayMessageController @Inject()(
     }
   }
 
+    def getEnquiryTypeDetails(enquiryType: String): Action[AnyContent] = Action.async { implicit request =>
+        Enquiry(enquiryType) match {
+            case Some(form) => Future.successful(Ok(Json.obj("responseTime" -> form.responseTime)))
+            case _          => Future.successful(NotFound)
+        }
+    }
+
 
   def getContentBy(id: String, msgType: String): Action[AnyContent] = Action.async {
     implicit request =>
