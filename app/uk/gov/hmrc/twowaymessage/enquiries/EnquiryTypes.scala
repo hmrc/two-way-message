@@ -33,7 +33,7 @@ object DisplayNames {
   val P800_PROCESSING = "P800 overpayment processing enquiry"
   val P800_SENT = "P800 overpayment sent enquiry"
   val p800_NOT_AVAILABLE = "P800 overpayment not available enquiry"
-  val p800_UNDER_PAYMENT = "???"
+  val p800_UNDER_PAYMENT = "P800 underpayment"
 }
 
 case class EnquiryType (

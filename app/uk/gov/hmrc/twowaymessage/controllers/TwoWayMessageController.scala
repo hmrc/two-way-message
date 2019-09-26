@@ -29,7 +29,7 @@ import uk.gov.hmrc.gform.gformbackend.GformConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
-import uk.gov.hmrc.twowaymessage.enquiries.Enquiry
+import uk.gov.hmrc.twowaymessage.enquiries.{Enquiry, EnquiryTypeFrontEnd}
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import uk.gov.hmrc.twowaymessage.model.MessageMetadataFormat._
@@ -164,10 +164,10 @@ class TwoWayMessageController @Inject()(
     }
   }
 
-    def getEnquiryTypeDetails(enquiryTypeString: String): Action[AnyContent] = Action.async { implicit request =>
-        Enquiry(enquiryTypeString) match {
-            case Some(enquiryType) => Future.successful(Ok(Json.toJson(enquiryType)))
-            case _          => Future.successful(NotFound)
+  def getEnquiryTypeDetails(enquiryTypeString: String): Action[AnyContent] = Action.async { implicit request =>
+    Enquiry(enquiryTypeString).map(entity => EnquiryTypeFrontEnd(entity.displayName, entity.responseTime)) match {
+       case Some(enquiryType) => Future.successful(Ok(Json.toJson(enquiryType)))
+       case _          => Future.successful(NotFound)
         }
     }
 
