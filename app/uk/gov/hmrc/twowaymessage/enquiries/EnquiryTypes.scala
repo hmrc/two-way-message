@@ -60,7 +60,7 @@ object EnquiryTypes  {
     displayName = DisplayNames.P800
   )
    val P800OverPayment = EnquiryType(
-        name = "p800-over-payment" ,
+        name = "p800-overpayment" ,
         dmsFormId = "P800",
         classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
         businessArea = DMSBusinessArea.PT_Operations,

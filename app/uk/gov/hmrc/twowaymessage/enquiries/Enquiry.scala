@@ -22,7 +22,7 @@ object Enquiry {
 
   private val enquiries = Map[String, EnquiryType](
     "p800" -> EnquiryTypes.P800,
-    "p800-over-payment" -> EnquiryTypes.P800OverPayment,
+    "p800-overpayment" -> EnquiryTypes.P800OverPayment,
     "p800-paid" -> EnquiryTypes.p800Paid,
     "p800-processing" -> EnquiryTypes.p800Processing,
     "p800-sent" -> EnquiryTypes.p800Sent,
