@@ -37,12 +37,12 @@ object DisplayNames {
 }
 
 case class EnquiryType (
-                         val name: String,
-                         val dmsFormId: String,
-                         val classificationType: String,
-                         val businessArea: String,
-                         val responseTime: String,
-                         val displayName: String
+                         name: String,
+                         dmsFormId: String,
+                         classificationType: String = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
+                         businessArea: String = DMSBusinessArea.PT_Operations,
+                         responseTime: String = Play.current.configuration.getString("forms.p800.responseTime").get,
+                         displayName: String
 )
 
 object EnquiryType {
@@ -54,61 +54,40 @@ object EnquiryTypes  {
   val P800 = EnquiryType(
     name = "p800" ,
     dmsFormId = "P800",
-    classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
-    businessArea = DMSBusinessArea.PT_Operations,
-    responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
     displayName = DisplayNames.P800
   )
    val P800OverPayment = EnquiryType(
         name = "p800-overpayment" ,
         dmsFormId = "P800",
-        classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
-        businessArea = DMSBusinessArea.PT_Operations,
-        responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
         displayName = DisplayNames.P800_OVER_PAYMENT
     )
   val p800Paid = EnquiryType(
     name = "p800-paid" ,
     dmsFormId = "P800",
-    classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
-    businessArea = DMSBusinessArea.PT_Operations,
-    responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
     displayName = DisplayNames.P800_PAID
   )
 
   val p800Processing = EnquiryType(
     name = "p800-processing" ,
     dmsFormId = "P800",
-    classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
-    businessArea = DMSBusinessArea.PT_Operations,
-    responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
     displayName = DisplayNames.P800_PROCESSING
   )
 
   val p800Sent = EnquiryType(
     name = "p800-sent" ,
     dmsFormId = "P800",
-    classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
-    businessArea = DMSBusinessArea.PT_Operations,
-    responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
     displayName = DisplayNames.P800_SENT
   )
 
   val p800NotAvailable = EnquiryType(
     name = "p800-not-available" ,
     dmsFormId = "P800",
-    classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
-    businessArea = DMSBusinessArea.PT_Operations,
-    responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
     displayName = DisplayNames.p800_NOT_AVAILABLE
   )
 
   val p800UnderPayment = EnquiryType(
     name = "p800-underpayment" ,
     dmsFormId = "P800",
-    classificationType = DMSClassificationTypes.PSA_DFS_Secure_Messaging_SA,
-    businessArea = DMSBusinessArea.PT_Operations,
-    responseTime = Play.current.configuration.getString("forms.p800.responseTime").get,
     displayName = DisplayNames.p800_UNDER_PAYMENT
   )
 
