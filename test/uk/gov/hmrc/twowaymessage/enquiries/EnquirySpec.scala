@@ -51,6 +51,111 @@ class EnquirySpec extends WordSpec with Matchers {
     }
   }
 
+  "for a p800-overpayment enquiry" should {
+    "find a name" in {
+      Enquiry("p800-overpayment").get.name shouldBe "p800-overpayment"
+    }
+    "find dmsFormId" in {
+      Enquiry("p800-overpayment").get.dmsFormId shouldBe "P800"
+    }
+
+    "find classificationType" in {
+      Enquiry("p800-overpayment").get.classificationType shouldBe "PSA-DFS Secure Messaging SA"
+    }
+
+    "find businessArea" in {
+      Enquiry("p800-overpayment").get.businessArea shouldBe "PT Operations"
+    }
+  }
+
+  "for a p800-paid enquiry" should {
+    "find a name" in {
+      Enquiry("p800-paid").get.name shouldBe "p800-paid"
+    }
+    "find dmsFormId" in {
+      Enquiry("p800-paid").get.dmsFormId shouldBe "P800"
+    }
+
+    "find classificationType" in {
+      Enquiry("p800-paid").get.classificationType shouldBe "PSA-DFS Secure Messaging SA"
+    }
+
+    "find businessArea" in {
+      Enquiry("p800-paid").get.businessArea shouldBe "PT Operations"
+    }
+
+  }
+
+  "p800-processing enquiry" should {
+    "find a name" in {
+      Enquiry("p800-processing").get.name shouldBe "p800-processing"
+    }
+    "find dmsFormId" in {
+      Enquiry("p800-processing").get.dmsFormId shouldBe "P800"
+    }
+
+    "find classificationType" in {
+      Enquiry("p800-processing").get.classificationType shouldBe "PSA-DFS Secure Messaging SA"
+    }
+
+    "find businessArea" in {
+      Enquiry("p800-processing").get.businessArea shouldBe "PT Operations"
+    }
+
+  }
+
+  "p800-sent enquiry" should {
+    "find a name" in {
+      Enquiry("p800-sent").get.name shouldBe "p800-sent"
+    }
+    "find dmsFormId" in {
+      Enquiry("p800-sent").get.dmsFormId shouldBe "P800"
+    }
+
+    "find classificationType" in {
+      Enquiry("p800-sent").get.classificationType shouldBe "PSA-DFS Secure Messaging SA"
+    }
+
+    "find businessArea" in {
+      Enquiry("p800-sent").get.businessArea shouldBe "PT Operations"
+    }
+
+  }
+
+  "p800-not-available enquiry" should {
+    "find a name" in {
+      Enquiry("p800-not-available").get.name shouldBe "p800-not-available"
+    }
+    "find dmsFormId" in {
+      Enquiry("p800-not-available").get.dmsFormId shouldBe "P800"
+    }
+
+    "find classificationType" in {
+      Enquiry("p800-not-available").get.classificationType shouldBe "PSA-DFS Secure Messaging SA"
+    }
+
+    "find businessArea" in {
+      Enquiry("p800-not-available").get.businessArea shouldBe "PT Operations"
+    }
+
+  }
+
+  "p800-underpayment enquiry" should {
+    "find a name" in {
+      Enquiry("p800-underpayment").get.name shouldBe "p800-underpayment"
+    }
+    "find dmsFormId" in {
+      Enquiry("p800-underpayment").get.dmsFormId shouldBe "P800"
+    }
+
+    "find classificationType" in {
+      Enquiry("p800-underpayment").get.classificationType shouldBe "PSA-DFS Secure Messaging SA"
+    }
+
+    "find businessArea" in {
+      Enquiry("p800-underpayment").get.businessArea shouldBe "PT Operations"
+    }
+  }
 
   "for an invalid enquiry" should {
     "find an invalid name " in {
