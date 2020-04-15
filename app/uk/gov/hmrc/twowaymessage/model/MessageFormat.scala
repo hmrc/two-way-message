@@ -65,11 +65,11 @@ object MessageFormat {
               }
             )
           }
-        case (Some("HMRC-VATDEC-ORG"), Some(v)) =>
+        case (Some("HMCE-VATDEC-ORG"), Some(v)) =>
           Reads[TaxIdWithName] { _ =>
             JsSuccess(
               new TaxIdentifier with SimpleName {
-                override val name: String = "HMRC-VATDEC-ORG"
+                override val name: String = "HMCE-VATDEC-ORG"
                 override def value: String = v
               }
             )

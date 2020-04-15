@@ -275,17 +275,17 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
     SharedMetricRegistries.clear
   }
 
-  "The TwoWayMessageController.createMessage method for vat-general/HMRC-VATDEC-ORG" should {
+  "The TwoWayMessageController.createMessage method for vat-general/HMCE-VATDEC-ORG" should {
 
-    "return 201 (CREATED) when a message is successfully created by the message service with a valid HMRC-VATDEC-ORG" in {
+    "return 201 (CREATED) when a message is successfully created by the message service with a valid HMCE-VATDEC-ORG" in {
       val vatdec = new TaxIdentifier with SimpleName {
-            override val name: String = "HMRC-VATDEC-ORG"
+            override val name: String = "HMCE-VATDEC-ORG"
             override def value: String = "1234567890"
           }
       val name = Name(Option("firstname"), Option("surename"))
 
       mockAuthorise(retrievals = Retrievals.allEnrolments and Retrievals.name)(
-        Future.successful(new ~(Enrolments(Set(enrol("HMRC-VATDEC-ORG", "VATRegNo", "1234567890"))), Some(name))))
+        Future.successful(new ~(Enrolments(Set(enrol("HMCE-VATDEC-ORG", "VATRegNo", "1234567890"))), Some(name))))
 
       when(
         mockMessageService
@@ -296,7 +296,7 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
       result.header.status mustBe Status.CREATED
     }
 
-    "return 403 (FORBIDDEN) when AuthConnector doesn't return HMRC-VATDEC-ORG entitlements" in {
+    "return 403 (FORBIDDEN) when AuthConnector doesn't return HMCE-VATDEC-ORG entitlements" in {
       val name = Name(Option("unknown"), Option("user"))
       mockAuthorise(retrievals = Retrievals.allEnrolments and Retrievals.name)(
         Future.successful(new ~(Enrolments(Set()), Some(name))))
@@ -307,7 +307,7 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
     "return 403 (FORBIDDEN) when createMessage is presented with an invalid queue id" in {
       val name = Name(Option("unknown"), Option("user"))
       mockAuthorise(retrievals = Retrievals.allEnrolments and Retrievals.name)(
-        Future.successful(new ~(Enrolments(Set(enrol("HMRC-VATDEC-ORG", "VATRegNo", "1234567890"))), Some(name))))
+        Future.successful(new ~(Enrolments(Set(enrol("HMCE-VATDEC-ORG", "VATRegNo", "1234567890"))), Some(name))))
       val result = await(testTwoWayMessageController.createMessage("ct-general")(fakeRequest1))
       result.header.status mustBe Status.FORBIDDEN
     }
