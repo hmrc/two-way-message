@@ -99,6 +99,14 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
       result.header.status mustBe Status.FORBIDDEN
     }
 
+    "return 403 (FORBIDDEN) when AuthConnector has sautr but no Nino" in {
+      val name = Name(Option("unknown"), Option("user"))
+      mockAuthorise(retrievals = Retrievals.allEnrolments and Retrievals.name)(
+        Future.successful(new ~(Enrolments(Set(enrol("IR-SA", "sautr", "1234567890"))), Some(name))))
+      val result = await(testTwoWayMessageController.createMessage("p800")(fakeRequest1))
+      result.header.status mustBe Status.FORBIDDEN
+    }
+
     "return 403 (FORBIDDEN) when createMessage is presented with an invalid queue id" in {
       val name = Name(Option("unknown"), Option("user"))
       mockAuthorise(retrievals = Retrievals.allEnrolments and Retrievals.name)(
