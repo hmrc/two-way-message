@@ -73,6 +73,23 @@ class AuthIdentifiersConnector @Inject() (
             }
         }
 
+      case "epaye-jrs" =>
+        enrolments.enrolments.collectFirst {
+          case Enrolment(
+              "IR-PAYE",
+              Seq(
+                EnrolmentIdentifier("TaxOfficeNumber", officeNum),
+                EnrolmentIdentifier("TaxOfficeReference", officeRef)
+              ),
+              "Activated",
+              _
+              ) =>
+            new TaxIdentifier with SimpleName {
+              override val name: String = "empRef"
+              override def value: String = EmpRef(officeNum, officeRef).value
+            }
+        }
+
       case _ =>
         enrolments.enrolments.collectFirst {
           case Enrolment("HMRC-NI", Seq(identifier), "Activated", _) => Nino(identifier.value)
