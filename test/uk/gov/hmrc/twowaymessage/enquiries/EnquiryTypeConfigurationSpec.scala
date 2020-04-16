@@ -213,8 +213,8 @@ class EnquiryTypeConfigurationSpec extends WordSpec
       enquiries("epaye-jrs").get shouldBe EnquiryType(
         name = "epaye-jrs",
         dmsFormId = "epaye-jrs",
-        classificationType = "PSA-DFS Secure Messaging SA",
-        businessArea = "PT Operations",
+        classificationType = "Job Retention - TWSM",
+        businessArea = "Universal",
         responseTime = "5 days",
         displayName = "PAYE for employers Job Retention Scheme",
         pdfPageTitle = "Received from: EPAYE Job Retention Scheme",
