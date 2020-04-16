@@ -216,9 +216,9 @@ class EnquiryTypeConfigurationSpec extends WordSpec
         classificationType = "PSA-DFS Secure Messaging SA",
         businessArea = "PT Operations",
         responseTime = "5 days",
-        displayName = "PAYE for employers job retention scheme",
-        pdfPageTitle = "Received from: EPAYE job retention scheme",
-        pdfTaxIdTitle = "IR-PAYE number"
+        displayName = "PAYE for employers Job Retention Scheme",
+        pdfPageTitle = "Received from: EPAYE Job Retention Scheme",
+        pdfTaxIdTitle = "Employer PAYE reference"
       )
     }
   }
