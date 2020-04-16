@@ -210,15 +210,18 @@ class EnquiryTypeConfigurationSpec extends WordSpec
   "Enquiry configuration for epaye-jrs" should {
 
     "have correct enquiry details" in {
+
+      println(enquiries("epaye-jrs").get)
+
       enquiries("epaye-jrs").get shouldBe EnquiryType(
         name = "epaye-jrs",
-        dmsFormId = "epaye-general",
-        classificationType = "DMB-PAYE-Secure Messaging",
-        businessArea = "DMB",
+        dmsFormId = "epaye-jrs",
+        classificationType = "PSA-DFS Secure Messaging SA",
+        businessArea = "PT Operations",
         responseTime = "5 days",
-        displayName = "PAYE for employers",
-        pdfPageTitle = "Received from: EPAYE secure question",
-        pdfTaxIdTitle = "EmpRef number"
+        displayName = "PAYE for employers job retention scheme",
+        pdfPageTitle = "Received from: EPAYE job retention scheme",
+        pdfTaxIdTitle = "National insurance number"
       )
     }
   }
