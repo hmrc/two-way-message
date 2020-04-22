@@ -104,11 +104,11 @@ class TwoWayMessageServiceImpl @Inject()(
       dmsHandleResponse   <- handleResponse(metadata.get.subject, postMessageResponse, dmsMetaData, enquiryId, None)
     } yield dmsHandleResponse) recover handleError
 
-  override def createDmsSubmission(html: String, response: HttpResponse, dmsMetaData: DmsMetadata)(
+  override def createDmsSubmission(html: String, response: HttpResponse, dmsMetaData: DmsMetadata, messageId: String)(
     implicit hc: HeaderCarrier): Future[Result] = {
     val dmsSubmission = DmsHtmlSubmission(encodeToBase64String(html), dmsMetaData)
     Future(Created(Json.parse(response.body))).andThen {
-      case _ => gformConnector.submitToDmsViaGform(dmsSubmission)
+      case _ => submitToDms(messageId, dmsSubmission)
     }
   }
 
@@ -132,6 +132,12 @@ class TwoWayMessageServiceImpl @Inject()(
       case Some(content) => Future.successful(Some(content))
       case None          => Future.successful(None)
     }
+
+  private def submitToDms(messageId: String, dmsSubmission: DmsHtmlSubmission) = {
+    gformConnector.submitToDmsViaGform(dmsSubmission).flatMap { response =>
+      messageConnector.postDmsStatus(messageId,response.body)
+    }
+  }
 
   private def postAdviserReply(
     twoWayMessageReply: TwoWayMessageReply,
@@ -164,7 +170,7 @@ class TwoWayMessageServiceImpl @Inject()(
               case Right(list) =>
                 htmlCreatorService.createHtmlForPdf(identifier.id, dmsMetaData.customerId, list, subject, enquiryType, contactDetails).flatMap {
                   case Left(error) => Future.successful(errorResponse(INTERNAL_SERVER_ERROR, error))
-                  case Right(html) => createDmsSubmission(html, response, dmsMetaData)
+                  case Right(html) => createDmsSubmission(html, response, dmsMetaData, identifier.id)
                 }
             }
           case None => Future.successful(errorResponse(INTERNAL_SERVER_ERROR, "Failed to create enquiry reference"))
