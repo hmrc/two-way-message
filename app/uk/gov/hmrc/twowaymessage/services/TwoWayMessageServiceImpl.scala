@@ -31,7 +31,8 @@ import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.gform.dms.{ DmsHtmlSubmission, DmsMetadata }
 import uk.gov.hmrc.gform.gformbackend.GformConnector
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.gform.sharedmodel.form.EnvelopeId
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, EnquiryType }
@@ -135,7 +136,13 @@ class TwoWayMessageServiceImpl @Inject()(
 
   private def submitToDms(messageId: String, dmsSubmission: DmsHtmlSubmission) = {
     gformConnector.submitToDmsViaGform(dmsSubmission).flatMap { response =>
-      messageConnector.postDmsStatus(messageId,response.body)
+      response.status match {
+        case OK => response.json.validate[EnvelopeId]
+          .fold(
+            _ => Future.successful(Left("Error with submitToDmsViaGform")),
+            envelopId => messageConnector.postDmsStatus(messageId, envelopId.value)
+          )
+      }
     }
   }
 
