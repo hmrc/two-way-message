@@ -166,8 +166,12 @@ class TwoWayMessageServiceImpl @Inject()(
       handleResponse
     } recover handleError
 
-  private def handleResponse(subject: String, response: HttpResponse, dmsMetaData: DmsMetadata, enquiryType: EnquiryType, contactDetails: Option[ContactDetails])(
-    implicit hc: HeaderCarrier): Future[Result] =
+  private def handleResponse(
+    subject: String,
+    response: HttpResponse,
+    dmsMetaData: DmsMetadata,
+    enquiryType: EnquiryType,
+    contactDetails: Option[ContactDetails])(implicit hc: HeaderCarrier): Future[Result] =
     response.status match {
       case CREATED =>
         response.json.validate[Identifier].asOpt match {
