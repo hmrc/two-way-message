@@ -101,6 +101,7 @@ class MessageConnectorSpec
           .willReturn(aResponse()
             .withStatus(Status.OK)))
 
+
       val httpResult = await(messageConnector.postDmsStatus(messageId, envelopId)(new HeaderCarrier()))
       httpResult.status shouldBe (200)
     }

@@ -134,7 +134,7 @@ class TwoWayMessageServiceImpl @Inject()(
       case None          => Future.successful(None)
     }
 
-  private def submitToDms(messageId: String, dmsSubmission: DmsHtmlSubmission) =
+      private def submitToDms(messageId: String, dmsSubmission: DmsHtmlSubmission) =
     gformConnector.submitToDmsViaGform(dmsSubmission).flatMap { response =>
       response.status match {
         case OK =>
@@ -186,6 +186,7 @@ class TwoWayMessageServiceImpl @Inject()(
                     case Left(error) => Future.successful(errorResponse(INTERNAL_SERVER_ERROR, error))
                     case Right(html) => createDmsSubmission(html, response, dmsMetaData, identifier.id)
                   }
+
             }
           case None => Future.successful(errorResponse(INTERNAL_SERVER_ERROR, "Failed to create enquiry reference"))
         }
