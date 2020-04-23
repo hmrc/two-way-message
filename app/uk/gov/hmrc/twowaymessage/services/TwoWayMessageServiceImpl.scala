@@ -136,15 +136,7 @@ class TwoWayMessageServiceImpl @Inject()(
 
   private def submitToDms(messageId: String, dmsSubmission: DmsHtmlSubmission) =
     gformConnector.submitToDmsViaGform(dmsSubmission).flatMap { response =>
-      response.status match {
-        case OK =>
-          response.json
-            .validate[EnvelopeId]
-            .fold(
-              _ => Future.successful(Left("Error with submitToDmsViaGform")),
-              envelopId => messageConnector.postDmsStatus(messageId, envelopId.value)
-            )
-      }
+      messageConnector.postDmsStatus(messageId, response.body)
     }
 
   private def postAdviserReply(
