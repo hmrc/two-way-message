@@ -24,11 +24,16 @@ import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ ExecutionContext, Future }
-
+import uk.gov.hmrc.http._
 @Singleton
 class GformConnector @Inject()(ws: GformWSHttp, servicesConfig: ServicesConfig) {
   lazy val baseUrl = servicesConfig.baseUrl("gform") + servicesConfig.getConfString("gform.path-prefix", "")
+
+  implicit val uuidHttpReads: HttpReads[java.util.UUID] = new HttpReads[java.util.UUID] {
+    def read(method: String, url: String, response: HttpResponse): java.util.UUID =
+      java.util.UUID.fromString(response.body)
+  }
   def submitToDmsViaGform(
-    submission: DmsHtmlSubmission)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[EnvelopeId] =
-    ws.POST[DmsHtmlSubmission, EnvelopeId](s"$baseUrl/dms/submit", submission)
+    submission: DmsHtmlSubmission)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[java.util.UUID] =
+    ws.POST[DmsHtmlSubmission, java.util.UUID](s"$baseUrl/dms/submit", submission)
 }

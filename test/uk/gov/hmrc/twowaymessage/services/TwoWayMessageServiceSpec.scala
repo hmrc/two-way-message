@@ -130,7 +130,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           .submitToDmsViaGform(any[DmsHtmlSubmission])(any[HeaderCarrier], any[ExecutionContext])
       ).thenReturn(
         Future.successful(
-          EnvelopeId("5d021fbe5b00002001517888")
+          java.util.UUID.fromString("01234567-9ABC-DEF0-1234-56789ABCDEF0")
         )
       )
       when(
