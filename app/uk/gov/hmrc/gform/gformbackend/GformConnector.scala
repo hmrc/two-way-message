@@ -29,6 +29,6 @@ import scala.concurrent.{ ExecutionContext, Future }
 class GformConnector @Inject()(ws: GformWSHttp, servicesConfig: ServicesConfig) {
   lazy val baseUrl = servicesConfig.baseUrl("gform") + servicesConfig.getConfString("gform.path-prefix", "")
   def submitToDmsViaGform(
-    submission: DmsHtmlSubmission)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[EnvelopeId] =
-    ws.POST[DmsHtmlSubmission, EnvelopeId](s"$baseUrl/dms/submit", submission)
+    submission: DmsHtmlSubmission)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[java.util.UUID] =
+    ws.POST[DmsHtmlSubmission, java.util.UUID](s"$baseUrl/dms/submit", submission)
 }
