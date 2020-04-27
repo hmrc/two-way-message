@@ -19,9 +19,9 @@ package uk.gov.hmrc.twowaymessage.model
 import play.api.libs.json.Json
 
 case class MessageStatus(
-                          envelopeId: Option[String],
-                          status: Option[String]
-                        )
+  envelopeId: Option[String],
+  status: Option[String]
+)
 
 object MessageStatus {
   implicit val messageStatusFormat = Json.format[MessageStatus]
