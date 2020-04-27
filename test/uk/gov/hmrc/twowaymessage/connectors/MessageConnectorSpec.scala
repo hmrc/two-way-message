@@ -101,7 +101,8 @@ class MessageConnectorSpec
       val body = Json.toJson(messageStatus)
 
       givenThat(
-        post(urlEqualTo(s"/messages/$messageId/dms-status")).withRequestBody(equalTo(body.toString()))
+        post(urlEqualTo(s"/messages/$messageId/dms-status"))
+          .withRequestBody(equalTo(body.toString()))
           .willReturn(aResponse()
             .withStatus(Status.OK)))
 
