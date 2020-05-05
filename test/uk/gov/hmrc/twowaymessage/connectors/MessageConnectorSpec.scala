@@ -41,6 +41,7 @@ import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import uk.gov.hmrc.twowaymessage.model.MessageMetadataFormat._
 import uk.gov.hmrc.twowaymessage.model.{ Message, _ }
+import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 
 class MessageConnectorSpec
     extends WordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
@@ -92,16 +93,20 @@ class MessageConnectorSpec
 
   "Message Connector postDmsStatus" should {
     "return status 201" in {
-
       val messageId = "5d12eb115f0000000205c150"
       val envelopId = "5456b115f0000000205c1599"
 
+      val messageStatus = MessageStatus(Some(envelopId), None)
+
+      val body = Json.toJson(messageStatus)
+
       givenThat(
-        post(urlEqualTo(s"/messages/$messageId/dms-status/$envelopId"))
+        post(urlEqualTo(s"/messages/$messageId/dms-status"))
+          .withRequestBody(equalTo(body.toString()))
           .willReturn(aResponse()
             .withStatus(Status.OK)))
 
-      val httpResult = await(messageConnector.postDmsStatus(messageId, envelopId)(new HeaderCarrier()))
+      val httpResult = await(messageConnector.postDmsStatus(messageId, messageStatus)(new HeaderCarrier()))
       httpResult.status shouldBe (200)
     }
   }

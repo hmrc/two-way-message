@@ -135,9 +135,16 @@ class TwoWayMessageServiceImpl @Inject()(
     }
 
   private def submitToDms(messageId: String, dmsSubmission: DmsHtmlSubmission)(implicit hc: HeaderCarrier) =
-    gformConnector.submitToDmsViaGform(dmsSubmission).flatMap { uuid =>
-      messageConnector.postDmsStatus(messageId, uuid.toString)
-    }
+    gformConnector
+      .submitToDmsViaGform(dmsSubmission)
+      .flatMap { uuid =>
+        messageConnector.postDmsStatus(messageId, MessageStatus(envelopeId = Some(uuid.toString), status = None))
+      }
+      .recoverWith {
+        case _ =>
+          messageConnector
+            .postDmsStatus(messageId, MessageStatus(envelopeId = None, status = Some("SUBMISSION_FAILED")))
+      }
 
   private def postAdviserReply(
     twoWayMessageReply: TwoWayMessageReply,
