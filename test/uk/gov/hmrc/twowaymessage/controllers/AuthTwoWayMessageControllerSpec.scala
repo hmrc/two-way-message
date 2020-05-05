@@ -429,7 +429,8 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
       expectedDisplayName: String,
       invalidEnquiryType: String,
       taxIdName: String,
-      taxId: String)
+      taxId: String,
+      responseTime: String = "5 days")
 
     val hmrcNiEnrol = enrol("HMRC-NI", "nino", "AB123456C")
     val enquiryTypeDisplayNameMap = List(
@@ -510,7 +511,8 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
         "PAYE for employers Job Retention Scheme",
         "p800",
         "empRef",
-        "12183/23190")
+        "12183/23190",
+        "2 days")
     )
 
     enquiryTypeDisplayNameMap.foreach(scenario => {
@@ -522,7 +524,7 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
         Json.parse(contentAsString(result)) mustBe
           Json.parse(s"""{
                         |"displayName":"${scenario.expectedDisplayName}",
-                        |"responseTime":"5 days",
+                        |"responseTime":"${scenario.responseTime}",
                         |"taxIdName":"${scenario.taxIdName}",
                         |"taxId":"${scenario.taxId}"
                         |}""".stripMargin)
