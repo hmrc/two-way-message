@@ -212,7 +212,7 @@ class EnquiryTypeConfigurationSpec extends WordSpec with Matchers with GuiceOneA
         dmsFormId = "epaye-jrs",
         classificationType = "Job Retention-TWSM",
         businessArea = "Universal",
-        responseTime = "5 days",
+        responseTime = "2 days",
         displayName = "PAYE for employers Job Retention Scheme",
         pdfPageTitle = "Received from: EPAYE Job Retention Scheme",
         pdfTaxIdTitle = "Employer PAYE reference"
