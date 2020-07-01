@@ -30,12 +30,12 @@ import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.Helpers._
 import play.api.test.{ FakeHeaders, FakeRequest, Helpers }
-import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication }
+import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.{ EmptyPredicate, Predicate }
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{ Name, ~ }
-import uk.gov.hmrc.domain.{ CtUtr, EmpRef, HmrcMtdVat, HmrcObtdsOrg, Nino, SaUtr, SimpleName, TaxIdentifier }
+import uk.gov.hmrc.domain.{ CtUtr, HmrcMtdVat, Nino, SaUtr, SimpleName, TaxIdentifier }
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.twowaymessage.assets.TestUtil
@@ -405,7 +405,7 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
   "The TwoWayMessageController.getContentBy method" should {
     "return 200 (OK) when the message type is valid" in {
       val nino = Nino("AB123456C")
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication))(Future.successful())
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(List())))
       val result = await(testTwoWayMessageController.getContentBy("1", "Customer")(fakeRequest1).run())
@@ -413,7 +413,7 @@ class AuthTwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
     }
 
     "return 400 (BAD_REQUEST) when the message type is invalid" in {
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication))(Future.successful())
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       val result = await(testTwoWayMessageController.getContentBy("1", "nfejwk")(fakeRequest1).run())
       result.header.status mustBe Status.BAD_REQUEST
     }

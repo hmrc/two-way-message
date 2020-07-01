@@ -20,12 +20,10 @@ import javax.inject.{ Inject, Singleton }
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc.{ Action, _ }
-import scala.concurrent.{ ExecutionContext, Future }
-import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication }
+import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{ Name, ~ }
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.gform.gformbackend.GformConnector
@@ -39,6 +37,8 @@ import uk.gov.hmrc.twowaymessage.model.MessageMetadataFormat._
 import uk.gov.hmrc.twowaymessage.model.TwoWayMessageFormat._
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.services.{ HtmlCreatorService, RenderType, TwoWayMessageService }
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class TwoWayMessageController @Inject()(
@@ -212,7 +212,7 @@ class TwoWayMessageController @Inject()(
   def getContentBy(id: String, msgType: String): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
 
-    authorised(AuthProviders(GovernmentGateway, PrivilegedApplication)) {
+    authorised(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify)) {
 
       def createMsg(typ: RenderType.ReplyType): Future[Result] =
         twms.findMessagesBy(id).flatMap {

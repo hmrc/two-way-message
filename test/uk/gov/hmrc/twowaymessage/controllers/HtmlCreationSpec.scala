@@ -31,9 +31,9 @@ import play.api.mvc.Results.Created
 import play.api.test.Helpers._
 import play.api.test.{ FakeHeaders, FakeRequest, Helpers }
 import play.mvc.Http
-import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication }
+import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
 import uk.gov.hmrc.auth.core.authorise.{ EmptyPredicate, Predicate }
-import uk.gov.hmrc.auth.core.{ AuthConnector, AuthProviders, Enrolment }
+import uk.gov.hmrc.auth.core.{ AuthConnector, AuthProviders }
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.twowaymessage.assets.TestUtil
@@ -108,7 +108,7 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
   "The TwoWayMessageController.getContentBy method" should {
     "return 200 (OK) with the content of the conversation in html for the advisor" in {
       val nino = Nino("AB123456C")
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication))(Future.successful())
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
           any[HeaderCarrier]))
@@ -138,7 +138,7 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
     "return 200 (OK) with the content of the conversation in html for the customer and p800 enquiryType" in {
       val nino = Nino("AB123456C")
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication))(Future.successful())
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
           any[HeaderCarrier]))
@@ -171,7 +171,7 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
     "return 200 (OK) with the content of the conversation in html for the customer and epaye-general enquiryType" in {
       val nino = Nino("AB123456C")
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication))(Future.successful())
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
           any[HeaderCarrier]))
@@ -219,7 +219,7 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
     "return 400 (bad request)  with no content in body" in {
       val nino = Nino("AB123456C")
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication))(Future.successful())
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
           any[HeaderCarrier]))
