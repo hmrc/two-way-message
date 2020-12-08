@@ -26,13 +26,13 @@ object AppDependencies {
     "com.codecommit"        %% "parseback-cats"           % "0.3",
     "com.github.pureconfig" %% "pureconfig"               % "0.9.2",
     "org.julienrf"          %% "play-json-derived-codecs" % "3.3",
-    "uk.gov.hmrc"           %% "bootstrap-play-26"        % "1.5.0",
+    "uk.gov.hmrc"           %% "bootstrap-play-26"        % "2.2.0",
     "com.google.inject"     % "guice"                     % "4.2.0",
     "com.kenshoo"           %% "metrics-play"             % "2.6.6_0.6.2",
     "com.typesafe.play"     %% "play-json-joda"           % "2.6.7",
     "uk.gov.hmrc"           %% "domain"                   % "5.6.0-play-26",
     "javax.inject"          % "javax.inject"              % "1",
-    "uk.gov.hmrc"           %% "auth-client"              % "2.35.0-play-26"
+    "uk.gov.hmrc"           %% "auth-client"              % "3.2.0-play-26"
   )
 
   val test = Set(
