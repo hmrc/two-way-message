@@ -20,46 +20,42 @@ import uk.gov.hmrc.SbtArtifactory
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 import uk.gov.hmrc.ServiceManagerPlugin.serviceManagerSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import uk.gov.hmrc.{ExternalService, SbtBuildInfo, ShellPrompt}
+import uk.gov.hmrc.{ ExternalService, SbtBuildInfo, ShellPrompt }
 
 val appName = "two-way-message"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
-
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(
     resolvers ++= Seq(
       Resolver.jcenterRepo,
-      Resolver.bintrayRepo("hmrc","releases"),
+      Resolver.bintrayRepo("hmrc", "releases"),
       Resolver.bintrayRepo("jetbrains", "markdown"),
       "bintray-djspiewak-maven" at "https://dl.bintray.com/djspiewak/maven"
     ),
-    inConfig(IntegrationTest)(scalafmtCoreSettings ++
-       Seq(
-         compileInputs in compile := Def.taskDyn {
-           val task = test in (resolvedScoped.value.scope in scalafmt.key)
-           val previousInputs = (compileInputs in compile).value
-           task.map(_ => previousInputs)
-         }.value
-       )
-    )
+    inConfig(IntegrationTest)(
+      scalafmtCoreSettings ++
+        Seq(
+          compileInputs in compile := Def.taskDyn {
+            val task = test in (resolvedScoped.value.scope in scalafmt.key)
+            val previousInputs = (compileInputs in compile).value
+            task.map(_ => previousInputs)
+          }.value
+        ))
   )
   .settings(
-    majorVersion                     := 0,
-    scalaVersion                     := "2.11.12",
-    libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
-    dependencyOverrides              ++= AppDependencies.overrides )
+    majorVersion := 0,
+    scalaVersion := "2.11.12",
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
+  )
   .settings(ServiceManagerPlugin.serviceManagerSettings)
-  .settings(itDependenciesList := List(
-    ExternalService("AUTH"),
-    ExternalService("IDENTITY_VERIFICATION"),
-    ExternalService("MESSAGE"),
-    ExternalService("USER_DETAILS")
-  ))
-
-
-
-
+  .settings(
+    itDependenciesList := List(
+      ExternalService("AUTH"),
+      ExternalService("IDENTITY_VERIFICATION"),
+      ExternalService("MESSAGE"),
+      ExternalService("USER_DETAILS")
+    ))
