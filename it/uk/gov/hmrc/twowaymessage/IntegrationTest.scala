@@ -239,6 +239,21 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
       val getPreviousMessages = for (div <- regex.findAllMatchIn(previousMessages.body)) yield div.group(1)
       getPreviousMessages.length shouldBe 1
     }
+
+  }
+
+  "A user logged on through Verify" should {
+
+    "be able to view two-way-message content" in {
+      val messageId = getValidNinoMessageId
+      val adviserReplyId = getReplyToMessageId(messageId)
+      val responseCustomer = httpClient
+        .url(resource(s"/messages/$adviserReplyId/content"))
+        .withHttpHeaders(AuthUtil.buildVerifyToken)
+        .get()
+        .futureValue
+      responseCustomer.status shouldBe 200
+    }
   }
 
   "Get enquiry type details" should {
@@ -264,7 +279,7 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
 
   object AuthUtil {
     lazy val authPort = 8500
-    lazy val ggAuthPort: Int = externalServicePorts("auth-login-api")
+    lazy val authApiPort: Int = externalServicePorts("auth-login-api")
 
     implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
 
@@ -278,6 +293,15 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
         |  "ttl": 1200
         | }
       """.stripMargin
+
+    private val VERIFY_USER_PAYLOAD =
+      """
+        | {
+        |  "pid" : "1234",
+        |  "nino" : "AA000108C",
+        |  "saUtr" : "1234567890"
+        | }
+        |""".stripMargin
 
     private val GG_NINO_USER_PAYLOAD =
       """
@@ -313,9 +337,9 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
         |  }
      """.stripMargin
 
-    private def buildUserToken(payload: String): (String, String) = {
+    private def buildGgUserToken(payload: String): (String, String) = {
       val response = httpClient
-        .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
+        .url(s"http://localhost:$authApiPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
         .post(payload)
         .futureValue
@@ -323,15 +347,25 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
       ("Authorization", response.header("Authorization").get)
     }
 
-    def buildNinoUserToken: (String, String) = buildUserToken(GG_NINO_USER_PAYLOAD)
+    def buildNinoUserToken: (String, String) = buildGgUserToken(GG_NINO_USER_PAYLOAD)
 
-    def buildSaUserToken: (String, String) = buildUserToken(GG_SA_USER_PAYLOAD)
+    def buildSaUserToken: (String, String) = buildGgUserToken(GG_SA_USER_PAYLOAD)
 
     def buildStrideToken: (String, String) = {
       val response = httpClient
         .url(s"http://localhost:$authPort/auth/sessions")
         .withHttpHeaders(("Content-Type", "application/json"))
         .post(STRIDE_USER_PAYLOAD)
+        .futureValue
+
+      ("Authorization", response.header("Authorization").get)
+    }
+
+    def buildVerifyToken: (String, String) = {
+      val response = httpClient
+        .url(s"http://localhost:$authApiPort/verify/login")
+        .withHttpHeaders(("Content-Type", "application/json"))
+        .post(VERIFY_USER_PAYLOAD)
         .futureValue
 
       ("Authorization", response.header("Authorization").get)
