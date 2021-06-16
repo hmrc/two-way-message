@@ -29,6 +29,10 @@ lazy val microservice = Project(appName, file("."))
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(
+    resolvers ++= Seq(
+      Resolver.bintrayRepo("jetbrains", "markdown"),
+      "bintray-djspiewak-maven" at "https://dl.bintray.com/djspiewak/maven"
+    ),
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
         Seq(
