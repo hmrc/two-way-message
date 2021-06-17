@@ -29,6 +29,9 @@ lazy val microservice = Project(appName, file("."))
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(
+    resolvers ++= Seq(
+      "third-party-maven-releases" at "https://artefacts.tax.service.gov.uk/artifactory/third-party-maven-releases/"
+    ),
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
         Seq(

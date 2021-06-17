@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,7 +308,7 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
         | {
         |  "credId": "1234",
         |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 100,
+        |  "confidenceLevel": 200,
         |  "credentialStrength": "none",
         |  "nino": "AA000108C",
         |  "enrolments": []
@@ -320,7 +320,7 @@ class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
         | {
         |  "credId": "1235",
         |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 100,
+        |  "confidenceLevel": 200,
         |  "credentialStrength": "none",
         |  "enrolments": [
         |      {
