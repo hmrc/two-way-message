@@ -16,7 +16,6 @@
 
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
-import uk.gov.hmrc.SbtArtifactory
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 import uk.gov.hmrc.ServiceManagerPlugin.serviceManagerSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
@@ -25,16 +24,13 @@ import uk.gov.hmrc.{ ExternalService, SbtBuildInfo, ShellPrompt }
 val appName = "two-way-message"
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(
     resolvers ++= Seq(
-      Resolver.jcenterRepo,
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayRepo("jetbrains", "markdown"),
-      "bintray-djspiewak-maven" at "https://dl.bintray.com/djspiewak/maven"
+      "third-party-maven-releases" at "https://artefacts.tax.service.gov.uk/artifactory/third-party-maven-releases/"
     ),
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
