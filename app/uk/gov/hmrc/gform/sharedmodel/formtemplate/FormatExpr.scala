@@ -19,7 +19,7 @@ package uk.gov.hmrc.gform.sharedmodel.formtemplate
 import julienrf.json.derived
 import julienrf.json.derived.NameAdapter
 import play.api.libs.json._
-import uk.gov.hmrc.gform.core.parsers.{BasicParsers, ValueParser}
+import uk.gov.hmrc.gform.core.parsers.{ BasicParsers, ValueParser }
 
 sealed trait FormatExpr
 final case class OrientationFormat(value: String) extends FormatExpr
