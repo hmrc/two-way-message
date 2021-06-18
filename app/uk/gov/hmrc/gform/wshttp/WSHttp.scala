@@ -44,7 +44,7 @@ class GformWSHttp @Inject()(
   override protected val actorSystem: ActorSystem)(implicit ec: ExecutionContext)
     extends HttpClient with WSHttp {
 
-  override lazy val configuration: Option[Config] = Option(config.underlying)
+  override lazy val configuration: Config = (config.underlying)
 
   override val hooks: Seq[HttpHook] = Seq(httpAuditing.AuditingHook)
 
@@ -61,7 +61,7 @@ class GformWSHttp @Inject()(
 
     val source: Source[FilePart[Source[ByteString, NotUsed]], NotUsed] = Source(
       FilePart(fileName, fileName, Some(contentType), Source.single(body)) :: Nil)
-    buildRequest(url).addHttpHeaders(headers: _*).post(source).map(new WSHttpResponse(_))
+    buildRequest(url, Seq.empty).addHttpHeaders(headers: _*).post(source).map(new WSHttpResponse(_))
 
   }
 }

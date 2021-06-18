@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gform.sharedmodel.formtemplate.destinations
 
-import cats.syntax.either._
 import julienrf.json.derived
+import julienrf.json.derived.NameAdapter
 import play.api.libs.json._
 import uk.gov.hmrc.gform.sharedmodel.formtemplate._
 
@@ -56,12 +56,12 @@ object Destination {
   val handlebarsHttpApi: String = "handlebarsHttpApi"
 
   implicit val format: OFormat[Destination] = {
-    implicit val d: OFormat[Destination] = derived.oformat
+    implicit val d: OFormat[Destination] = derived.oformat(adapter = NameAdapter.identity)
 
     OFormatWithTemplateReadFallback(
       ADTFormat.adtRead[Destination](
         typeDiscriminatorFieldName,
-        hmrcDms           -> derived.reads[HmrcDms],
+        hmrcDms           -> derived.reads[HmrcDms](adapter = NameAdapter.identity),
         handlebarsHttpApi -> UploadableHandlebarsHttpApiDestination.reads
       ))
   }
@@ -88,7 +88,7 @@ case class UploadableHandlebarsHttpApiDestination(
 
 object UploadableHandlebarsHttpApiDestination {
   implicit val reads = new Reads[Destination.HandlebarsHttpApi] {
-    val d = derived.reads[UploadableHandlebarsHttpApiDestination]
+    val d = derived.reads[UploadableHandlebarsHttpApiDestination](NameAdapter.identity)
     override def reads(json: JsValue): JsResult[Destination.HandlebarsHttpApi] =
       d.reads(json).flatMap(_.toHandlebarsHttpApiDestination.fold(JsError(_), JsSuccess(_)))
   }

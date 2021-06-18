@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gform.sharedmodel.formtemplate
 
 import julienrf.json.derived
+import julienrf.json.derived.NameAdapter
 import play.api.libs.json._
 import uk.gov.hmrc.gform.core.parsers.ExprParsers
 
@@ -47,7 +48,7 @@ final case class Constant(value: String) extends Expr
 final case object Value extends Expr
 
 object Expr {
-  implicit val format: OFormat[Expr] = derived.oformat
+  implicit val format: OFormat[Expr] = derived.oformat(NameAdapter.identity)
 }
 
 sealed trait Operation
@@ -60,7 +61,7 @@ final case object Agent extends Eeitt
 final case object UserId extends Eeitt
 
 object Eeitt {
-  implicit val format: OFormat[Eeitt] = derived.oformat
+  implicit val format: OFormat[Eeitt] = derived.oformat(NameAdapter.identity)
 }
 
 sealed trait UserField
@@ -69,15 +70,15 @@ final case class Enrolment(serviceName: ServiceName, identifierName: IdentifierN
 
 final case class ServiceName(value: String) extends AnyVal
 object ServiceName {
-  implicit val format: OFormat[ServiceName] = derived.oformat
+  implicit val format: OFormat[ServiceName] = derived.oformat(NameAdapter.identity)
 }
 final case class IdentifierName(value: String) extends AnyVal
 object IdentifierName {
-  implicit val format: OFormat[IdentifierName] = derived.oformat
+  implicit val format: OFormat[IdentifierName] = derived.oformat(NameAdapter.identity)
 }
 
 object UserField {
-  implicit val format: OFormat[UserField] = derived.oformat
+  implicit val format: OFormat[UserField] = derived.oformat(NameAdapter.identity)
 }
 
 sealed trait AuthInfo
@@ -87,5 +88,5 @@ final case object SaUtr extends AuthInfo
 final case object CtUtr extends AuthInfo
 
 object AuthInfo {
-  implicit val format: OFormat[AuthInfo] = derived.oformat
+  implicit val format: OFormat[AuthInfo] = derived.oformat(NameAdapter.identity)
 }
