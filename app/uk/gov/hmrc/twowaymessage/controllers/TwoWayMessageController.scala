@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.twowaymessage.controllers
 
-import javax.inject.{ Inject, Singleton }
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc.{ Action, _ }
@@ -28,8 +27,8 @@ import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.gform.gformbackend.GformConnector
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.twowaymessage.connectors.AuthIdentifiersConnector
 import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, SubmissionDetails }
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
@@ -38,12 +37,12 @@ import uk.gov.hmrc.twowaymessage.model.TwoWayMessageFormat._
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.services.{ HtmlCreatorService, RenderType, TwoWayMessageService }
 
+import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class TwoWayMessageController @Inject()(
   twms: TwoWayMessageService,
-  hcs: HtmlCreatorService,
   val authConnector: AuthConnector,
   val gformConnector: GformConnector,
   authIdentifiersConnector: AuthIdentifiersConnector,
@@ -53,7 +52,7 @@ class TwoWayMessageController @Inject()(
 
   // Customer creating a two-way message
   def createMessage(enquiryType: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     authorised().retrieve(Retrievals.allEnrolments and Retrievals.name) {
       case enrolments ~ Some(name) =>
         authIdentifiersConnector
@@ -71,7 +70,7 @@ class TwoWayMessageController @Inject()(
   }
 
   def getRecipientMetadata(messageId: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     twms.getMessageMetadata(messageId).map {
       case Some(m) => Ok(Json.toJson(m))
       case None    => NotFound
@@ -79,7 +78,7 @@ class TwoWayMessageController @Inject()(
   }
 
   def getRecipientMessageContentBy(messageId: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     twms.getMessageContentBy(messageId).map {
       case Some(m) => Ok(m)
       case None    => NotFound
@@ -87,7 +86,7 @@ class TwoWayMessageController @Inject()(
   }
 
   def getMessagesListBy(messageId: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     twms.findMessagesBy(messageId).map {
       case Right(messages) => Ok(Json.toJson(messages))
       case Left(errors)    => BadRequest(Json.obj("error" -> 400, "message" -> errors))
@@ -95,7 +94,7 @@ class TwoWayMessageController @Inject()(
   }
 
   def getMessagesListSizeBy(messagesId: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     twms.findMessagesBy(messagesId).map {
       case Right(messages) => Ok(JsNumber(messages.size))
       case Left(errors)    => BadRequest(Json.obj("error" -> 400, "message" -> errors))
@@ -138,7 +137,7 @@ class TwoWayMessageController @Inject()(
   // Adviser replying to a customer message
   def createAdviserResponse(replyTo: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     {
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
       authorised(AuthProviders(PrivilegedApplication)) {
         validateAndPostAdviserResponse(request.body, replyTo)
       }.recoverWith {
@@ -159,7 +158,7 @@ class TwoWayMessageController @Inject()(
   // TODO: queueId is redundant, as it's currently fetched from the original message metadata (i.e. postCustomerReply/getMessageMetadata) - you can safely remove
   def createCustomerResponse(enquiryType: String, replyTo: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
       authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
         authIdentifiersConnector
           .enquiryTaxId(enrolments, enquiryType)
@@ -188,7 +187,7 @@ class TwoWayMessageController @Inject()(
   }
 
   def getEnquiryTypeDetails(enquiryTypeString: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     authorised().retrieve(Retrievals.allEnrolments) {
       case enrolments =>
         authIdentifiersConnector
@@ -210,7 +209,7 @@ class TwoWayMessageController @Inject()(
   }
 
   def getContentBy(id: String, msgType: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     authorised(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify)) {
 
@@ -240,7 +239,7 @@ class TwoWayMessageController @Inject()(
     }
 
   def getLatestMessage(messageId: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     twms.getLastestMessage(messageId).map {
       case Left(error) => BadGateway(error)
       case Right(html) => Ok(html)
@@ -248,7 +247,7 @@ class TwoWayMessageController @Inject()(
   }
 
   def getPreviousMessages(messageId: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     twms.getPreviousMessages(messageId).map {
       case Left(error) => BadGateway(error)
       case Right(html) => Ok(html)

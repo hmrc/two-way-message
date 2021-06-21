@@ -27,11 +27,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{ Injector, bind }
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
-import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, EnquiryType }
+import uk.gov.hmrc.twowaymessage.enquiries.Enquiry
 import uk.gov.hmrc.twowaymessage.model._
 
 import scala.concurrent.{ ExecutionContext, Future }

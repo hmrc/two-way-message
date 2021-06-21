@@ -26,20 +26,17 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HttpEntity.Strict
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{ JsString, Json }
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.mvc.Http
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.domain.TaxIds._
-import uk.gov.hmrc.domain._
+import uk.gov.hmrc.domain.{ Nino, _ }
 import uk.gov.hmrc.gform.dms.{ DmsHtmlSubmission, DmsMetadata }
 import uk.gov.hmrc.gform.gformbackend.GformConnector
-import uk.gov.hmrc.gform.sharedmodel.form.EnvelopeId
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, EnquiryType }
@@ -114,7 +111,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           .postMessage(any[Message])(any[HeaderCarrier])
       ).thenReturn(
         Future.successful(
-          HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))
+          HttpResponse(Http.Status.CREATED, Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}"), Map("" -> Seq("")))
         )
       )
       when(
@@ -122,7 +119,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
           .getMessages(any[String])(any[HeaderCarrier])
       ).thenReturn(
         Future.successful(
-          HttpResponse(Http.Status.OK, Some(Json.toJson(conversationItem)))
+          HttpResponse(Http.Status.OK, Json.toJson(conversationItem), Map("" -> Seq("")))
         )
       )
       when(
@@ -153,14 +150,14 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
 
     "return 502 (Bad Gateway) when posting a message to the message service fails" in {
       when(mockMessageConnector.postMessage(any[Message])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.BAD_REQUEST)))
+        .thenReturn(Future.successful(HttpResponse(Http.Status.BAD_REQUEST, "")))
       val name = Name(Option("firstname"), Option("surname"))
       val messageResult =
         await(messageService.post(enquiries("p800").get, nino, twoWayMessageExample, dmsMetadataExample, name))
       messageResult.header.status shouldBe 502
     }
 
-    SharedMetricRegistries.clear
+    SharedMetricRegistries.clear()
   }
 
   "TwoWayMessageService.postAdviserReply" should {
@@ -188,13 +185,17 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return 201 (Created) when a message is successfully created by the message service" in {
 
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.toJson(messageMetadata)))))
+        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Json.toJson(messageMetadata), Map("" -> Seq("")))))
 
       when(
         mockMessageConnector
           .postMessage(any[Message])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(
-          HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))))
+        .thenReturn(
+          Future.successful(
+            HttpResponse(
+              Http.Status.CREATED,
+              Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}"),
+              Map("" -> Seq("", "")))))
 
       val messageResult =
         await(messageService.postAdviserReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
@@ -204,12 +205,12 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return 502 (Bad Gateway) when posting a message to the message service fails with a 409 Conflict" in {
 
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.toJson(messageMetadata)))))
+        .thenReturn(
+          Future.successful(HttpResponse(Http.Status.OK, Json.toJson(messageMetadata), Map("" -> Seq("", "")))))
 
       val postMessageResponse = HttpResponse(
         Http.Status.CONFLICT,
-        responseString = Some(
-          "POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'")
+        "POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'"
       )
 
       when(mockMessageConnector.postMessage(any[Message])(any[HeaderCarrier]))
@@ -239,7 +240,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
         "{\"error\":400,\"message\":\"GET of 'http://localhost:8910/messages/5c2dec526900006b000d53b/metadata' returned 400 (Bad Request). Response body '{ \\\"status\\\": 400, \\\"message\\\": \\\"A client error occurred: ID 5c2dec526900006b000d53b was invalid\\\" } '\"}"
     }
 
-    SharedMetricRegistries.clear
+    SharedMetricRegistries.clear()
   }
 
   "TwoWayMessageService.postCustomerReply" should {
@@ -267,13 +268,14 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return 201 (Created) when a message is successfully created by the message service" in {
 
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.toJson(messageMetadata)))))
+        .thenReturn(
+          Future.successful(HttpResponse(Http.Status.OK, Json.toJson(messageMetadata), Map("" -> Seq("", "")))))
 
       when(
         mockMessageConnector
           .postMessage(any[Message])(any[HeaderCarrier]))
         .thenReturn(Future.successful(
-          HttpResponse(Http.Status.CREATED, Some(Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}")))))
+          HttpResponse(Http.Status.CREATED, Json.parse("{\"id\":\"5c18eb2e6f0000100204b161\"}"), Map("" -> Seq("")))))
 
       val messageResult =
         await(messageService.postCustomerReply(TwoWayMessageReply("Some content"), "some-reply-to-message-id"))
@@ -283,12 +285,12 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return 502 (Bad Gateway) when posting a message to the message service fails with a 409 Conflict" in {
 
       when(mockMessageConnector.getMessageMetadata(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.toJson(messageMetadata)))))
+        .thenReturn(
+          Future.successful(HttpResponse(Http.Status.OK, Json.toJson(messageMetadata), Map("" -> Seq("", "")))))
 
       val postMessageResponse = HttpResponse(
         Http.Status.CONFLICT,
-        responseString = Some(
-          "POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'")
+        "POST of 'http://localhost:8910/messages' returned 409. Response body: '{\"reason\":\"Duplicated message content or external reference ID\"}'"
       )
 
       when(mockMessageConnector.postMessage(any[Message])(any[HeaderCarrier]))
@@ -318,7 +320,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
         "{\"error\":404,\"message\":\"GET of 'http://localhost:8910/messages/5c2dec526900006b000d53b1/metadata' returned 404 (Not Found). Response body: ''\"}"
     }
 
-    SharedMetricRegistries.clear
+    SharedMetricRegistries.clear()
   }
 
   "TwoWayMessageService.findMessagesListBy" should {
@@ -328,7 +330,8 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       when(
         mockMessageConnector
           .getMessages(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.parse(fixtureMessages)))))
+        .thenReturn(
+          Future.successful(HttpResponse(Http.Status.OK, Json.parse(fixtureMessages), Map("" -> Seq("", "")))))
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
       messagesResult.right.get.head.validFrom.toString should be("2013-12-01")
     }
@@ -338,7 +341,8 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       when(
         mockMessageConnector
           .getMessages(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.parse(invalidFixtureMessages)))))
+        .thenReturn(
+          Future.successful(HttpResponse(Http.Status.OK, Json.parse(invalidFixtureMessages), Map("" -> Seq("", "")))))
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
       messagesResult.right should not be (None)
     }
@@ -347,12 +351,12 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       when(
         mockMessageConnector
           .getMessages(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.INTERNAL_SERVER_ERROR)))
+        .thenReturn(Future.successful(HttpResponse(Http.Status.INTERNAL_SERVER_ERROR, "")))
       val messageResult = await(messageService.findMessagesBy("1234567890"))
       messageResult.left.get should be("Error retrieving messages")
     }
 
-    SharedMetricRegistries.clear
+    SharedMetricRegistries.clear()
   }
 
   "Generated JSON" should {
@@ -457,7 +461,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
 
       when(mockMessageConnector.getMessageContent(any[String])(any[HeaderCarrier])).thenReturn(
         Future.successful(
-          HttpResponse(Http.Status.OK, None, Map.empty, Some(htmlString))
+          HttpResponse(Http.Status.OK, htmlString)
         )
       )
       val actualHtml = await(messageService.getMessageContentBy("123"))
@@ -467,7 +471,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
 
     "return None if unable to get message content" in {
       when(mockMessageConnector.getMessageContent(any[String])(any[HeaderCarrier])).thenReturn(
-        Future.successful(HttpResponse(Http.Status.BAD_GATEWAY))
+        Future.successful(HttpResponse(Http.Status.BAD_GATEWAY, ""))
       )
       val actualHtml = await(messageService.getMessageContentBy("123"))
       actualHtml shouldBe None
@@ -558,7 +562,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return a list of messages as Html" in {
       when(mockMessageConnector.getMessages(any[String])(any[HeaderCarrier])).thenReturn(
         Future.successful(
-          HttpResponse(Http.Status.OK, Some(jsonConversationItems), Map.empty, None)
+          HttpResponse(Http.Status.OK, jsonConversationItems, Map("" -> Seq("", "")))
         )
       )
 
@@ -578,7 +582,7 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     "return a list of messages as Html" in {
       when(mockMessageConnector.getMessages(any[String])(any[HeaderCarrier])).thenReturn(
         Future.successful(
-          HttpResponse(Http.Status.OK, Some(jsonConversationItems), Map.empty, None)
+          HttpResponse(Http.Status.OK, jsonConversationItems, Map("" -> Seq("", "")))
         )
       )
 

@@ -16,24 +16,17 @@
 
 package uk.gov.hmrc.twowaymessage.services
 
-import java.util.UUID.randomUUID
-
 import com.google.inject.Inject
 import play.api.http.Status.{ CREATED, INTERNAL_SERVER_ERROR, OK }
 import play.api.libs.json.{ JsError, Json }
 import play.api.mvc.Result
 import play.api.mvc.Results.Created
 import play.twirl.api.Html
-import scala.concurrent.{ ExecutionContext, Future }
 import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.gform.dms.{ DmsHtmlSubmission, DmsMetadata }
 import uk.gov.hmrc.gform.gformbackend.GformConnector
-import uk.gov.hmrc.gform.sharedmodel.form.EnvelopeId
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, EnquiryType }
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
@@ -42,10 +35,12 @@ import uk.gov.hmrc.twowaymessage.model.MessageMetadataFormat._
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 import uk.gov.hmrc.twowaymessage.model._
 
+import java.util.UUID.randomUUID
+import scala.concurrent.{ ExecutionContext, Future }
+
 class TwoWayMessageServiceImpl @Inject()(
   messageConnector: MessageConnector,
   gformConnector: GformConnector,
-  servicesConfig: ServicesConfig,
   enquiries: Enquiry,
   htmlCreatorService: HtmlCreatorService)(implicit ec: ExecutionContext)
     extends TwoWayMessageService {

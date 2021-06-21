@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.twowaymessage
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.scalatest.{ Matchers, WordSpec }
@@ -27,6 +25,7 @@ import play.api.libs.ws.ahc.{ AhcWSClient, AhcWSClientConfig, StandaloneAhcWSCli
 import uk.gov.hmrc.integration.ServiceSpec
 import uk.gov.hmrc.twowaymessage.MessageUtil._
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 class IntegrationTest extends WordSpec with Matchers with ServiceSpec {

@@ -21,7 +21,6 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.typesafe.config.Config
-import javax.inject.{ Inject, Singleton }
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc.MultipartFormData.FilePart
@@ -30,6 +29,7 @@ import uk.gov.hmrc.http.hooks.{ HttpHook, HttpHooks }
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.http.ws._
 
+import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future }
 trait HttpClient extends HttpGet with HttpPut with HttpPost with HttpDelete with HttpPatch
 
@@ -61,7 +61,9 @@ class GformWSHttp @Inject()(
 
     val source: Source[FilePart[Source[ByteString, NotUsed]], NotUsed] = Source(
       FilePart(fileName, fileName, Some(contentType), Source.single(body)) :: Nil)
-    buildRequest(url, Seq.empty).addHttpHeaders(headers: _*).post(source).map(new WSHttpResponse(_))
-
+    buildRequest(url, Seq.empty)
+      .addHttpHeaders(headers: _*)
+      .post(source)
+      .map(response => HttpResponse.apply(response.status, response.body, response.headers))
   }
 }

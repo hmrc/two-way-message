@@ -20,6 +20,7 @@ import akka.util.ByteString
 import javax.inject.Inject
 import play.api.Logger
 import uk.gov.hmrc.gform.auditing.loggingHelpers
+import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.gform.sharedmodel.config.ContentType
 import uk.gov.hmrc.gform.sharedmodel.form.{ EnvelopeId, FileId }
 import uk.gov.hmrc.gform.wshttp.GformWSHttp

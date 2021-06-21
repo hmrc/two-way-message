@@ -31,8 +31,7 @@ object AppDependencies {
     "com.kenshoo"           %% "metrics-play"              % "2.6.6_0.6.2",
     "com.typesafe.play"     %% "play-json-joda"            % "2.6.7",
     "uk.gov.hmrc"           %% "domain"                    % "5.6.0-play-26",
-    "javax.inject"          % "javax.inject"               % "1",
-    "uk.gov.hmrc"           %% "auth-client"               % "3.2.0-play-26"
+    "javax.inject"          % "javax.inject"               % "1"
   )
 
   val test = Set(
