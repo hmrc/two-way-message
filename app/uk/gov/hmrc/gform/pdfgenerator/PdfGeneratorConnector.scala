@@ -33,7 +33,7 @@ class PdfGeneratorConnector @Inject()(servicesConfig: ServicesConfig, wSHttp: Gf
     implicit hc: HeaderCarrier): Future[Array[Byte]] = {
     Logger.info(s"generate pdf, ${loggingHelpers.cleanHeaderCarrierHeader(hc)}")
     val url = s"$baseURL/pdf-generator-service/generate"
-    wSHttp.buildRequest(url).withHttpHeaders(headers: _*).post(payload).flatMap { response =>
+    wSHttp.buildRequest(url, Seq.empty).withHttpHeaders(headers: _*).post(payload).flatMap { response =>
       {
         val status = response.status
         if (status >= 200 && status < 300) {

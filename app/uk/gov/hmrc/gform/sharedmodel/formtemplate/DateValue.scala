@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gform.sharedmodel.formtemplate
 
 import julienrf.json.derived
+import julienrf.json.derived.NameAdapter
 import play.api.libs.json._
 
 sealed trait DateValue
@@ -26,5 +27,5 @@ final case class NextDateValue(month: Int, day: Int) extends DateValue
 final case class PreviousDateValue(month: Int, day: Int) extends DateValue
 
 object DateValue {
-  implicit val format: OFormat[DateValue] = derived.oformat
+  implicit val format: OFormat[DateValue] = derived.oformat(adapter = NameAdapter.identity)
 }

@@ -16,22 +16,25 @@
 
 package uk.gov.hmrc.gform.gformbackend
 
-import javax.inject.{ Inject, Singleton }
 import uk.gov.hmrc.gform.dms.DmsHtmlSubmission
-import uk.gov.hmrc.gform.sharedmodel.form.EnvelopeId
 import uk.gov.hmrc.gform.wshttp.GformWSHttp
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse, _ }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future }
-import uk.gov.hmrc.http._
 @Singleton
 class GformConnector @Inject()(ws: GformWSHttp, servicesConfig: ServicesConfig) {
   lazy val baseUrl = servicesConfig.baseUrl("gform") + servicesConfig.getConfString("gform.path-prefix", "")
 
   implicit val uuidHttpReads: HttpReads[java.util.UUID] = new HttpReads[java.util.UUID] with HttpErrorFunctions {
     def read(method: String, url: String, response: HttpResponse): java.util.UUID =
-      java.util.UUID.fromString(handleResponse(method, url)(response).body)
+      handleResponseEither(method, url)(response) match {
+        case Left(upstreamErrorResponse) =>
+          throw new Exception(
+            s"$method to $url failed with status ${upstreamErrorResponse.statusCode}. Response body: '${response.body}'")
+        case Right(httpResponse) => java.util.UUID.fromString(httpResponse.body)
+      }
   }
   def submitToDmsViaGform(
     submission: DmsHtmlSubmission)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[java.util.UUID] =

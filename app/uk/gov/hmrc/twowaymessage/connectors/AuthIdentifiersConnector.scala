@@ -16,18 +16,13 @@
 
 package uk.gov.hmrc.twowaymessage.connectors
 
-import javax.inject.{ Inject, Singleton }
-import scala.concurrent.Future
 import uk.gov.hmrc.auth.core
-import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
-import uk.gov.hmrc.auth.core.retrieve.{ Credentials, Retrievals }
 import uk.gov.hmrc.auth.core.{ Nino => _, _ }
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
-import uk.gov.hmrc.domain.TaxIds._
-import uk.gov.hmrc.domain.{ CtUtr, EmpRef, HmrcMtdVat, HmrcObtdsOrg, Nino, SaUtr, SimpleName, TaxIdentifier }
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, EnquiryType }
+import uk.gov.hmrc.domain._
+import uk.gov.hmrc.twowaymessage.enquiries.Enquiry
+
+import javax.inject.{ Inject, Singleton }
 
 @Singleton
 class AuthIdentifiersConnector @Inject()(

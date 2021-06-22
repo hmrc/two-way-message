@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gform.sharedmodel.formtemplate
 
 import julienrf.json.derived
+import julienrf.json.derived.NameAdapter
 import play.api.libs.json._
 import uk.gov.hmrc.gform.core.parsers.{ BasicParsers, ValueParser }
 
@@ -36,13 +37,13 @@ final case object AnyDate extends DateConstraintType
 final case class DateConstraints(constraints: List[DateConstraint]) extends DateConstraintType
 
 object DateConstraintType {
-  implicit val format: OFormat[DateConstraintType] = derived.oformat[DateConstraintType]
+  implicit val format: OFormat[DateConstraintType] = derived.oformat[DateConstraintType](NameAdapter.identity)
 }
 
 final case class DateConstraint(beforeOrAfter: BeforeOrAfter, dateFormat: DateConstraintInfo, offset: OffsetDate)
 
 object DateConstraint {
-  implicit val format: OFormat[DateConstraint] = derived.oformat[DateConstraint]
+  implicit val format: OFormat[DateConstraint] = derived.oformat[DateConstraint](NameAdapter.identity)
 }
 
 sealed trait BeforeOrAfter
@@ -50,7 +51,7 @@ case object After extends BeforeOrAfter
 case object Before extends BeforeOrAfter
 
 object BeforeOrAfter {
-  implicit val format: OFormat[BeforeOrAfter] = derived.oformat[BeforeOrAfter]
+  implicit val format: OFormat[BeforeOrAfter] = derived.oformat[BeforeOrAfter](NameAdapter.identity)
 }
 
 sealed trait DateConstraintInfo
@@ -62,7 +63,7 @@ case class AnyWord(value: String) extends DateConstraintInfo
 case class DateField(value: FormComponentId) extends DateConstraintInfo
 
 object DateConstraintInfo {
-  implicit val format: OFormat[DateConstraintInfo] = derived.oformat[DateConstraintInfo]
+  implicit val format: OFormat[DateConstraintInfo] = derived.oformat[DateConstraintInfo](NameAdapter.identity)
 }
 
 case class OffsetDate(value: Int) extends AnyVal
@@ -107,7 +108,7 @@ object TextConstraint {
   val defaultWholeDigits = 11
   val defaultFactionalDigits = 2
 
-  implicit val format: OFormat[TextConstraint] = derived.oformat[TextConstraint]
+  implicit val format: OFormat[TextConstraint] = derived.oformat[TextConstraint](NameAdapter.identity)
 
   def filterNumberValue(s: String): String = s.filterNot(c => (c == '£' || c == ','))
 }
@@ -116,7 +117,7 @@ object TextExpression {
 
   //TODO: remove this logic from case class representing data.
   implicit val format: OFormat[TextExpression] = {
-    val writes: OWrites[TextExpression] = derived.owrites
+    val writes: OWrites[TextExpression] = derived.owrites[TextExpression](NameAdapter.identity)
     val stdReads = Json.reads[TextExpression]
     val reads: Reads[TextExpression] = stdReads orElse Reads {
       case JsString(expression) =>

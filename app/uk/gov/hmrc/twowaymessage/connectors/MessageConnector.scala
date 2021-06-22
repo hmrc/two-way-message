@@ -18,9 +18,9 @@ package uk.gov.hmrc.twowaymessage.connectors
 
 import com.google.inject.Inject
 import play.api.http.Status
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpResponse }
+import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.twowaymessage.model.{ Message, MessageStatus }
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 

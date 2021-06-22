@@ -32,7 +32,7 @@ import uk.gov.hmrc.gform.sharedmodel.formtemplate.destinations.Destinations.DmsS
 import uk.gov.hmrc.gform.submission._
 import uk.gov.hmrc.gform.typeclasses.Rnd
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
 
 import scala.concurrent.ExecutionContext
@@ -47,7 +47,7 @@ class DmsSubmissionController @Inject()(
     extends InjectedController with WithJsonBody {
 
   def submitToDms: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     withJsonBody[DmsHtmlSubmission] { dmsHtmlSubmission =>
       val decodedHtml = decode(dmsHtmlSubmission.html)

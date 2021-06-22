@@ -23,17 +23,17 @@ import play.api.libs.json._
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.twirl.api.Html
-import scala.concurrent.Future
-import scala.language.implicitConversions
 import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.gform.dms.DmsMetadata
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, EnquiryType }
+import uk.gov.hmrc.twowaymessage.enquiries.EnquiryType
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 import uk.gov.hmrc.twowaymessage.model._
+
+import scala.concurrent.Future
+import scala.language.implicitConversions
 
 @ImplementedBy(classOf[TwoWayMessageServiceImpl])
 trait TwoWayMessageService {
@@ -99,9 +99,8 @@ trait TwoWayMessageService {
   }
 
   protected def handleError(): PartialFunction[Throwable, Result] = {
-    case e: Upstream4xxResponse => errorResponse(e.upstreamResponseCode, e.message)
-    case e: Upstream5xxResponse => errorResponse(e.upstreamResponseCode, e.message)
-    case e: HttpException       => errorResponse(e.responseCode, e.message)
+    case e: UpstreamErrorResponse => errorResponse(e.statusCode, e.message)
+    case e: HttpException         => errorResponse(e.responseCode, e.message)
   }
 
   def deriveAddressedName(name: Name): Option[String] = (name.name, name.lastName) match {

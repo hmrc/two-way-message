@@ -16,10 +16,9 @@
 
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
+import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
-import uk.gov.hmrc.ServiceManagerPlugin.serviceManagerSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import uk.gov.hmrc.{ ExternalService, SbtBuildInfo, ShellPrompt }
 
 val appName = "two-way-message"
 
@@ -44,7 +43,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.11.12",
+    scalaVersion := "2.12.12",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
   )
   .settings(ServiceManagerPlugin.serviceManagerSettings)

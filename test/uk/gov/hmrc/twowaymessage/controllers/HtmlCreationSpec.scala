@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.twowaymessage.controllers
 
-import java.util.{ Base64, UUID }
-
 import com.codahale.metrics.SharedMetricRegistries
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers
@@ -34,7 +32,6 @@ import play.mvc.Http
 import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
 import uk.gov.hmrc.auth.core.authorise.{ EmptyPredicate, Predicate }
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthProviders }
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.twowaymessage.assets.TestUtil
 import uk.gov.hmrc.twowaymessage.connector.mocks.MockAuthConnector
@@ -43,6 +40,7 @@ import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
+import java.util.{ Base64, UUID }
 import scala.concurrent.Future
 import scala.xml.{ Utility, Xhtml }
 
@@ -107,7 +105,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
   "The TwoWayMessageController.getContentBy method" should {
     "return 200 (OK) with the content of the conversation in html for the advisor" in {
-      val nino = Nino("AB123456C")
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
@@ -117,7 +114,8 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
       when(
         mockMessageConnector
           .getMessages(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.toJson(listOfConversationItems("p800"))))))
+        .thenReturn(Future.successful(
+          HttpResponse(Http.Status.OK, Json.toJson(listOfConversationItems("p800")), Map("" -> Seq("")))))
 
       val result =
         testTwoWayMessageController.getContentBy("5d02201b5b0000360151779e", "Adviser")(fakeRequest1).run()
@@ -137,7 +135,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
     }
 
     "return 200 (OK) with the content of the conversation in html for the customer and p800 enquiryType" in {
-      val nino = Nino("AB123456C")
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
@@ -147,7 +144,8 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
       when(
         mockMessageConnector
           .getMessages(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(Http.Status.OK, Some(Json.toJson(listOfConversationItems("p800"))))))
+        .thenReturn(Future.successful(
+          HttpResponse(Http.Status.OK, Json.toJson(listOfConversationItems("p800")), Map("" -> Seq("")))))
 
       val result =
         testTwoWayMessageController.getContentBy("5d02201b5b0000360151779e", "Customer")(fakeRequest1).run()
@@ -170,7 +168,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
     }
 
     "return 200 (OK) with the content of the conversation in html for the customer and epaye-general enquiryType" in {
-      val nino = Nino("AB123456C")
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
@@ -180,8 +177,8 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
       when(
         mockMessageConnector
           .getMessages(any[String])(any[HeaderCarrier]))
-        .thenReturn(
-          Future.successful(HttpResponse(Http.Status.OK, Some(Json.toJson(listOfConversationItems("epaye-general"))))))
+        .thenReturn(Future.successful(
+          HttpResponse(Http.Status.OK, Json.toJson(listOfConversationItems("epaye-general")), Map("" -> Seq("")))))
 
       val result =
         testTwoWayMessageController.getContentBy("5d02201b5b0000360151779e", "Customer")(fakeRequest1).run()
@@ -218,7 +215,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
     }
 
     "return 400 (bad request)  with no content in body" in {
-      val nino = Nino("AB123456C")
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(
         mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(

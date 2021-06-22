@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.joda.time.LocalDate
 import org.scalatest._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -31,17 +30,15 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{ JsSuccess, Json }
 import play.api.test.Helpers._
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.domain.TaxIds._
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import uk.gov.hmrc.twowaymessage.model.MessageMetadataFormat._
 import uk.gov.hmrc.twowaymessage.model.{ Message, _ }
-import uk.gov.hmrc.twowaymessage.model.MessageFormat._
+
+import scala.concurrent.ExecutionContext
 
 class MessageConnectorSpec
     extends WordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {

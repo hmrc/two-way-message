@@ -17,13 +17,13 @@
 package uk.gov.hmrc.gform.sharedmodel.formtemplate
 
 import julienrf.json.derived
-import julienrf.json.derived.{ DerivedOWrites, DerivedReads }
+import julienrf.json.derived.{ DerivedOWrites, DerivedReads, NameAdapter }
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{ OFormat, Reads }
 
 object OFormatWithTemplateReadFallback {
   def apply[A: DerivedReads: DerivedOWrites](templateReads: Reads[A]): OFormat[A] = {
-    val basic: OFormat[A] = derived.oformat
+    val basic: OFormat[A] = derived.oformat(NameAdapter.identity)
     val reads = (basic: Reads[A]) | templateReads
     OFormat(reads, basic)
   }
