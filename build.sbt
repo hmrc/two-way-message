@@ -54,3 +54,4 @@ lazy val microservice = Project(appName, file("."))
       ExternalService("MESSAGE"),
       ExternalService("USER_DETAILS")
     ))
+  .settings(ScoverageSettings())
