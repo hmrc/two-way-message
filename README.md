@@ -1,5 +1,26 @@
 
 # two-way-message
+...
+
+## Run the tests and sbt fmt before raising a PR
+
+Ensure you have service-manager python environment setup:
+
+`source ../servicemanager/bin/activate`
+
+Format:
+
+`sbt fmt`
+
+Then run the tests and coverage report:
+
+`sbt clean coverage test coverageReport`
+
+If your build fails due to poor testing coverage, *DO NOT* lower the test coverage, instead inspect the generated report located here on your local repo: `/target/scala-2.12/scoverage-report/index.html`
+
+Then run the integration tests:
+
+`sbt it:test`
 
 ## Customer create message API
 
@@ -9,7 +30,7 @@
 
 Example JSON body in POST request:
 ```
-{ 
+{
     "contactDetails":{
         "email": "someEmail@test.com"
     },
@@ -178,7 +199,7 @@ For integration tests to run successfully you need the following apps run by sm 
 
 ## Note on DMS Submission
 
-To submit to DMS, two-way-message miscroservice calls either gform or internal re-implementation of the `/dms/submit` endpoint. 
+To submit to DMS, two-way-message miscroservice calls either gform or internal re-implementation of the `/dms/submit` endpoint.
 
 ### Configuration settings for internal implementation:
 
