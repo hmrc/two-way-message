@@ -24,7 +24,7 @@ object AppDependencies {
     "org.apache.pdfbox"     % "pdfbox"                     % "2.0.12",
     "com.github.pureconfig" %% "pureconfig"                % "0.9.2",
     "org.julienrf"          %% "play-json-derived-codecs"  % "4.0.0",
-    "uk.gov.hmrc"           %% "bootstrap-backend-play-26" % "5.18.0",
+    "uk.gov.hmrc"           %% "bootstrap-backend-play-28" % "5.3.0",
     "com.google.inject"     % "guice"                      % "4.2.0",
     "com.kenshoo"           %% "metrics-play"              % "2.6.6_0.6.2",
     "com.typesafe.play"     %% "play-json-joda"            % "2.6.7",

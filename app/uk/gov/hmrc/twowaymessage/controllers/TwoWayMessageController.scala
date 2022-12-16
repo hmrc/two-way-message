@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.twowaymessage.controllers
 
-import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.{GovernmentGateway, PrivilegedApplication, Verify}
@@ -31,20 +30,19 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TwoWayMessageController @Inject()(
-                                         twms: TwoWayMessageService,
-                                         val authConnector: AuthConnector,
-                                         val htmlCreatorService: HtmlCreatorService)(implicit ec: ExecutionContext)
+class TwoWayMessageController @Inject()(twms: TwoWayMessageService,
+    val authConnector: AuthConnector,
+    val htmlCreatorService: HtmlCreatorService)(implicit ec: ExecutionContext)
   extends InjectedController with WithJsonBody with AuthorisedFunctions {
   def handleError(): PartialFunction[Throwable, Result] = {
     case _: NoActiveSession =>
-      Logger.debug("Request did not have an Active Session, returning Unauthorised - Unauthenticated Error")
+      //Logger.debug("Request did not have an Active Session, returning Unauthorised - Unauthenticated Error")
       Unauthorized(Json.toJson("Not authenticated"))
     case _: AuthorisationException =>
-      Logger.debug("Request has an active session but was not authorised, returning Forbidden - Not Authorised Error")
+      //Logger.debug("Request has an active session but was not authorised, returning Forbidden - Not Authorised Error")
       Forbidden(Json.toJson("Not authorised"))
     case e: Exception =>
-      Logger.error(s"Unknown error: ${e.toString}")
+      //Logger.error(s"Unknown error: ${e.toString}")
       InternalServerError
   }
 
@@ -57,7 +55,7 @@ class TwoWayMessageController @Inject()(
         twms.findMessagesBy(id).flatMap {
           case Right(msgList) => getHtmlResponse(id, msgList, typ)
           case Left(err) =>
-            Logger.warn(s"Error retrieving messages: $err")
+            //Logger.warn(s"Error retrieving messages: $err")
             Future.successful(BadGateway(err))
         }
 
@@ -74,7 +72,7 @@ class TwoWayMessageController @Inject()(
     htmlCreatorService.createConversation(id, msgList, typ).map {
       case Right(html) => Ok(html)
       case Left(error) =>
-        Logger.warn(s"HtmlCreatorService conversion error: $error")
+        //Logger.warn(s"HtmlCreatorService conversion error: $error")
         InternalServerError(error)
     }
 }
