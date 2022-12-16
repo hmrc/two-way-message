@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,6 @@ import play.api.http.Status
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpResponse }
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.twowaymessage.model.{ Message, MessageStatus }
-import uk.gov.hmrc.twowaymessage.model.MessageFormat._
-
 import scala.concurrent.{ ExecutionContext, Future }
 
 class MessageConnector @Inject()(httpClient: HttpClient, servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
@@ -31,19 +28,6 @@ class MessageConnector @Inject()(httpClient: HttpClient, servicesConfig: Service
 
   val messageBaseUrl: String = servicesConfig.baseUrl("message")
 
-  def postMessage(body: Message)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpClient.POST(s"$messageBaseUrl/messages", body)
-
-  def getMessageMetadata(replyTo: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpClient.GET(s"$messageBaseUrl/messages/$replyTo/metadata")
-
-  def getMessageContent(messageId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpClient.GET(s"$messageBaseUrl/messages/$messageId/content")
-
   def getMessages(messageId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     httpClient.GET(s"$messageBaseUrl/messages-list/$messageId")
-
-  def postDmsStatus(messageId: String, messageStatus: MessageStatus)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpClient.POST(s"$messageBaseUrl/messages/$messageId/dms-status", messageStatus)
-
 }

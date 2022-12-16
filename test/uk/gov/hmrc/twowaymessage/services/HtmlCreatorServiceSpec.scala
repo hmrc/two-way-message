@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import play.twirl.api.Html
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
-import uk.gov.hmrc.twowaymessage.enquiries.Enquiry
 import uk.gov.hmrc.twowaymessage.model._
 
 import scala.concurrent.{ ExecutionContext, Future }
@@ -50,7 +49,6 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
     .overrides(bind[TwoWayMessageService].to(mockTwoWayMessageService))
     .injector()
 
-  val enquiries: Enquiry = injector.instanceOf[Enquiry]
 
   implicit val htmlCreatorService: HtmlCreatorServiceImpl = injector.instanceOf[HtmlCreatorServiceImpl]
 
@@ -206,107 +204,5 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
       LocalDate.parse("2019-06-13"),
       Some("Hello, my friend!")
     )
-
-    "create one HTML message for the first message" in {
-      val result = await(htmlCreatorService.createSingleMessageHtml(conversationItem("Matt Test 1")))
-      result mustBe
-        Right(
-          Html.apply(Xhtml.toXhtml(<h1 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h1>
-          <p class="faded-text--small">You sent this message on 13 June 2019</p>
-          <div>Hello, my friend!</div>)))
-    }
-
-    "create one HTML message with escaped HTML subject text for the first message" in {
-      val result = await(htmlCreatorService.createSingleMessageHtml(conversationItem("&lt;h1&gt;A &amp; B&lt;/h1&gt;")))
-      result mustBe
-        Right(
-          Html.apply(Xhtml.toXhtml(
-            <h1 class="govuk-heading-xl margin-top-small margin-bottom-small">&lt;h1&gt;A &amp; B&lt;/h1&gt;</h1>
-          <p class="faded-text--small">You sent this message on 13 June 2019</p>
-          <div>Hello, my friend!</div>)))
-    }
-
-    "create one HTML message with non-escaped HTML subject for the first message" in {
-      val result = await(htmlCreatorService.createSingleMessageHtml(conversationItem("<h1>A & B</h1>")))
-      result mustBe
-        Right(
-          Html(Xhtml.toXhtml(
-            <h1 class="govuk-heading-xl margin-top-small margin-bottom-small">&lt;h1&gt;A &amp; B&lt;/h1&gt;</h1>
-          <p class="faded-text--small">You sent this message on 13 June 2019</p>
-          <div>Hello, my friend!</div>)))
-    }
-
   }
-
-  "createHtmlForPdf" should {
-
-    val subjectWithEscapedChars =
-      "&lt;b&gt;This is another test to see if this &gt; that &amp; that &lt; this&lt;/b&gt;"
-
-    "create a complete HTML document" in {
-      val subject = "Some subject"
-      val result = await(
-        htmlCreatorService.createHtmlForPdf(
-          latestMessageId,
-          "AB234567C",
-          listOfConversationItems("p800"),
-          "Some subject",
-          enquiries("P800").get,
-          None))
-      result mustBe
-        Right(expectedPdfHtml(subject, "Received from: P800 secure message", "National insurance number"))
-    }
-
-    "correctly render escaped HTML in the message subject" in {
-      val result = await(
-        htmlCreatorService
-          .createHtmlForPdf(
-            latestMessageId,
-            "AB234567C",
-            listOfConversationItems("p800"),
-            subjectWithEscapedChars,
-            enquiries("P800").get,
-            None))
-      result mustBe
-        Right(
-          expectedPdfHtml(subjectWithEscapedChars, "Received from: P800 secure message", "National insurance number"))
-    }
-
-    "correctly escape unescaped HTML in the message subject" in {
-      val subjectWithUnescapedChars = "<b>This is another test to see if this > that & that < this</b>"
-      val result = await(
-        htmlCreatorService
-          .createHtmlForPdf(
-            latestMessageId,
-            "AB234567C",
-            listOfConversationItems("p800"),
-            subjectWithUnescapedChars,
-            enquiries("P800").get,
-            None))
-      result mustBe
-        Right(
-          expectedPdfHtml(subjectWithEscapedChars, "Received from: P800 secure message", "National insurance number"))
-    }
-
-    "show a contact telephone number when available" in {
-      val subject = "Some subject"
-      val contactDetails = ContactDetails("", Some("01234567890"))
-      val result = await(
-        htmlCreatorService.createHtmlForPdf(
-          latestMessageId,
-          "AB234567C",
-          listOfConversationItems("p800"),
-          "Some subject",
-          enquiries("P800").get,
-          Some(contactDetails)))
-      result mustBe
-        Right(
-          expectedPdfHtml(
-            subject,
-            "Received from: P800 secure message",
-            "National insurance number",
-            includeContactTelephone = true))
-    }
-  }
-
 }
