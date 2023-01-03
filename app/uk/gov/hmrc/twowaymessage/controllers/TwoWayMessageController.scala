@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.{GovernmentGateway, PrivilegedApplication, Verify}
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.WithJsonBody
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.services.{HtmlCreatorService, RenderType, TwoWayMessageService}
 
@@ -30,49 +28,49 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TwoWayMessageController @Inject()(twms: TwoWayMessageService,
-    val authConnector: AuthConnector,
-    val htmlCreatorService: HtmlCreatorService)(implicit ec: ExecutionContext)
-  extends InjectedController with WithJsonBody with AuthorisedFunctions {
-  def handleError(): PartialFunction[Throwable, Result] = {
-    case _: NoActiveSession =>
-      //Logger.debug("Request did not have an Active Session, returning Unauthorised - Unauthenticated Error")
-      Unauthorized(Json.toJson("Not authenticated"))
-    case _: AuthorisationException =>
-      //Logger.debug("Request has an active session but was not authorised, returning Forbidden - Not Authorised Error")
-      Forbidden(Json.toJson("Not authorised"))
-    case e: Exception =>
-      //Logger.error(s"Unknown error: ${e.toString}")
-      InternalServerError
+class TwoWayMessageController @Inject()()
+  extends InjectedController() {
+
+  def getContentBy(id: String, msgType: String): Action[AnyContent] = Action.async {
+
+      Future.successful(Ok("Hello world - public zone"))
+
+//    authorised(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify)) {
+//
+//      def createMsg(typ: RenderType.ReplyType): Future[Result] =
+//        twms.findMessagesBy(id).flatMap {
+//          case Right(msgList) => getHtmlResponse(id, msgList, typ)
+//          case Left(err) =>
+//            //Logger.warn(s"Error retrieving messages: $err")
+//            Future.successful(BadGateway(err))
+//        }
+//
+//      msgType match {
+//        case "Customer" => createMsg(RenderType.CustomerLink)
+//        case "Adviser"  => createMsg(RenderType.Adviser)
+//        case _          => Future.successful(BadRequest)
+//      }
+//
+//    } recover handleError
   }
 
-  def getContentBy(id: String, msgType: String): Action[AnyContent] = Action.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+//  def handleError(): PartialFunction[Throwable, Result] = {
+//    case _: NoActiveSession =>
+//      //Logger.debug("Request did not have an Active Session, returning Unauthorised - Unauthenticated Error")
+//      Unauthorized(Json.toJson("Not authenticated"))
+//    case _: AuthorisationException =>
+//      //Logger.debug("Request has an active session but was not authorised, returning Forbidden - Not Authorised Error")
+//      Forbidden(Json.toJson("Not authorised"))
+//    case e: Exception =>
+//      //Logger.error(s"Unknown error: ${e.toString}")
+//      InternalServerError
+//  }
 
-    authorised(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify)) {
-
-      def createMsg(typ: RenderType.ReplyType): Future[Result] =
-        twms.findMessagesBy(id).flatMap {
-          case Right(msgList) => getHtmlResponse(id, msgList, typ)
-          case Left(err) =>
-            //Logger.warn(s"Error retrieving messages: $err")
-            Future.successful(BadGateway(err))
-        }
-
-      msgType match {
-        case "Customer" => createMsg(RenderType.CustomerLink)
-        case "Adviser"  => createMsg(RenderType.Adviser)
-        case _          => Future.successful(BadRequest)
-      }
-
-    } recover handleError
-  }
-
-  private def getHtmlResponse(id: String, msgList: List[ConversationItem], typ: RenderType.ReplyType): Future[Result] =
-    htmlCreatorService.createConversation(id, msgList, typ).map {
-      case Right(html) => Ok(html)
-      case Left(error) =>
-        //Logger.warn(s"HtmlCreatorService conversion error: $error")
-        InternalServerError(error)
-    }
+//  private def getHtmlResponse(id: String, msgList: List[ConversationItem], typ: RenderType.ReplyType): Future[Result] =
+//    htmlCreatorService.createConversation(id, msgList, typ).map {
+//      case Right(html) => Ok(html)
+//      case Left(error) =>
+//        //Logger.warn(s"HtmlCreatorService conversion error: $error")
+//        InternalServerError(error)
+//    }
 }

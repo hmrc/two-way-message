@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,16 @@ import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpResponse }
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.{ ExecutionContext, Future }
+import com.google.inject.ImplementedBy
 
-class MessageConnector @Inject()(httpClient: HttpClient, servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
-    extends Status {
+@ImplementedBy(classOf[MessageConnectorImpl])
+trait MessageConnector {
+  def getMessages(messageId: String)(implicit hc: HeaderCarrier): Future[HttpResponse]
+}
+class MessageConnectorImpl @Inject()(httpClient: HttpClient, servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
+  extends MessageConnector with Status {
 
-  val messageBaseUrl: String = servicesConfig.baseUrl("message")
+  private val messageBaseUrl: String = servicesConfig.baseUrl("message")
 
   def getMessages(messageId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     httpClient.GET(s"$messageBaseUrl/messages-list/$messageId")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector)(implicit ec: ExecutionContext)
     extends TwoWayMessageService {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  override def findMessagesBy(messageId: String)(
-    implicit hc: HeaderCarrier): Future[Either[String, List[ConversationItem]]] =
+  override def findMessagesBy(messageId: String)
+     (implicit hc: HeaderCarrier): Future[Either[String, List[ConversationItem]]] = {
+    println("##################### AAAAAA")
     messageConnector.getMessages(messageId).flatMap { response =>
+
       response.status match {
         case OK =>
           response.json
@@ -45,4 +46,5 @@ class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector)(imp
         case _ => Future.successful(Left("Error retrieving messages"))
       }
     }
+  }
 }

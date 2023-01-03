@@ -36,7 +36,7 @@ object AppDependencies {
     "uk.gov.hmrc"            %% "service-integration-test"    % "0.9.0-play-26" % "test,it",
     "org.scalatest"          %% "scalatest"                   % "3.0.5"         % "test",
     "com.typesafe.play"      %% "play-test"                   % current         % "test",
-    "org.mockito"            % "mockito-core"                 % "2.23.4"        % "test",
+    "org.mockito"            % "mockito-core"                 % "4.10.0"        % "test",
     "org.pegdown"            % "pegdown"                      % "1.6.0"         % "test,it",
     "com.github.tomakehurst" % "wiremock-standalone"          % "2.20.0"        % "test,it",
     "org.scalacheck"         %% "scalacheck"                  % "1.14.0"        % "test,it",

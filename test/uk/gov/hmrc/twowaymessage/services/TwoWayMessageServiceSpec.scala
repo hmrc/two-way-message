@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,29 @@
 
 package uk.gov.hmrc.twowaymessage.services
 
-import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import java.util.concurrent.Executors
 import play.mvc.Http
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.model._
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
-  implicit val mockExecutionContext = mock[ExecutionContext]
-  implicit val mockHeaderCarrier = mock[HeaderCarrier]
+  implicit val mockExecutionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(10))
+  implicit val mockHeaderCarrier = HeaderCarrier()
   val mockMessageConnector = mock[MessageConnector]
-  val mockHtmlCreationService = mock[HtmlCreatorService]
+  val messageService = new TwoWayMessageServiceImpl(mockMessageConnector)
 
-  lazy val mockhttpClient = mock[HttpClient]
-  lazy val mockServiceConfig = mock[ServicesConfig]
-
-  val injector = new GuiceApplicationBuilder()
-    .overrides(bind[MessageConnector].to(mockMessageConnector))
-    .overrides(bind[HtmlCreatorService].to(mockHtmlCreationService))
-    .injector()
-
-  val messageService = injector.instanceOf[TwoWayMessageService]
+  protected def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
   val twoWayMessageReplyExample = TwoWayMessage(
     ContactDetails("someEmail@test.com", None),
@@ -59,16 +47,17 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     Option.apply("replyId")
   )
 
-
   "TwoWayMessageService.findMessagesListBy" should {
 
     val fixtureMessages = conversationItems("5c2dec526900006b000d53b1", "5c2dec526900006b000d53b1")
     "return a list of messages if successfully fetched from the message service" in {
+
       when(
         mockMessageConnector
           .getMessages(any[String])(any[HeaderCarrier]))
         .thenReturn(
           Future.successful(HttpResponse(Http.Status.OK, Json.parse(fixtureMessages), Map("" -> Seq("", "")))))
+
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
       messagesResult.right.get.head.validFrom.toString should be("2013-12-01")
     }
@@ -92,7 +81,5 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
       val messageResult = await(messageService.findMessagesBy("1234567890"))
       messageResult.left.get should be("Error retrieving messages")
     }
-
-    SharedMetricRegistries.clear()
   }
 }

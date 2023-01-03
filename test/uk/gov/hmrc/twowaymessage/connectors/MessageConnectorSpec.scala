@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ class MessageConnectorSpec
               .withStatus(Status.OK)
               .withBody(jsonResponseBody)))
 
-      val httpResult = await(messageConnector.getMessages(messageId)(new HeaderCarrier()))
+      val httpResult = await(messageConnector.getMessages(messageId))
       httpResult.status shouldBe (200)
       Json.parse(httpResult.body).validate[List[ConversationItem]] shouldBe a[JsSuccess[_]]
     }

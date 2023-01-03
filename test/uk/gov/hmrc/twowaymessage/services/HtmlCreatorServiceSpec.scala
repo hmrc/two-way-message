@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
     "create HTML for a customer and p800 enquiryType" in {
       when(
         mockTwoWayMessageService
-          .findMessagesBy(any[String])(any[HeaderCarrier]))
+          .findMessagesBy(any[String]))
         .thenReturn(Future.successful(Right(listOfConversationItems("p800"))))
       val result =
         await(
@@ -120,7 +120,7 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
     "create HTML for a customer and epaye-general enquiryType" in {
       when(
         mockTwoWayMessageService
-          .findMessagesBy(any[String])(any[HeaderCarrier]))
+          .findMessagesBy(any[String]))
         .thenReturn(Future.successful(Right(listOfConversationItems("epaye-general"))))
       val result =
         await(
@@ -165,7 +165,7 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
     "create HTML content for an advisor" in {
       when(
         mockTwoWayMessageService
-          .findMessagesBy(any[String])(any[HeaderCarrier]))
+          .findMessagesBy(any[String]))
         .thenReturn(Future.successful(Right(listOfConversationItems("p800"))))
       val result =
         await(
