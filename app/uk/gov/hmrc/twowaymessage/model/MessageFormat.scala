@@ -16,19 +16,20 @@
 
 package uk.gov.hmrc.twowaymessage.model
 
-import org.apache.commons.codec.binary.Base64
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{ JodaReads, JodaWrites, Json, Reads, _ }
+import play.api.libs.json.{JodaReads, JodaWrites, Json, Reads, _}
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 
+import java.util.Base64
+
 object MessageFormat {
 
   def decodeBase64String(input: String): String =
-    new String(Base64.decodeBase64(input.getBytes("UTF-8")))
+    new String(Base64.getDecoder.decode(input.getBytes("UTF-8")))
 
   implicit val taxpayerNameFormat: Format[TaxpayerName] = Json.format[TaxpayerName]
 

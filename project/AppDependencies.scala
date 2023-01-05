@@ -20,15 +20,11 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "org.typelevel"         %% "cats-core"                 % "1.4.0",
-    "org.apache.pdfbox"     % "pdfbox"                     % "2.0.12",
-    "com.github.pureconfig" %% "pureconfig"                % "0.9.2",
-    "org.julienrf"          %% "play-json-derived-codecs"  % "4.0.0",
-    "uk.gov.hmrc"           %% "bootstrap-backend-play-26" % "5.3.0",
+    "uk.gov.hmrc"           %% "bootstrap-backend-play-28" % "7.12.0",
     "com.google.inject"     % "guice"                      % "4.2.0",
     "com.kenshoo"           %% "metrics-play"              % "2.6.6_0.6.2",
-    "com.typesafe.play"     %% "play-json-joda"            % "2.6.7",
-    "uk.gov.hmrc"           %% "domain"                    % "5.6.0-play-26",
+    "com.typesafe.play"     %% "play-json-joda"            % "2.9.3",
+    "uk.gov.hmrc"           %% "domain"                    % "8.1.0-play-28",
     "javax.inject"          % "javax.inject"               % "1"
   )
 
@@ -44,7 +40,5 @@ object AppDependencies {
     "org.scalatestplus.play" %% "scalatestplus-play"          % "3.1.2"         % "test,it",
     "io.github.cloudify"     %% "spdf"                        % "1.4.0"         % "test"
   )
-
-  val overrides = Set()
 
 }

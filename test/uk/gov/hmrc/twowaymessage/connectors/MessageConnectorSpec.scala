@@ -31,7 +31,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsSuccess, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
@@ -42,7 +42,6 @@ import scala.concurrent.ExecutionContext
 class MessageConnectorSpec
     extends WordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
-  lazy val mockhttpClient = mock[HttpClient]
   implicit lazy val mockHeaderCarrier = new HeaderCarrier()
   lazy val mockServiceConfig = mock[ServicesConfig]
   lazy implicit val ec = mock[ExecutionContext]
@@ -85,7 +84,7 @@ class MessageConnectorSpec
               .withBody(jsonResponseBody)))
 
       val httpResult = await(messageConnector.getMessages(messageId)(new HeaderCarrier()))
-      httpResult.status shouldBe (200)
+      httpResult.status shouldBe 200
       Json.parse(httpResult.body).validate[List[ConversationItem]] shouldBe a[JsSuccess[_]]
     }
     
