@@ -20,18 +20,17 @@ import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.twowaymessage.model.{ConversationItem, ItemMetadata, MessageType}
+import uk.gov.hmrc.twowaymessage.model.{ ConversationItem, ItemMetadata, MessageType }
 import uk.gov.hmrc.twowaymessage.utils.HtmlUtil._
 import uk.gov.hmrc.twowaymessage.utils.XmlConversion
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 import scala.xml._
 
-class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig)
-    extends HtmlCreatorService {
-  
+class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends HtmlCreatorService {
+
   override def createConversation(
     latestMessageId: String,
     messages: List[ConversationItem],

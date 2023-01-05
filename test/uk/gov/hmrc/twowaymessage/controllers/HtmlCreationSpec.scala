@@ -22,14 +22,14 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
-import play.api.libs.json.{JsValue, Json}
+import play.api.inject.{ Injector, bind }
+import play.api.libs.json.{ JsValue, Json }
 import play.api.test.Helpers._
-import play.api.test.{FakeHeaders, FakeRequest, Helpers}
+import play.api.test.{ FakeHeaders, FakeRequest, Helpers }
 import play.mvc.Http
-import uk.gov.hmrc.auth.core.AuthProvider.{GovernmentGateway, PrivilegedApplication, Verify}
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
+import uk.gov.hmrc.auth.core.{ AuthConnector, AuthProviders }
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.twowaymessage.assets.TestUtil
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import uk.gov.hmrc.twowaymessage.connectors.mocks.MockAuthConnector
@@ -39,7 +39,7 @@ import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
 import java.util.Base64
 import scala.concurrent.Future
-import scala.xml.{Utility, Xhtml}
+import scala.xml.{ Utility, Xhtml }
 
 class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
@@ -52,7 +52,7 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
     .injector()
 
   val testTwoWayMessageController: TwoWayMessageController = injector.instanceOf[TwoWayMessageController]
-  
+
   val twoWayMessageGood: JsValue = Json.parse("""
                                                 |    {
                                                 |      "contactDetails": {

@@ -28,13 +28,13 @@ import play.twirl.api.Html
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model._
 
-import scala.xml.{Utility, Xhtml}
+import scala.xml.{ Utility, Xhtml }
 
 class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
-  
+
   val injector: Injector = new GuiceApplicationBuilder()
     .injector()
-  
+
   implicit val htmlCreatorService: HtmlCreatorServiceImpl = injector.instanceOf[HtmlCreatorServiceImpl]
 
   val latestMessageId = "5d02201b5b0000360151779e"
@@ -75,10 +75,10 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
   "createConversation" should {
     "create HTML for a customer and p800 enquiryType" in {
       val result = await(
-          htmlCreatorService
-            .createConversation(latestMessageId, listOfConversationItems("p800"), RenderType.CustomerLink)
+        htmlCreatorService
+          .createConversation(latestMessageId, listOfConversationItems("p800"), RenderType.CustomerLink)
       )
-            
+
       result mustBe
         Right(
           Html.apply(
@@ -101,10 +101,10 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
 
     "create HTML for a customer and epaye-general enquiryType" in {
       val result = await(
-          htmlCreatorService
-            .createConversation(latestMessageId, listOfConversationItems("epaye-general"), RenderType.CustomerLink)
-        )
-        
+        htmlCreatorService
+          .createConversation(latestMessageId, listOfConversationItems("epaye-general"), RenderType.CustomerLink)
+      )
+
       result mustBe
         Right(
           Html.apply(
@@ -143,9 +143,9 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
 
     "create HTML content for an advisor" in {
       val result = await(
-          htmlCreatorService.createConversation(latestMessageId, listOfConversationItems("p800"), RenderType.Adviser)
+        htmlCreatorService.createConversation(latestMessageId, listOfConversationItems("p800"), RenderType.Adviser)
       )
-          
+
       result mustBe
         Right(
           Html(

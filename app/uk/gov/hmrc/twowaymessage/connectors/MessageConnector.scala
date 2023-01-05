@@ -19,16 +19,16 @@ package uk.gov.hmrc.twowaymessage.connectors
 import com.google.inject.Inject
 import play.api.http.Status
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class MessageConnector @Inject()(httpClient: HttpClient, servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
     extends Status {
 
   val messageBaseUrl: String = servicesConfig.baseUrl("message")
-  
+
   def getMessages(messageId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     httpClient.GET(s"$messageBaseUrl/messages-list/$messageId")
 

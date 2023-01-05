@@ -28,7 +28,7 @@ import play.api.Mode
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsSuccess, Json}
+import play.api.libs.json.{ JsSuccess, Json }
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -87,7 +87,7 @@ class MessageConnectorSpec
       httpResult.status shouldBe 200
       Json.parse(httpResult.body).validate[List[ConversationItem]] shouldBe a[JsSuccess[_]]
     }
-    
+
     SharedMetricRegistries.clear()
   }
 }

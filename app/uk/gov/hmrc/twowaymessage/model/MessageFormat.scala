@@ -18,7 +18,7 @@ package uk.gov.hmrc.twowaymessage.model
 
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JodaReads, JodaWrites, Json, Reads, _}
+import play.api.libs.json.{ JodaReads, JodaWrites, Json, Reads, _ }
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
@@ -61,6 +61,7 @@ object MessageFormat {
             JsSuccess(
               new TaxIdentifier with SimpleName {
                 override val name: String = "empRef"
+
                 override def value: String = v
               }
             )
@@ -70,6 +71,7 @@ object MessageFormat {
             JsSuccess(
               new TaxIdentifier with SimpleName {
                 override val name: String = "HMCE-VATDEC-ORG"
+
                 override def value: String = v
               }
             )
@@ -172,6 +174,7 @@ case class TaxpayerName(
 case class ExternalRef(id: String, source: String)
 
 case class Adviser(pidId: String)
+
 object Adviser {
   implicit val adviserFormat: Format[Adviser] = Json.format[Adviser]
 }

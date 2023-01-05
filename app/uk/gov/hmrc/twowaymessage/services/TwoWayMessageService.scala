@@ -25,5 +25,4 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[TwoWayMessageServiceImpl])
 trait TwoWayMessageService {
   def findMessagesBy(messageId: String)(implicit hc: HeaderCarrier): Future[Either[String, List[ConversationItem]]]
-  
 }
