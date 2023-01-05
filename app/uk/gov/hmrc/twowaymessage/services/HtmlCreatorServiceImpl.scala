@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,22 @@
 
 package uk.gov.hmrc.twowaymessage.services
 
-import javax.inject.Inject
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.Html
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.{ Failure, Success }
-import scala.xml._
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.twowaymessage.enquiries.{ Enquiry, EnquiryType }
-import uk.gov.hmrc.twowaymessage.model.{ ContactDetails, ConversationItem, ItemMetadata, MessageType }
+import uk.gov.hmrc.twowaymessage.model.{ConversationItem, ItemMetadata, MessageType}
 import uk.gov.hmrc.twowaymessage.utils.HtmlUtil._
 import uk.gov.hmrc.twowaymessage.utils.XmlConversion
 
-class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
+import javax.inject.Inject
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import scala.xml._
+
+class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig)
     extends HtmlCreatorService {
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
+  
   override def createConversation(
     latestMessageId: String,
     messages: List[ConversationItem],
@@ -45,45 +42,6 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig)(implicit 
 
     Future.successful(Right(Html.apply(fullConversation)))
   }
-
-  override def createSingleMessageHtml(conversationItem: ConversationItem): Future[Either[String, Html]] =
-    Future.successful(Right(
-      Html.apply(format2wsMessageForCustomer(conversationItem, ItemMetadata(isLatestMessage = true, hasLink = false)))))
-
-  override def createHtmlForPdf(
-    latestMessageId: String,
-    customerId: String,
-    messages: List[ConversationItem],
-    subject: String,
-    enquiryType: EnquiryType,
-    contactDetails: Option[ContactDetails]): Future[Either[String, String]] = {
-    val frontendUrl: String = servicesConfig.getString("pdf-admin-prefix")
-    val url = s"$frontendUrl/message/$latestMessageId/reply"
-    createConversation(latestMessageId, messages, RenderType.Adviser) map {
-      case Left(error) => Left(error)
-      case Right(html) =>
-        XmlConversion.stringToXmlNodes(
-          uk.gov.hmrc.twowaymessage.views.html
-            .two_way_message(
-              url,
-              customerId,
-              getContactTelephone(contactDetails),
-              Html(escapeForXhtml(subject)),
-              html,
-              enquiryType.pdfPageTitle,
-              enquiryType.pdfTaxIdTitle)
-            .body) match {
-          case Success(xml) => Right("<!DOCTYPE html>" + Xhtml.toXhtml(Utility.trim(xml.head)))
-          case Failure(e)   => Left("Unable to generate HTML for PDF due to: " + e.getMessage)
-        }
-    }
-  }
-
-  private def getContactTelephone(contactDetails: Option[ContactDetails]): String =
-    contactDetails match {
-      case Some(details) => details.telephone.getOrElse("")
-      case None          => ""
-    }
 
   private def createConversationList(messages: List[ConversationItem], replyType: RenderType.ReplyType): List[String] =
     replyType match {

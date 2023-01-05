@@ -1,28 +1,3 @@
 # microservice specific routes
 
-POST       /message/customer/:enquiryType/submit               uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.createMessage(enquiryType)
-
-POST       /message/advisor/:replyTo/reply                 uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.createAdviserResponse(replyTo: String)
-POST       /message/adviser/:replyTo/reply                 uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.createAdviserResponse(replyTo: String)
-
-POST       /message/customer/:enquiryType/:replyTo/reply       uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.createCustomerResponse(enquiryType, replyTo)
-
-GET        /message/adviser/recipient-metadata/:messageId  uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getRecipientMetadata(messageId)
-
-GET        /message/messages-list/:messageId               uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getMessagesListBy(messageId)
-GET        /message/messages-list/:messageId/size          uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getMessagesListSizeBy(messageId)
-GET        /message/adviser/message-content/:messageId     uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getRecipientMessageContentBy(messageId)
-
-GET        /message/admin/:formId/response-time            uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getCurrentResponseTime(formId)
-
-GET        /message/admin/:enquiryType/details                uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getEnquiryTypeDetails(enquiryType)
-
-POST       /dms/submit                                     uk.gov.hmrc.gform.dms.DmsSubmissionController.submitToDms()
-
-
-GET        /:id/previous-messages    uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getPreviousMessages(id:String)
-
-GET        /:id/latest-message       uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getLatestMessage(id:String)
-
 GET        /:id/content              uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getContentBy(id:String, msgType ?= "Customer")
-GET        /:id/adviser-content      uk.gov.hmrc.twowaymessage.controllers.TwoWayMessageController.getContentBy(id:String, msgType ?= "Adviser")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,31 +18,29 @@ package uk.gov.hmrc.twowaymessage.controllers
 
 import com.codahale.metrics.SharedMetricRegistries
 import org.joda.time.LocalDate
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{ Injector, bind }
-import play.api.libs.json.{ JsValue, Json }
-import play.api.mvc.Results.Created
+import play.api.inject.{Injector, bind}
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import play.api.test.{ FakeHeaders, FakeRequest, Helpers }
+import play.api.test.{FakeHeaders, FakeRequest, Helpers}
 import play.mvc.Http
-import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
-import uk.gov.hmrc.auth.core.authorise.{ EmptyPredicate, Predicate }
-import uk.gov.hmrc.auth.core.{ AuthConnector, AuthProviders }
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.auth.core.AuthProvider.{GovernmentGateway, PrivilegedApplication, Verify}
+import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.twowaymessage.assets.TestUtil
-import uk.gov.hmrc.twowaymessage.connector.mocks.MockAuthConnector
 import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
+import uk.gov.hmrc.twowaymessage.connectors.mocks.MockAuthConnector
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import uk.gov.hmrc.twowaymessage.model._
 import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
-import java.util.{ Base64, UUID }
+import java.util.Base64
 import scala.concurrent.Future
-import scala.xml.{ Utility, Xhtml }
+import scala.xml.{Utility, Xhtml}
 
 class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
@@ -55,9 +53,7 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
     .injector()
 
   val testTwoWayMessageController: TwoWayMessageController = injector.instanceOf[TwoWayMessageController]
-
-  val authPredicate: Predicate = EmptyPredicate
-
+  
   val twoWayMessageGood: JsValue = Json.parse("""
                                                 |    {
                                                 |      "contactDetails": {
@@ -69,11 +65,11 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
   val fakeRequest1: FakeRequest[JsValue] = FakeRequest(
     Helpers.POST,
-    routes.TwoWayMessageController.createMessage("queueName").url,
+    routes.TwoWayMessageController.getContentBy("someId").url,
     FakeHeaders(),
     twoWayMessageGood)
 
-  def listOfConversationItems(enquiryType: String) = List(
+  private def listOfConversationItems(enquiryType: String) = List(
     ConversationItem(
       id = "5d02201b5b0000360151779e",
       "Matt Test 1",
@@ -106,10 +102,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
   "The TwoWayMessageController.getContentBy method" should {
     "return 200 (OK) with the content of the conversation in html for the advisor" in {
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
-      when(
-        mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
-          any[HeaderCarrier]))
-        .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
 
       when(
         mockMessageConnector
@@ -136,10 +128,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
     "return 200 (OK) with the content of the conversation in html for the customer and p800 enquiryType" in {
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
-      when(
-        mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
-          any[HeaderCarrier]))
-        .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
 
       when(
         mockMessageConnector
@@ -169,10 +157,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
     "return 200 (OK) with the content of the conversation in html for the customer and epaye-general enquiryType" in {
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
-      when(
-        mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
-          any[HeaderCarrier]))
-        .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
 
       when(
         mockMessageConnector
@@ -216,10 +200,6 @@ class HtmlCreationSpec extends TestUtil with MockAuthConnector {
 
     "return 400 (bad request)  with no content in body" in {
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
-      when(
-        mockMessageService.postCustomerReply(any[TwoWayMessageReply], ArgumentMatchers.eq("replyTo"))(
-          any[HeaderCarrier]))
-        .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
       val result = await(testTwoWayMessageController.getContentBy("1", "nfejwk")(fakeRequest1).run())
       result.header.status mustBe Status.BAD_REQUEST
     }

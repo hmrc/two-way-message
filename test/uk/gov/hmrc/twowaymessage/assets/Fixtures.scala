@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.hmrc.twowaymessage.assets
 
 import org.joda.time.LocalDate
 import scala.xml.{ Unparsed, Utility, Xhtml }
-import uk.gov.hmrc.domain.TaxIds._
 import uk.gov.hmrc.domain._
 import uk.gov.hmrc.twowaymessage.model.{ Message, _ }
 

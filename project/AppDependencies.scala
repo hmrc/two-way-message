@@ -22,8 +22,6 @@ object AppDependencies {
   val compile = Seq(
     "org.typelevel"         %% "cats-core"                 % "1.4.0",
     "org.apache.pdfbox"     % "pdfbox"                     % "2.0.12",
-    "com.codecommit"        %% "parseback-core"            % "0.3",
-    "com.codecommit"        %% "parseback-cats"            % "0.3",
     "com.github.pureconfig" %% "pureconfig"                % "0.9.2",
     "org.julienrf"          %% "play-json-derived-codecs"  % "4.0.0",
     "uk.gov.hmrc"           %% "bootstrap-backend-play-26" % "5.3.0",
