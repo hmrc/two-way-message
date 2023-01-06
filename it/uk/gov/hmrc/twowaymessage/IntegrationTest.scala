@@ -20,9 +20,9 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
-import play.api.libs.ws.ahc.{AhcWSClient, AhcWSClientConfig, StandaloneAhcWSClient}
+import play.api.libs.ws.ahc.{ AhcWSClient, AhcWSClientConfig, StandaloneAhcWSClient }
 import uk.gov.hmrc.integration.ServiceSpec
 import uk.gov.hmrc.twowaymessage.MessageUtil._
 
