@@ -18,7 +18,7 @@ package uk.gov.hmrc.twowaymessage.services
 
 import com.codahale.metrics.SharedMetricRegistries
 import org.joda.time.LocalDate
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.Injector
@@ -28,7 +28,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model._
 
-import scala.xml.{ Utility, Xhtml }
+import scala.xml.{Utility, Xhtml}
 
 class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 

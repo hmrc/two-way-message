@@ -17,12 +17,13 @@
 package uk.gov.hmrc.twowaymessage.model
 
 import org.joda.time.LocalDate
-import org.scalatest._
-import play.api.libs.json.{ Json, _ }
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import play.api.libs.json.{Json, _}
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 
-class MessageFormatSpec extends WordSpec with Fixtures with Matchers {
+class MessageFormatSpec extends AnyWordSpec with Fixtures with Matchers {
 
   "Message json writer" should {
 

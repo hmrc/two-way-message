@@ -19,8 +19,9 @@ package uk.gov.hmrc.twowaymessage.services
 import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{ Matchers, WordSpec }
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{ Injector, bind }
@@ -33,7 +34,7 @@ import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 
 import scala.concurrent.Future
 
-class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
+class TwoWayMessageServiceSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
   implicit private val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
   private val mockMessageConnector: MessageConnector = mock[MessageConnector]
@@ -80,26 +81,26 @@ class TwoWayMessageServiceSpec extends WordSpec with Matchers with GuiceOneAppPe
     SharedMetricRegistries.clear()
   }
 
-//  "TwoWayMessageService.getConversation" should {
-//    "return a list of messages as Html" in {
-//      when(mockMessageConnector.getMessages(any[String])(any[HeaderCarrier])).thenReturn(
-//        Future.successful(
-//          HttpResponse(Http.Status.OK, jsonConversationItems, Map("" -> Seq("", "")))
-//        )
-//      )
-//
-//      when(
-//        mockHtmlCreationService
-//          .createConversation("5d02201b5b0000360151779e", listOfConversationItems, RenderType.CustomerLink)).thenReturn(
-//        Future.successful(Right(htmlConversationItems))
-//      )
-//
-//      val result =
-//        await(messageService.findMessagesBy("5d02201b5b0000360151779e")(mockHeaderCarrier))
-//      result.isRight
-//
-//    }
-//
-//  }
+  //  "TwoWayMessageService.getConversation" should {
+  //    "return a list of messages as Html" in {
+  //      when(mockMessageConnector.getMessages(any[String])(any[HeaderCarrier])).thenReturn(
+  //        Future.successful(
+  //          HttpResponse(Http.Status.OK, jsonConversationItems, Map("" -> Seq("", "")))
+  //        )
+  //      )
+  //
+  //      when(
+  //        mockHtmlCreationService
+  //          .createConversation("5d02201b5b0000360151779e", listOfConversationItems, RenderType.CustomerLink)).thenReturn(
+  //        Future.successful(Right(htmlConversationItems))
+  //      )
+  //
+  //      val result =
+  //        await(messageService.findMessagesBy("5d02201b5b0000360151779e")(mockHeaderCarrier))
+  //      result.isRight
+  //
+  //    }
+  //
+  //  }
 
 }

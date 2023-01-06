@@ -21,8 +21,10 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.scalatest._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Mode
 import play.api.http.Status
@@ -40,7 +42,7 @@ import uk.gov.hmrc.twowaymessage.model._
 import scala.concurrent.ExecutionContext
 
 class MessageConnectorSpec
-    extends WordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
+    extends AnyWordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
   implicit lazy val mockHeaderCarrier = new HeaderCarrier()
   lazy val mockServiceConfig = mock[ServicesConfig]

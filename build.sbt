@@ -40,7 +40,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.13",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
   )
   .settings(ServiceManagerPlugin.serviceManagerSettings)
