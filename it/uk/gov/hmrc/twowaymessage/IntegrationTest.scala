@@ -27,7 +27,7 @@ import uk.gov.hmrc.integration.ServiceSpec
 import uk.gov.hmrc.twowaymessage.MessageUtil._
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 class IntegrationTest extends AnyWordSpec with Matchers with ServiceSpec {
 
