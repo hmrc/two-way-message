@@ -34,7 +34,8 @@ import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 
 import scala.concurrent.Future
 
-class TwoWayMessageServiceSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
+class TwoWayMessageServiceSpec
+    extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
   implicit private val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
   private val mockMessageConnector: MessageConnector = mock[MessageConnector]

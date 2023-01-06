@@ -19,7 +19,7 @@ package uk.gov.hmrc.twowaymessage.model
 import org.joda.time.LocalDate
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.{Json, _}
+import play.api.libs.json.{ Json, _ }
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 
