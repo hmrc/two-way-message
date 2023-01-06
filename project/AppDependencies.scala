@@ -31,7 +31,7 @@ object AppDependencies {
   val test = Set(
     "uk.gov.hmrc"            %% "service-integration-test"    % "1.3.0-play-28" % "test,it",
     "com.vladsch.flexmark"   % "flexmark-profile-pegdown"     % "0.62.2"        % "test,it",
-    "org.scalatest"          %% "scalatest"                   % "3.2.14"        % "test",
+    "org.scalatest"          %% "scalatest"                   % "3.2.14"        % "test,it",
     "com.typesafe.play"      %% "play-test"                   % current         % "test",
     "org.mockito"            % "mockito-core"                 % "2.23.4"        % "test",
     "org.pegdown"            % "pegdown"                      % "1.6.0"         % "test,it",

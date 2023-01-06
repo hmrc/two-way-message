@@ -17,25 +17,26 @@
 package uk.gov.hmrc.twowaymessage
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import org.scalatest.{ Matchers, WordSpec }
-import play.api.libs.json.{ Json, Reads }
+import akka.stream.Materializer
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import play.api.libs.json.{Json, Reads}
 import play.api.libs.ws.WSClient
-import play.api.libs.ws.ahc.{ AhcWSClient, AhcWSClientConfig, StandaloneAhcWSClient }
+import play.api.libs.ws.ahc.{AhcWSClient, AhcWSClientConfig, StandaloneAhcWSClient}
 import uk.gov.hmrc.integration.ServiceSpec
 import uk.gov.hmrc.twowaymessage.MessageUtil._
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.{ Duration, FiniteDuration }
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
-class IntegrationTest extends WordSpec with Matchers with ServiceSpec {
+class IntegrationTest extends AnyWordSpec with Matchers with ServiceSpec {
 
   def externalServices: Seq[String] = Seq("datastream", "auth-login-api")
 
   implicit val defaultTimeout: FiniteDuration = Duration(15, TimeUnit.SECONDS)
 
   implicit val system: ActorSystem = ActorSystem()
-  implicit val materializer: ActorMaterializer = akka.stream.ActorMaterializer()
+  implicit val materializer: Materializer = Materializer(system)
   implicit val httpClient: WSClient = new AhcWSClient(StandaloneAhcWSClient(AhcWSClientConfig()))
 
   override def additionalConfig: Map[String, _] =
