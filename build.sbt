@@ -47,6 +47,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     itDependenciesList := List(
       ExternalService("AUTH"),
+      ExternalService("AUTH_LOGIN_API"),
+      ExternalService("DATASTREAM"),
       ExternalService("IDENTITY_VERIFICATION"),
       ExternalService("MESSAGE"),
       ExternalService("USER_DETAILS")
