@@ -31,9 +31,9 @@ lazy val microservice = Project(appName, file("."))
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
         Seq(
-          compileInputs in compile := Def.taskDyn {
-            val task = test in (resolvedScoped.value.scope in scalafmt.key)
-            val previousInputs = (compileInputs in compile).value
+          compile / compileInputs := Def.taskDyn {
+            val task = resolvedScoped.value.scope / scalafmt.key / test
+            val previousInputs = (compile / compileInputs).value
             task.map(_ => previousInputs)
           }.value
         ))
@@ -41,7 +41,12 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     majorVersion := 0,
     scalaVersion := "2.12.13",
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    scalacOptions ++= Seq(
+      // Silence unused warnings on Play `routes` files
+      "-Wconf:cat=unused-imports&src=.*routes.*:s",
+      "-Wconf:cat=unused-privates&src=.*routes.*:s"
+    )
   )
   .settings(ServiceManagerPlugin.serviceManagerSettings)
   .settings(
