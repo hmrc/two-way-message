@@ -28,7 +28,7 @@ object MessageFormat {
 
   def decodeBase64String(input: String): String =
     new String(Base64.getDecoder.decode(input.getBytes("UTF-8")))
-  
+
   implicit val dateFormat: Format[LocalDate] =
     Format[LocalDate](JodaReads.jodaLocalDateReads("yyyy-MM-dd"), JodaWrites.jodaLocalDateWrites("yyyy-MM-dd"))
 
