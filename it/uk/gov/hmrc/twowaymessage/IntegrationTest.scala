@@ -16,22 +16,12 @@
 
 package uk.gov.hmrc.twowaymessage
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
 import com.google.common.io.BaseEncoding
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
-import play.api.libs.ws.ahc.{ AhcWSClient, AhcWSClientConfig, StandaloneAhcWSClient }
 
 import java.util.UUID.randomUUID
 
 class IntegrationTest extends IntegrationSpec {
-
-  implicit val system: ActorSystem = ActorSystem()
-  implicit val materializer: Materializer = Materializer(system)
-  implicit val httpClient: WSClient = new AhcWSClient(StandaloneAhcWSClient(AhcWSClientConfig()))
-
-  def externalServices: Seq[String] = Seq.empty
 
   "Find message by ID" should "retrieve message successfully" in {
     val messageId = createMessage()

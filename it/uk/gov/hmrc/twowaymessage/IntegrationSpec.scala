@@ -16,10 +16,20 @@
 
 package uk.gov.hmrc.twowaymessage
 
+import akka.actor.ActorSystem
+import akka.stream.Materializer
 import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.libs.ws.WSClient
+import play.api.libs.ws.ahc.{ AhcWSClient, AhcWSClientConfig, StandaloneAhcWSClient }
 
 trait IntegrationSpec
-    extends AnyFlatSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneServerPerSuite
+    extends AnyFlatSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneServerPerSuite {
+
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val materializer: Materializer = Materializer(system)
+
+  val httpClient: WSClient = new AhcWSClient(StandaloneAhcWSClient(AhcWSClientConfig()))
+}
