@@ -28,49 +28,23 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Mode
 import play.api.http.Status
-import play.api.inject.bind
+import play.api.inject.{ Injector, bind }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{ JsSuccess, Json }
 import play.api.test.Helpers._
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 import uk.gov.hmrc.twowaymessage.model._
 
-import scala.concurrent.ExecutionContext
-
 class MessageConnectorSpec
     extends AnyWordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
-  implicit lazy val mockHeaderCarrier = new HeaderCarrier()
-  lazy val mockServiceConfig = mock[ServicesConfig]
-  lazy implicit val ec = mock[ExecutionContext]
-
-  val injector = new GuiceApplicationBuilder()
+  val injector: Injector = new GuiceApplicationBuilder()
     .overrides(bind[Mode].to(Mode.Test))
     .injector()
 
-  val messageConnector = injector.instanceOf[MessageConnector]
-
-  val messageExample = Message(
-    ExternalRef(
-      "123412342314",
-      "2WSM-CUSTOMER"
-    ),
-    Recipient(
-      new TaxIdentifier with SimpleName {
-        override val name: String = "HMRC-NI"
-        override def value: String = "AB123456C"
-      },
-      "someEmail@test.com"
-    ),
-    MessageType.Customer,
-    "SUBJECT",
-    "SGVsbG8gV29ybGQ=",
-    Details(FormId.Question)
-  )
+  val messageConnector: MessageConnector = injector.instanceOf[MessageConnector]
 
   "GET list of messages via message connector" should {
 
