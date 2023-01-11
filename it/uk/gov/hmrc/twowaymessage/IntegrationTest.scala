@@ -19,16 +19,13 @@ package uk.gov.hmrc.twowaymessage
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.google.common.io.BaseEncoding
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.{ AhcWSClient, AhcWSClientConfig, StandaloneAhcWSClient }
-import uk.gov.hmrc.integration.ServiceSpec
 
 import java.util.UUID.randomUUID
 
-class IntegrationTest extends AnyFlatSpec with Matchers with ServiceSpec {
+class IntegrationTest extends IntegrationSpec {
 
   implicit val system: ActorSystem = ActorSystem()
   implicit val materializer: Materializer = Materializer(system)
@@ -40,7 +37,7 @@ class IntegrationTest extends AnyFlatSpec with Matchers with ServiceSpec {
     val messageId = createMessage()
 
     val response = httpClient
-      .url(resource(s"/messages/$messageId/content"))
+      .url(s"http://localhost:$port/messages/$messageId/content")
       .withHttpHeaders(governmentGatewayUserToken)
       .get()
       .futureValue

@@ -13,7 +13,10 @@ Return Status Codes:
 
 For integration tests to run successfully you need the following apps run by sm externally:
  - AUTH
+ - AUTH_LOGIN_API
+ - DATASTREAM
  - IDENTITY_VERIFICATION
+ - MESSAGE
  - USER_DETAILS
 
 ## License
