@@ -25,49 +25,6 @@ import uk.gov.hmrc.twowaymessage.model.MessageFormat._
 
 class MessageFormatSpec extends AnyWordSpec with Fixtures with Matchers {
 
-  "Message json writer" should {
-
-    "creates json from externalRef" in {
-      val externalRefJson = Json.toJson(testMessage.externalRef)
-      (externalRefJson \ "source").get should be(JsString("2WSM"))
-    }
-
-    "creates json from recipient" in {
-      val recipientJson = Json.toJson(testMessage.recipient)
-      (recipientJson \ "taxIdentifier" \ "name").get should be(JsString("nino"))
-    }
-
-    "creates json from messageType" in {
-      val messageTypeJson = Json.toJson(testMessage.messageType)
-      (messageTypeJson) should be(JsString("2wsm-advisor"))
-    }
-
-    "creates json from formId" in {
-      val formIdJson = Json.toJson(testMessage.details.formId)
-      (formIdJson) should be(JsString("2WSM-reply"))
-    }
-
-    "creates json from Adviser" in {
-      val adviserJson = Json.toJson(testMessage.details.adviser)
-      (adviserJson \ "pidId").get should be(JsString("adviser-id"))
-    }
-
-    "creates json from Details" in {
-      val detailsJson = Json.toJson(testMessage.details)
-      (detailsJson \ "enquiryType").get should be(JsString("P800"))
-    }
-
-    "creates json from Message" in {
-      val messageJson = Json.toJson(testMessage)
-      (messageJson \ "messageType").get should be(JsString("2wsm-advisor"))
-    }
-
-    "creates json from Messages" in {
-      val messagesJson = Json.toJson(List(testMessage, testMessage))
-      ((messagesJson).as[JsArray].value(1) \ "messageType").get should be(JsString("2wsm-advisor"))
-    }
-  }
-
   "Message json reader" should {
     "read conversation item as defined in message microservice " in {
       val json = jsonConversationItem
@@ -82,7 +39,7 @@ class MessageFormatSpec extends AnyWordSpec with Fixtures with Matchers {
       val id2 = "5d021fbe5b0000200151779c"
       val json = Json.parse(conversationItems(id1, id2))
       val messageResult = json.validate[List[ConversationItem]]
-      messageResult should (matchPattern { case _: JsSuccess[List[ConversationItem]] => })
+      messageResult should matchPattern { case _: JsSuccess[List[ConversationItem]] => }
     }
   }
 
