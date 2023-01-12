@@ -81,27 +81,4 @@ class TwoWayMessageServiceSpec
 
     SharedMetricRegistries.clear()
   }
-
-  //  "TwoWayMessageService.getConversation" should {
-  //    "return a list of messages as Html" in {
-  //      when(mockMessageConnector.getMessages(any[String])(any[HeaderCarrier])).thenReturn(
-  //        Future.successful(
-  //          HttpResponse(Http.Status.OK, jsonConversationItems, Map("" -> Seq("", "")))
-  //        )
-  //      )
-  //
-  //      when(
-  //        mockHtmlCreationService
-  //          .createConversation("5d02201b5b0000360151779e", listOfConversationItems, RenderType.CustomerLink)).thenReturn(
-  //        Future.successful(Right(htmlConversationItems))
-  //      )
-  //
-  //      val result =
-  //        await(messageService.findMessagesBy("5d02201b5b0000360151779e")(mockHeaderCarrier))
-  //      result.isRight
-  //
-  //    }
-  //
-  //  }
-
 }
