@@ -16,18 +16,11 @@
 
 package uk.gov.hmrc.twowaymessage.assets
 
-import akka.actor.ActorSystem
 import akka.stream.Materializer
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.inject.Injector
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient }
-
-import scala.concurrent.ExecutionContext
 
 class TestUtil extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterEach {
 
@@ -37,12 +30,6 @@ class TestUtil extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with 
   override def afterEach(): Unit =
     super.afterEach()
 
-  lazy val injector: Injector = app.injector
-  implicit lazy val system: ActorSystem = ActorSystem()
   implicit lazy val materializer: Materializer = app.materializer
-  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit lazy val mockHttp: HttpClient = mock[HttpClient]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
 
 }

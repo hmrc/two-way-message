@@ -42,9 +42,9 @@ class TwoWayMessageController @Inject()(
 
     authorised(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify)) {
 
-      def createMsg(typ: RenderType.ReplyType): Future[Result] =
+      def createMsg(replyType: RenderType.ReplyType): Future[Result] =
         twms.findMessagesBy(id).flatMap {
-          case Right(msgList) => getHtmlResponse(id, msgList, typ)
+          case Right(msgList) => getHtmlResponse(id, msgList, replyType)
           case Left(err) =>
             logger.warn(s"Error retrieving messages: $err")
             Future.successful(BadGateway(err))
@@ -59,8 +59,11 @@ class TwoWayMessageController @Inject()(
     } recover handleError
   }
 
-  private def getHtmlResponse(id: String, msgList: List[ConversationItem], typ: RenderType.ReplyType): Future[Result] =
-    htmlCreatorService.createConversation(id, msgList, typ).map {
+  private def getHtmlResponse(
+    id: String,
+    msgList: List[ConversationItem],
+    replyType: RenderType.ReplyType): Future[Result] =
+    htmlCreatorService.createConversation(id, msgList, replyType).map {
       case Right(html) => Ok(html)
       case Left(error) =>
         logger.warn(s"HtmlCreatorService conversion error: $error")
