@@ -170,9 +170,9 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
     "return 400 (BAD_REQUEST) when the message type is invalid" in {
       mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
 
-      val result = await(testTwoWayMessageController.getContentBy(id = "1", msgType = "nfejwk")(FakeRequest()))
+      val result = testTwoWayMessageController.getContentBy(id = "1", msgType = "nfejwk")(FakeRequest())
 
-      result.header.status mustBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
 
     SharedMetricRegistries.clear()
