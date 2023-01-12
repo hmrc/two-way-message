@@ -16,26 +16,7 @@
 
 package uk.gov.hmrc.twowaymessage.assets
 
-import org.joda.time.LocalDate
-import uk.gov.hmrc.twowaymessage.model.{ Adviser, ConversationItem, ConversationItemDetails, FormId, MessageType }
-
 trait Fixtures {
-
-  val testConversationItem = ConversationItem(
-    id = "5d02201b5b0000360151779e",
-    subject = "test subject",
-    body = Some(
-      ConversationItemDetails(
-        `type` = MessageType.Adviser,
-        form = FormId.Reply,
-        issueDate = Some(LocalDate.now),
-        replyTo = Some("reply-to-id"),
-        enquiryType = Some("test-enquiry-type"),
-        adviser = Some(Adviser(pidId = "adviser-id"))
-      )),
-    validFrom = LocalDate.now,
-    content = Some("test-content")
-  )
 
   def conversationItem(id: String): String =
     s"""
@@ -62,18 +43,18 @@ trait Fixtures {
        |     "alertFrom": "2013-12-01",
        |     "validFrom": "2013-12-01",
        |     "body": {
+       |         "form": "2WSM-reply",
        |         "type": "2wsm-advisor",
+       |         "paperSent": false,
+       |         "issueDate": "2019-06-13",
+       |         "replyTo": "5d021fbe5b0000200151779c",
+       |         "threadId": "5d021fbe5b0000200151779d",
+       |         "enquiryType": "p800",
        |         "adviser": {
-       |             "pidId": "adviser-id"
-       |         },
-       |         "enquiryType": "enquiry-type",
-       |         "threadId": "530410d70000000000000000",
-       |         "issueDate": "2019-04-03",
-       |         "detailsId": "C0123456781234568",
-       |         "suppressedAt": "2013-01-02",
-       |         "form": "2WSM-question"
+       |             "pidId": "123"
+       |         }
        |     },
-       |     "subject": "Blah blah blah",
+       |     "subject": "Matt Test 1",
        |     "recipient": {
        |         "identifier": {
        |             "value": "8000045498",
@@ -81,6 +62,7 @@ trait Fixtures {
        |         },
        |         "regime": "sa"
        |     },
+       |     "content": "RGVhciBUZXN0VXNlciBUaGFuayB5b3UgZm9yIHlvdXIgbWVzc2FnZSBvZiAxMyBKdW5lIDIwMTkuPGJyPlRvIHJlY2FwIHlvdXIgcXVlc3Rpb24sIEkgdGhpbmsgeW91J3JlIGFza2luZyBmb3IgaGVscCB3aXRoPGJyPkkgYmVsaWV2ZSB0aGlzIGFuc3dlcnMgeW91ciBxdWVzdGlvbiBhbmQgaG9wZSB5b3UgYXJlIHNhdGlzZmllZCB3aXRoIHRoZSByZXNwb25zZS48YnI+SWYgeW91IHRoaW5rIHRoZXJlIGlzIHNvbWV0aGluZyBpbXBvcnRhbnQgbWlzc2luZywgdXNlIHRoZSBsaW5rIGF0IHRoZSBlbmQgb2YgdGhpcyBtZXNzYWdlIHRvIGZpbmQgb3V0IGhvdyB0byBjb250YWN0IEhNUkMuPGJyPlJlZ2FyZHM8YnI+TWF0dGhldyBHcm9vbTxicj5uSE1SQyBkaWdpdGFsIHRlYW0u",
        |     "id": "$id"
        | }
      """.stripMargin
