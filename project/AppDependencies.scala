@@ -25,7 +25,8 @@ object AppDependencies {
     "com.kenshoo"           %% "metrics-play"              % "2.6.6_0.6.2",
     "com.typesafe.play"     %% "play-json-joda"            % "2.9.3",
     "uk.gov.hmrc"           %% "domain"                    % "8.1.0-play-28",
-    "javax.inject"          % "javax.inject"               % "1"
+    "javax.inject"          % "javax.inject"               % "1",
+    "org.mongodb.scala"     %% "mongo-scala-driver"        % "4.8.1"
   )
 
   val test = Set(

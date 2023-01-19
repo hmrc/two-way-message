@@ -16,15 +16,22 @@
 
 package uk.gov.hmrc.twowaymessage
 
-import com.google.common.io.BaseEncoding
-import play.api.libs.json.Json
+import org.apache.commons.net.util.Base64.encodeBase64String
+import org.bson.types.ObjectId
+import org.mongodb.scala.Document
 
+import java.security.MessageDigest.getInstance
+import java.util.Date
 import java.util.UUID.randomUUID
+import java.util.concurrent.TimeUnit
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 class IntegrationTest extends IntegrationSpec {
 
   "Find message by ID" should "retrieve message successfully" in {
-    val messageId = createMessage()
+    val messageId = new ObjectId()
+    createTwoWayMessage(messageId)
 
     val response = httpClient
       .url(s"http://localhost:$port/messages/$messageId/content")
@@ -36,43 +43,72 @@ class IntegrationTest extends IntegrationSpec {
     response.body should include("My test message")
   }
 
-  private def createMessage(): String = {
-    def messageContent: String =
-      BaseEncoding.base64().encode(s"My test message - ${randomUUID()}".getBytes())
+  private def createTwoWayMessage(id: ObjectId): Unit = {
+    val hash = encodeBase64String(getInstance("SHA-256").digest(randomUUID().toString.getBytes))
+    val document = Document(
+      "_id"       -> id,
+      "subject"   -> "QUESTION 1",
+      "alertFrom" -> "2023-01-18",
+      "readTime"  -> new Date(),
+      "validFrom" -> "2023-01-18",
+      "body" -> Document(
+        "form"        -> "2WSM-question",
+        "type"        -> "2wsm-customer",
+        "paperSent"   -> false,
+        "issueDate"   -> "2023-01-18",
+        "threadId"    -> "63c8226015c2465b402ef2ad",
+        "enquiryType" -> "p800",
+        "waitTime"    -> "5 days"
+      ),
+      "externalRef" -> Document(
+        "id"     -> s"$randomUUID",
+        "source" -> "2WSM"
+      ),
+      "content" -> "<h1>My test message</h1>",
+      "recipient" -> Document(
+        "regime" -> "paye",
+        "identifier" -> Document(
+          "name"  -> "nino",
+          "value" -> "AA000108C"
+        ),
+        "email" -> "test@test.com"
+      ),
+      "statutory" -> false,
+      "alertDetails" -> Document(
+        "templateId" -> "newMessageAlert_2WSM-question",
+        "recipientName" -> Document(
+          "forename" -> "TestUser",
+          "line1"    -> "TestUser"
+        ),
+        "data" -> Document(
+          "email"    -> "test@test.com",
+          "waitTime" -> "5 days",
+          "date"     -> "2023-01-18",
+          "subject"  -> "QUESTION 1"
+        )
+      ),
+      "hash"   -> hash,
+      "status" -> "succeeded",
+      "renderUrl" -> Document(
+        "service" -> "two-way-message",
+        "url"     -> s"/messages/$id/content"
+      ),
+      "lifecycle" -> Document(
+        "startedAt" -> new Date(),
+        "status" -> Document(
+          "name"    -> "SUBMITTED",
+          "updated" -> new Date()
+        )
+      ),
+      "lastUpdated" -> new Date(),
+      "alerts" -> Document(
+        "emailAddress" -> "test@test.com",
+        "alertTime"    -> new Date(),
+        "success"      -> true
+      )
+    )
 
-    val json =
-      s"""
-         |{
-         |    "externalRef": {
-         |        "id": "$randomUUID",
-         |        "source": "2WSM"
-         |     },
-         |     "recipient": {
-         |         "taxIdentifier": {
-         |             "name": "nino",
-         |             "value": "AA000108C"
-         |         },
-         |         "email": "someEmail@test.com"
-         |     },
-         |     "messageType": "2wsm-customer",
-         |     "subject": "Some subject",
-         |     "content": "$messageContent",
-         |     "alertDetails": {
-         |         "templateId": "c85fc714-8373-4c6d-93de-509a537799b1",
-         |         "data": {
-         |             "someKey": "someValue"
-         |         }
-         |     }
-         |}
-         |""".stripMargin
-
-    val messageApiPort = 8910
-    val response = httpClient
-      .url(s"http://localhost:$messageApiPort/messages")
-      .post(Json.parse(json))
-      .futureValue
-
-    (Json.parse(response.body) \ "id").as[String]
+    Await.result(messageCollection.insertOne(document).toFuture, Duration(10, TimeUnit.SECONDS))
   }
 
   private def governmentGatewayUserToken: (String, String) = {
@@ -85,8 +121,7 @@ class IntegrationTest extends IntegrationSpec {
         |  "credentialStrength": "none",
         |  "nino": "AA000108C",
         |  "enrolments": []
-        |  }
-           """.stripMargin
+        |  }""".stripMargin
 
     val authApiPort = 8585
     val response = httpClient

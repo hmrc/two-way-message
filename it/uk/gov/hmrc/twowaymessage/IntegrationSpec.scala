@@ -18,6 +18,7 @@ package uk.gov.hmrc.twowaymessage
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import org.mongodb.scala.{ Document, MongoClient, MongoCollection, MongoDatabase }
 import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -32,4 +33,8 @@ trait IntegrationSpec
   implicit val materializer: Materializer = Materializer(system)
 
   val httpClient: WSClient = new AhcWSClient(StandaloneAhcWSClient(AhcWSClientConfig()))
+
+  val mongoClient: MongoClient = MongoClient()
+  val messageDatabase: MongoDatabase = mongoClient.getDatabase("message")
+  val messageCollection: MongoCollection[Document] = messageDatabase.getCollection("message")
 }
