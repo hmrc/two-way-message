@@ -1,0 +1,66 @@
+{
+  "_id": {
+    "$oid": "603cccce160000516d600552"
+  },
+  "recipient": {
+    "regime": "paye",
+    "identifier": {
+      "name": "nino",
+      "value": "AA000108C"
+    },
+    "email": "hasdhafhfhas@gmail.com"
+  },
+  "body": {
+    "form": "2WSM-reply",
+    "type": "2wsm-advisor",
+    "paperSent": false,
+    "issueDate": "2021-03-01",
+    "replyTo": "603ccbdd190000949264105d",
+    "threadId": "603ccbdd190000949264105e",
+    "enquiryType": "sa-general",
+    "adviser": {
+      "pidId": "123"
+    },
+    "topic": "Insolvent"
+  },
+  "subject": "How do I fill in my Self Assessment?",
+  "renderUrl": {
+    "service": "two-way-message",
+    "url": "/messages/603cccce160000516d600552/content"
+  },
+  "validFrom": "2021-03-01",
+  "externalRef": {
+    "id": "c2e06444-139f-4759-b09d-565a57b58add",
+    "source": "2WSM"
+  },
+  "hash": "IH2BB5/8wn4nChbGe/Ql8onBpBEt5Wgw4xPh+hgTZDc=",
+  "alertFrom": "2021-03-01",
+  "status": "succeeded",
+  "content": "<p>Dear TestUser</p><p>This is the answer to your test question</p><p>Regards<br />HMRC Digital Team</p>",
+  "statutory": false,
+  "alertDetails": {
+    "templateId": "newMessageAlert_2WSM-reply",
+    "recipientName": {
+      "forename": "TestUser",
+      "line1": "TestUser"
+    },
+    "data": {
+      "email": "hasdhafhfhas@gmail.com",
+      "date": "2021-03-01",
+      "subject": "How do I fill in my Self Assessment?"
+    }
+  },
+  "lastUpdated": {
+    "$date": "2021-03-01T11:15:27.031Z"
+  },
+  "alerts": {
+    "emailAddress": "hasdhafhfhas@gmail.com",
+    "alertTime": {
+      "$date": "2021-03-01T11:15:27.087Z"
+    },
+    "success": true
+  },
+  "readTime": {
+    "$date": "2021-03-01T11:15:50.830Z"
+  }
+}
