@@ -20,7 +20,6 @@ import uk.gov.hmrc.DefaultBuildSettings.oneForkedJvmPerTest
 import uk.gov.hmrc.DefaultBuildSettings.addTestReportOption
 import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "two-way-message"
 
