@@ -20,12 +20,8 @@ import org.bson.types.ObjectId
 import org.mongodb.scala.Document
 import org.scalatest.BeforeAndAfterEach
 
-import java.util.concurrent.TimeUnit
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 import scala.io.Source
 
-// scalastyle:off magic.number
 class GetMessageContentByIdSpec extends IntegrationSpec with BeforeAndAfterEach {
 
   behavior of "Get message content by ID"
@@ -66,7 +62,7 @@ class GetMessageContentByIdSpec extends IntegrationSpec with BeforeAndAfterEach 
 
   private def createMessage(source: String): Unit = {
     val jsonMessage = Source.fromResource(source).mkString
-    Await.result(messageCollection.insertOne(Document(jsonMessage)).toFuture, Duration(10, TimeUnit.SECONDS))
+    messageCollection.insertOne(Document(jsonMessage)).toFuture.futureValue
   }
 
   private def governmentGatewayUserToken: (String, String) = {
@@ -92,7 +88,6 @@ class GetMessageContentByIdSpec extends IntegrationSpec with BeforeAndAfterEach 
   }
 
   override def beforeEach(): Unit =
-    Await.result(messageCollection.deleteMany(Document()).toFuture, Duration(10, TimeUnit.SECONDS))
+    messageCollection.deleteMany(Document()).toFuture.futureValue
 
 }
-// scalastyle:on magic.number
