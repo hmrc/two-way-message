@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,87 +16,18 @@
 
 package uk.gov.hmrc.twowaymessage.model
 
-import org.apache.commons.codec.binary.Base64
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{ JodaReads, JodaWrites, Json, Reads, _ }
-import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
-import uk.gov.hmrc.domain._
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
+
+import java.util.Base64
 
 object MessageFormat {
 
   def decodeBase64String(input: String): String =
-    new String(Base64.decodeBase64(input.getBytes("UTF-8")))
-
-  implicit val taxpayerNameFormat: Format[TaxpayerName] = Json.format[TaxpayerName]
-
-  implicit val identifierReads: Reads[TaxIdWithName] =
-    ((__ \ "name").readNullable[String] and (__ \ "value").readNullable[String]).tupled
-      .flatMap[TaxIdWithName] {
-        case (Some("sautr"), Some(value)) =>
-          Reads[TaxIdWithName] { _ =>
-            JsSuccess(SaUtr(value))
-          }
-        case (Some("nino"), Some(value)) =>
-          Reads[TaxIdWithName] { _ =>
-            JsSuccess(Nino(value))
-          }
-        case (Some("ctutr"), Some(value)) =>
-          Reads[TaxIdWithName] { _ =>
-            JsSuccess(CtUtr(value))
-          }
-        case (Some("HMRC-OBTDS-ORG"), Some(value)) =>
-          Reads[TaxIdWithName] { _ =>
-            JsSuccess(HmrcObtdsOrg(value))
-          }
-        case (Some("HMRC-MTD-VAT"), Some(value)) =>
-          Reads[TaxIdWithName] { _ =>
-            JsSuccess(HmrcMtdVat(value))
-          }
-        case (Some("empRef"), Some(v)) =>
-          Reads[TaxIdWithName] { _ =>
-            JsSuccess(
-              new TaxIdentifier with SimpleName {
-                override val name: String = "empRef"
-                override def value: String = v
-              }
-            )
-          }
-        case (Some("HMCE-VATDEC-ORG"), Some(v)) =>
-          Reads[TaxIdWithName] { _ =>
-            JsSuccess(
-              new TaxIdentifier with SimpleName {
-                override val name: String = "HMCE-VATDEC-ORG"
-                override def value: String = v
-              }
-            )
-          }
-        case (_, None) =>
-          Reads[TaxIdWithName] { _ =>
-            JsError("recipient.taxIdentifier.name: missing tax identifier")
-          }
-        case (Some(name), _) =>
-          Reads[TaxIdWithName] { _ =>
-            JsError(s"recipient.taxIdentifier.name: unknown tax identifier name $name")
-          }
-        case (None, _) =>
-          Reads[TaxIdWithName] { _ =>
-            JsError("recipient.taxIdentifier.name: missing tax identifier name")
-          }
-      }
-
-  implicit val identifierWrites = new Writes[TaxIdWithName] {
-    override def writes(taxId: TaxIdWithName): JsValue =
-      JsObject(Seq("name" -> JsString(taxId.name), "value" -> JsString(taxId.value)))
-  }
-
-  implicit val format: Format[TaxIdWithName] = Format(identifierReads, identifierWrites)
-
-  implicit val recipientFormat: Format[Recipient] = Json.format[Recipient]
-
-  implicit val externalRefFormat: Format[ExternalRef] = Json.format[ExternalRef]
+    new String(Base64.getDecoder.decode(input.getBytes("UTF-8")))
 
   implicit val dateFormat: Format[LocalDate] =
     Format[LocalDate](JodaReads.jodaLocalDateReads("yyyy-MM-dd"), JodaWrites.jodaLocalDateWrites("yyyy-MM-dd"))
@@ -113,11 +44,7 @@ object MessageFormat {
       Writes.enumNameWrites
     )
 
-  implicit val detailsFormat: Format[Details] = Json.format[Details]
-
   implicit val conversationItemDetailsFormat: Format[ConversationItemDetails] = Json.format[ConversationItemDetails]
-
-  implicit val messageFormat: Format[Message] = Json.format[Message]
 
   implicit val conversationItemWrites: Writes[ConversationItem] = Json.writes[ConversationItem]
 
@@ -148,41 +75,11 @@ object MessageType extends Enumeration {
   val Customer = Value("2wsm-customer")
 }
 
-case class Recipient(taxIdentifier: TaxIdWithName, email: String, name: Option[TaxpayerName] = Option.empty)
-
-case class Message(
-  externalRef: ExternalRef,
-  recipient: Recipient,
-  messageType: MessageType,
-  subject: String,
-  content: String,
-  details: Details)
-
-case class TaxpayerName(
-  title: Option[String] = None,
-  forename: Option[String] = None,
-  secondForename: Option[String] = None,
-  surname: Option[String] = None,
-  honours: Option[String] = None,
-  line1: Option[String] = None,
-  line2: Option[String] = None,
-  line3: Option[String] = None)
-
-case class ExternalRef(id: String, source: String)
-
 case class Adviser(pidId: String)
+
 object Adviser {
   implicit val adviserFormat: Format[Adviser] = Json.format[Adviser]
 }
-
-case class Details(
-  formId: FormId,
-  replyTo: Option[String] = None,
-  threadId: Option[String] = None,
-  enquiryType: Option[String] = None,
-  adviser: Option[Adviser] = None,
-  waitTime: Option[String] = None,
-  topic: Option[String] = None)
 
 case class ConversationItemDetails(
   `type`: MessageType,

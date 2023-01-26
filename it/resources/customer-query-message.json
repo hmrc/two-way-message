@@ -1,0 +1,75 @@
+{
+  "_id": {
+    "$oid": "603ccbdd190000949264105d"
+  },
+  "recipient": {
+    "regime": "paye",
+    "identifier": {
+      "name": "nino",
+      "value": "AA000108C"
+    },
+    "email": "hasdhafhfhas@gmail.com"
+  },
+  "body": {
+    "form": "2WSM-question",
+    "type": "2wsm-customer",
+    "paperSent": false,
+    "issueDate": "2021-03-01",
+    "threadId": "603ccbdd190000949264105e",
+    "enquiryType": "sa-general",
+    "waitTime": "5 days",
+    "envelopId": "c490518c-db4f-4c53-88ae-fce233507896"
+  },
+  "subject": "How do I fill in my Self Assessment?",
+  "readTime": {
+    "$date": "2021-03-01T11:11:25.245Z"
+  },
+  "renderUrl": {
+    "service": "two-way-message",
+    "url": "/messages/603ccbdd190000949264105d/content"
+  },
+  "validFrom": "2021-03-01",
+  "externalRef": {
+    "id": "cc32b669-bebe-44f9-8fda-b5ca812ca884",
+    "source": "2WSM"
+  },
+  "hash": "FUJ9mSdYUQHFnZU4BcZ89RH8twKEsmj2K0OQCACLWqY=",
+  "alertFrom": "2021-03-01",
+  "status": "succeeded",
+  "content": "<p>Please answer my test question</p>",
+  "statutory": false,
+  "alertDetails": {
+    "templateId": "newMessageAlert_2WSM-question",
+    "recipientName": {
+      "forename": "TestUser",
+      "line1": "TestUser"
+    },
+    "data": {
+      "email": "hasdhafhfhas@gmail.com",
+      "waitTime": "5 days",
+      "date": "2021-03-01",
+      "subject": "How do I fill in my Self Assessment?"
+    }
+  },
+  "lifecycle": {
+    "startedAt": {
+      "$date": "2021-03-01T11:11:25.252Z"
+    },
+    "status": {
+      "name": "RESPONDED",
+      "updated": {
+        "$date": "2021-03-01T11:15:26.942Z"
+      }
+    }
+  },
+  "lastUpdated": {
+    "$date": "2021-03-01T11:11:27.030Z"
+  },
+  "alerts": {
+    "emailAddress": "hasdhafhfhas@gmail.com",
+    "alertTime": {
+      "$date": "2021-03-01T11:11:27.100Z"
+    },
+    "success": true
+  }
+}

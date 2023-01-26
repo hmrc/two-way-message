@@ -20,33 +20,27 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "org.typelevel"         %% "cats-core"                 % "1.4.0",
-    "org.apache.pdfbox"     % "pdfbox"                     % "2.0.12",
-    "com.codecommit"        %% "parseback-core"            % "0.3",
-    "com.codecommit"        %% "parseback-cats"            % "0.3",
-    "com.github.pureconfig" %% "pureconfig"                % "0.9.2",
-    "org.julienrf"          %% "play-json-derived-codecs"  % "4.0.0",
-    "uk.gov.hmrc"           %% "bootstrap-backend-play-26" % "5.3.0",
+    "uk.gov.hmrc"           %% "bootstrap-backend-play-28" % "7.12.0",
     "com.google.inject"     % "guice"                      % "4.2.0",
     "com.kenshoo"           %% "metrics-play"              % "2.6.6_0.6.2",
-    "com.typesafe.play"     %% "play-json-joda"            % "2.6.7",
-    "uk.gov.hmrc"           %% "domain"                    % "5.6.0-play-26",
-    "javax.inject"          % "javax.inject"               % "1"
+    "com.typesafe.play"     %% "play-json-joda"            % "2.9.3",
+    "uk.gov.hmrc"           %% "domain"                    % "8.1.0-play-28",
+    "javax.inject"          % "javax.inject"               % "1",
+    "org.mongodb.scala"     %% "mongo-scala-driver"        % "4.8.1"
   )
 
   val test = Set(
-    "uk.gov.hmrc"            %% "service-integration-test"    % "0.9.0-play-26" % "test,it",
-    "org.scalatest"          %% "scalatest"                   % "3.0.5"         % "test",
+    "com.vladsch.flexmark"   % "flexmark-profile-pegdown"     % "0.62.2"        % "test,it",
+    "org.scalatest"          %% "scalatest"                   % "3.2.14"        % "test,it",
     "com.typesafe.play"      %% "play-test"                   % current         % "test",
     "org.mockito"            % "mockito-core"                 % "2.23.4"        % "test",
     "org.pegdown"            % "pegdown"                      % "1.6.0"         % "test,it",
     "com.github.tomakehurst" % "wiremock-standalone"          % "2.20.0"        % "test,it",
     "org.scalacheck"         %% "scalacheck"                  % "1.14.0"        % "test,it",
     "org.scalamock"          %% "scalamock-scalatest-support" % "3.6.0"         % "test,it",
-    "org.scalatestplus.play" %% "scalatestplus-play"          % "3.1.2"         % "test,it",
+    "org.scalatestplus"      %% "mockito-4-6"                 % "3.2.14.0"      % "test,it",
+    "org.scalatestplus.play" %% "scalatestplus-play"          % "5.1.0"         % "test,it",
     "io.github.cloudify"     %% "spdf"                        % "1.4.0"         % "test"
   )
-
-  val overrides = Set()
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,134 +21,30 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.scalatest._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach, Suite }
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Mode
 import play.api.http.Status
-import play.api.inject.bind
+import play.api.inject.{ Injector, bind }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{ JsSuccess, Json }
 import play.api.test.Helpers._
-import uk.gov.hmrc.domain._
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient }
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.twowaymessage.assets.Fixtures
 import uk.gov.hmrc.twowaymessage.model.MessageFormat._
-import uk.gov.hmrc.twowaymessage.model.MessageMetadataFormat._
-import uk.gov.hmrc.twowaymessage.model.{ Message, _ }
-
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.twowaymessage.model._
 
 class MessageConnectorSpec
-    extends WordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
+    extends AnyWordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
-  lazy val mockhttpClient = mock[HttpClient]
-  implicit lazy val mockHeaderCarrier = new HeaderCarrier()
-  lazy val mockServiceConfig = mock[ServicesConfig]
-  lazy implicit val ec = mock[ExecutionContext]
-
-  val injector = new GuiceApplicationBuilder()
+  val injector: Injector = new GuiceApplicationBuilder()
     .overrides(bind[Mode].to(Mode.Test))
     .injector()
 
-  val messageConnector = injector.instanceOf[MessageConnector]
-
-  val messageExample = Message(
-    ExternalRef(
-      "123412342314",
-      "2WSM-CUSTOMER"
-    ),
-    Recipient(
-      new TaxIdentifier with SimpleName {
-        override val name: String = "HMRC-NI"
-        override def value: String = "AB123456C"
-      },
-      "someEmail@test.com"
-    ),
-    MessageType.Customer,
-    "SUBJECT",
-    "SGVsbG8gV29ybGQ=",
-    Details(FormId.Question)
-  )
-
-  "POST message connector" should {
-
-    val messageJson = Json.toJson(messageExample)
-
-    "return 201" in {
-      givenThat(
-        post(urlEqualTo("/messages"))
-          .withRequestBody(equalToJson(messageJson.toString))
-          .willReturn(aResponse().withStatus(Status.CREATED)))
-
-      val result = await(messageConnector.postMessage(messageExample)(new HeaderCarrier()))
-      result.status shouldBe (201)
-    }
-    SharedMetricRegistries.clear
-  }
-
-  "Message Connector postDmsStatus" should {
-    "return status 201" in {
-      val messageId = "5d12eb115f0000000205c150"
-      val envelopId = "5456b115f0000000205c1599"
-
-      val messageStatus = MessageStatus(Some(envelopId), None)
-
-      val body = Json.toJson(messageStatus)
-
-      givenThat(
-        post(urlEqualTo(s"/messages/$messageId/dms-status"))
-          .withRequestBody(equalTo(body.toString()))
-          .willReturn(aResponse()
-            .withStatus(Status.OK)))
-
-      val httpResult = await(messageConnector.postDmsStatus(messageId, messageStatus)(new HeaderCarrier()))
-      httpResult.status shouldBe (200)
-    }
-  }
-
-  "GET message metadata via message connector" should {
-
-    "returns 200 successfully for a valid replyTo message identifier" in {
-      val jsonResponseBody =
-        """
-          |{
-          |   "id": "5c18eb166f0000110204b160",
-          |   "recipient": {
-          |      "regime": "REGIME",
-          |      "identifier": {
-          |         "name":"nino",
-          |         "value":"AB123456C"
-          |      },
-          |      "email":"someEmail@test.com"
-          |   },
-          |   "subject":"SUBJECT",
-          |   "details": {
-          |     "threadId":"5d12eb115f0000000205c150",
-          |     "enquiryType":"p800",
-          |     "adviser": {
-          |       "pidId":"adviser-id"
-          |     }
-          |   },
-          |   "messageDate":"08 May 2019"
-          |}
-        """.stripMargin
-
-      val replyTo = "replyToId"
-      givenThat(
-        get(urlEqualTo(s"/messages/$replyTo/metadata"))
-          .willReturn(
-            aResponse()
-              .withStatus(Status.OK)
-              .withBody(jsonResponseBody)))
-
-      val httpResult = await(messageConnector.getMessageMetadata(replyTo)(new HeaderCarrier()))
-      httpResult.status shouldBe (200)
-      Json.parse(httpResult.body).validate[MessageMetadata] shouldBe a[JsSuccess[_]]
-    }
-    SharedMetricRegistries.clear
-  }
+  val messageConnector: MessageConnector = injector.instanceOf[MessageConnector]
 
   "GET list of messages via message connector" should {
 
@@ -164,10 +60,11 @@ class MessageConnectorSpec
               .withBody(jsonResponseBody)))
 
       val httpResult = await(messageConnector.getMessages(messageId)(new HeaderCarrier()))
-      httpResult.status shouldBe (200)
+      httpResult.status shouldBe 200
       Json.parse(httpResult.body).validate[List[ConversationItem]] shouldBe a[JsSuccess[_]]
     }
-    SharedMetricRegistries.clear
+
+    SharedMetricRegistries.clear()
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ package uk.gov.hmrc.twowaymessage.services
 
 import com.google.inject.ImplementedBy
 import play.twirl.api.Html
-import uk.gov.hmrc.twowaymessage.enquiries.EnquiryType
-import uk.gov.hmrc.twowaymessage.model.{ ContactDetails, ConversationItem }
+import uk.gov.hmrc.twowaymessage.model.ConversationItem
 
 import scala.concurrent.Future
 @ImplementedBy(classOf[HtmlCreatorServiceImpl])
@@ -30,16 +29,6 @@ trait HtmlCreatorService {
     messageId: String,
     listMsg: List[ConversationItem],
     replyType: RenderType.ReplyType): Future[Either[String, Html]]
-
-  def createSingleMessageHtml(conversationItem: ConversationItem): Future[Either[String, Html]]
-
-  def createHtmlForPdf(
-    latestMessageId: String,
-    customerId: String,
-    messages: List[ConversationItem],
-    subject: String,
-    enquiryType: EnquiryType,
-    contactDetails: Option[ContactDetails]): Future[Either[String, String]]
 
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,178 +16,204 @@
 
 package uk.gov.hmrc.twowaymessage.controllers
 
-import java.util.UUID
-
 import com.codahale.metrics.SharedMetricRegistries
+import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
-import play.api.mvc.Result
-import play.api.mvc.Results._
+import play.api.inject.{ Injector, bind }
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import scala.concurrent.Future
-import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.domain.TaxIds._
-import uk.gov.hmrc.domain._
-import uk.gov.hmrc.gform.dms.DmsMetadata
+import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.twowaymessage.assets.Fixtures
-import uk.gov.hmrc.twowaymessage.connector.mocks.MockAuthConnector
-import uk.gov.hmrc.twowaymessage.enquiries.EnquiryType
-import uk.gov.hmrc.twowaymessage.model._
+import uk.gov.hmrc.twowaymessage.assets.TestUtil
+import uk.gov.hmrc.twowaymessage.connectors.mocks.MockAuthConnector
+import uk.gov.hmrc.twowaymessage.model.FormId.{ Question, Reply }
+import uk.gov.hmrc.twowaymessage.model.MessageType.{ Adviser, Customer }
+import uk.gov.hmrc.twowaymessage.model.{ ConversationItem, ConversationItemDetails }
 import uk.gov.hmrc.twowaymessage.services.TwoWayMessageService
 
-class TwoWayMessageControllerSpec
-    extends WordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar with MockAuthConnector {
+import scala.concurrent.Future
+import scala.xml.{ Utility, Xhtml }
 
-  val mockMessageService = mock[TwoWayMessageService]
+class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
 
-  val injector = new GuiceApplicationBuilder()
+  val mockMessageService: TwoWayMessageService = mock[TwoWayMessageService]
+
+  val injector: Injector = new GuiceApplicationBuilder()
     .overrides(bind[TwoWayMessageService].to(mockMessageService))
+    .overrides(bind[AuthConnector].to(mockAuthConnector))
     .injector()
 
-  val controller = injector.instanceOf[TwoWayMessageController]
-  implicit val hc: HeaderCarrier = mock[HeaderCarrier]
+  val testTwoWayMessageController: TwoWayMessageController = injector.instanceOf[TwoWayMessageController]
 
-  val twoWayMessageGood = Json.parse("""
-                                       |    {
-                                       |      "contactDetails": {
-                                       |         "email":"someEmail@test.com"
-                                       |      },
-                                       |      "subject":"QUESTION",
-                                       |      "content":"SGVsbG8gV29ybGQ="
-                                       |    }""".stripMargin)
+  "The TwoWayMessageController.getContentBy method" should {
 
-  val twoWayMessageBadContent = Json.parse("""
-                                             |    {
-                                             |     "subject":"QUESTION"
-                                             |    }""".stripMargin)
+    "return 200 (OK) with the content of the conversation in html for the advisor" in {
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
+      when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(listOfConversationItems())))
 
-  val twoWayMessageReplyGood = Json.parse("""
-                                            |    {
-                                            |     "subject":"answer",
-                                            |     "content":"Some base64-encoded HTML"
-                                            |    }""".stripMargin)
+      val result = testTwoWayMessageController.getContentBy("56145134123", "Adviser")(FakeRequest())
 
-  "TwoWayMessageController" should {
-
-    "return 201 (Created) when a message is successfully created in the message service " in {
-      val nino = Nino("AB123456C")
-      val name = Name(Option("Firstname"), Option("Surname"))
-      when(mockMessageService
-        .post(any[EnquiryType], org.mockito.ArgumentMatchers.eq(nino), any[TwoWayMessage], any[DmsMetadata], any[Name])(
-          any[HeaderCarrier]))
-        .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
-      val result = await(controller.validateAndPostMessage("p800", nino, twoWayMessageGood, name))
-      result.header.status shouldBe Status.CREATED
-    }
-
-    "return 201 (Created) when an adviser reply is successfully created in the message service " in {
-      when(mockMessageService.postAdviserReply(any[TwoWayMessageReply], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
-      val result = await(controller.validateAndPostAdviserResponse(twoWayMessageReplyGood, "replyToId"))
-      result.header.status shouldBe Status.CREATED
-    }
-
-    "return 400 (Bad Request) if the adviser reply body is not as per the definition " in {
-      val result = await(controller.validateAndPostAdviserResponse(twoWayMessageBadContent, "replyToId"))
-      result.header.status shouldBe Status.BAD_REQUEST
-    }
-
-    "return 201 (Created) when an customer reply is successfully created in the message service " in {
-      when(mockMessageService.postCustomerReply(any[TwoWayMessageReply], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Created(Json.toJson("id" -> UUID.randomUUID().toString))))
-      val result = await(controller.validateAndPostCustomerResponse(twoWayMessageReplyGood, "replyToId"))
-      result.header.status shouldBe Status.CREATED
-    }
-
-    "return 400 (Bad Request) if the customer reply body is not as per the definition " in {
-      val result = await(controller.validateAndPostCustomerResponse(twoWayMessageBadContent, "replyToId"))
-      result.header.status shouldBe Status.BAD_REQUEST
-    }
-
-    "return 200 (Ok) when metadata for a valid message id is requested correctly" in {
-      val dummyMetadata = MessageMetadata(
-        "123",
-        TaxEntity("abc", new TaxIdentifier with SimpleName {
-          override val name: String = "a"
-          override def value: String = "b"
-        }),
-        "subject",
-        MetadataDetails(None, None, None),
-        None,
-        Some("08 May 2019")
+      status(result) mustBe OK
+      contentAsString(result) mustBe Xhtml.toXhtml(
+        <p class="faded-text--small">13 June 2019 by HMRC:</p> ++
+          Utility.trim(
+            <div>Dear TestUser
+              <br/>
+              Thank you for your message of 13 June 2019.
+              <br/>
+              To recap your question, I think you're asking for help with
+              <br/>
+              I believe this answers your question and hope you are satisfied with the response.
+              <br/>
+              If you think there is something important missing, use the link at the end of this message to find out how to contact HMRC.
+              <br/>
+              Regards
+              <br/>
+              Matthew Groom
+              <br/>
+              HMRC digital team.
+            </div>
+          ) ++
+          <hr/>
+          <p class="faded-text--small">13 June 2019 by the customer:</p>
+          <div>Hello, my friend!</div>
       )
-      when(mockMessageService.getMessageMetadata(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(dummyMetadata)))
-      val result = await(controller.getRecipientMetadata("123")(FakeRequest()))
-      result.header.status shouldBe Status.OK
     }
 
-    "return 404 (Not Found) when metadata for a invalid message id is requested correctly" in {
-      //val dummyMetadata = MessageMetadata("123", TaxEntity("abc", TaxIdWithName("a","b")), "subject", MetadataDetails(None,None,None))
-      when(mockMessageService.getMessageMetadata(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(None))
-      val result = await(controller.getRecipientMetadata("123")(FakeRequest()))
-      result.header.status shouldBe Status.NOT_FOUND
-    }
-
-    "return 200 (Ok) when message content for a valid message id is requested correctly" in {
-      val dummyContent = "dummy content"
-      when(mockMessageService.getMessageContentBy(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(dummyContent)))
-      val result = await(controller.getRecipientMessageContentBy("123")(FakeRequest()))
-      result.header.status shouldBe Status.OK
-    }
-
-    "return 404 (Not Found) when content for a invalid message id is requested correctly" in {
-      when(mockMessageService.getMessageContentBy(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(None))
-      val result = await(controller.getRecipientMessageContentBy("123")(FakeRequest()))
-      result.header.status shouldBe Status.NOT_FOUND
-    }
-
-    "return 200 (Ok) when messages are  requested correctly" in {
+    "return 200 (OK) with the content of the conversation in html for the customer" in {
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(List(testConversationItem, testConversationItem))))
-      val result = await(controller.getMessagesListBy("123")(FakeRequest()))
-      result.header.status shouldBe Status.OK
-    }
-    "return 400 () when messages are  requested incorrectly" in {
-      when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(Left("")))
-      val result = await(controller.getMessagesListBy("123")(FakeRequest()))
-      result.header.status shouldBe Status.BAD_REQUEST
+        .thenReturn(Future.successful(Right(listOfConversationItems())))
+
+      val result = testTwoWayMessageController.getContentBy("12314124", "Customer")(FakeRequest())
+
+      status(result) mustBe OK
+      contentAsString(result) mustBe Xhtml.toXhtml(
+        <h1 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h1>
+          <p class="faded-text--small">This message was sent to you on 13 June 2019</p> ++
+          Utility.trim(
+            <div>Dear TestUser
+              <br/>
+              Thank you for your message of 13 June 2019.
+              <br/>
+              To recap your question, I think you're asking for help with
+              <br/>
+              I believe this answers your question and hope you are satisfied with the response.
+              <br/>
+              If you think there is something important missing, use the link at the end of this message to find out how to contact HMRC.
+              <br/>
+              Regards
+              <br/>
+              Matthew Groom
+              <br/>
+              HMRC digital team.</div>
+          ) ++
+          <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees" target="_blank" rel="noopener noreferrer">Contact HMRC (opens in a new window or tab)</a>
+              <hr/>
+            <h2 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h2>
+            <p class="faded-text--small">You sent this message on 13 June 2019</p>
+            <div>Hello, my friend!</div>
+      )
     }
 
-    "return 200 (Ok) when message list size is requested correctly" in {
+    "return 200 (OK) with the content of the conversation in html for the customer and epaye-general enquiry type" in {
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
       when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(List(testConversationItem, testConversationItem))))
-      val result = await(controller.getMessagesListSizeBy("123")(FakeRequest()))
-      result.header.status shouldBe Status.OK
-    }
-    "return 400 () when message list size is requested incorrectly" in {
-      when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier])).thenReturn(Future.successful(Left("")))
-      val result = await(controller.getMessagesListSizeBy("123")(FakeRequest()))
-      result.header.status shouldBe Status.BAD_REQUEST
+        .thenReturn(Future.successful(Right(listOfConversationItems(enquiryType = "epaye-general"))))
+
+      val result = testTwoWayMessageController.getContentBy("12314124", "Customer")(FakeRequest())
+
+      status(result) mustBe OK
+      contentAsString(result) mustBe Xhtml.toXhtml(
+        <h1 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h1>
+          <p class="faded-text--small">This message was sent to you on 13 June 2019</p> ++
+          Utility.trim(<div>Dear TestUser
+            <br/>
+            Thank you for your message of 13 June 2019.
+            <br/>
+            To recap your question, I think you're asking for help with
+            <br/>
+            I believe this answers your question and hope you are satisfied with the response.
+            <br/>
+            If you think there is something important missing, use the link at the end of this message to find out how to contact HMRC.
+            <br/>
+            Regards
+            <br/>
+            Matthew Groom
+            <br/>
+            HMRC digital team.</div>) ++
+          Utility.trim(<p>
+            <span>
+              <a style="text-decoration:none;" href="/two-way-message-frontend/message/customer/epaye-general/5d02201b5b0000360151779e/reply#reply-input-label">
+                <svg style="vertical-align:text-top;padding-right:5px;" width="21px" height="20px" viewBox="0 0 33 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <title>Reply</title>
+                  <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g id="icon-reply" fill="#000000" fill-rule="nonzero">
+                      <path d="M20.0052977,9.00577935 C27.0039418,9.21272548 32.6139021,14.9512245 32.6139021,22 C32.6139021,25.5463753 31.1938581,28.7610816 28.8913669,31.1065217 C29.2442668,30.1082895 29.4380446,29.1123203 29.4380446,28.1436033 C29.4380446,21.8962314 25.9572992,21.1011463 20.323108,21 L15,21 L15,30 L-1.42108547e-14,15 L15,2.25597319e-13 L15,9 L20,9 L20.0052977,9.00577935 Z" id="Combined-Shape"></path>
+                    </g>
+                  </g>
+                </svg>
+              </a>
+            </span>
+            <a href="/two-way-message-frontend/message/customer/epaye-general/5d02201b5b0000360151779e/reply#reply-input-label">Send another message about this</a>
+          </p>) ++
+          <hr/>
+          <h2 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h2>
+          <p class="faded-text--small">You sent this message on 13 June 2019</p>
+          <div>Hello, my friend!</div>)
     }
 
-    "return response time when response time is requested for valid enquiry type" in {
-      val result: Future[Result] = controller.getCurrentResponseTime("p800")(FakeRequest())
-      contentAsString(result) shouldEqual """{"responseTime":"5 days"}"""
+    "return 400 (BAD_REQUEST) when the message type is invalid" in {
+      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
+
+      val result = testTwoWayMessageController.getContentBy(id = "1", msgType = "nfejwk")(FakeRequest())
+
+      status(result) mustBe BAD_REQUEST
     }
 
-    "return 404 when response time requested for invalid enquiry type" in {
-      val result = await(controller.getCurrentResponseTime("IP4U")(FakeRequest()))
-      result.header.status shouldBe 404
-    }
-
-    SharedMetricRegistries.clear
+    SharedMetricRegistries.clear()
   }
 
+  private def listOfConversationItems(enquiryType: String = "p800"): List[ConversationItem] = List(
+    ConversationItem(
+      id = "5d02201b5b0000360151779e",
+      subject = "Matt Test 1",
+      body = Some(
+        ConversationItemDetails(
+          `type` = Adviser,
+          form = Reply,
+          issueDate = Some(LocalDate.parse("2019-06-13")),
+          replyTo = Some("5d021fbe5b0000200151779c"),
+          enquiryType = Some(enquiryType)
+        )
+      ),
+      validFrom = LocalDate.parse("2019-06-13"),
+      content = Some(
+        "Dear TestUser<br>Thank you for your message of 13 June 2019.<br>" +
+          "To recap your question, I think you're asking for help with<br>I believe this answers your question " +
+          "and hope you are satisfied with the response.<br>If you think there is something important missing, " +
+          "use the link at the end of this message to find out how to contact HMRC.<br/>Regards<br/>Matthew " +
+          "Groom<br/>HMRC digital team."
+      )
+    ),
+    ConversationItem(
+      id = "5d021fbe5b0000200151779c",
+      subject = "Matt Test 1",
+      body = Some(
+        ConversationItemDetails(
+          `type` = Customer,
+          form = Question,
+          issueDate = Some(LocalDate.parse("2019-06-13")),
+          replyTo = None,
+          enquiryType = Some(enquiryType)
+        )
+      ),
+      validFrom = LocalDate.parse("2019-06-13"),
+      content = Some("Hello, my friend!")
+    )
+  )
 }
