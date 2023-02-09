@@ -68,7 +68,7 @@ class TwoWayMessageServiceSpec
 
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
 
-      messagesResult.right should not be None
+      messagesResult.isLeft should be(true)
     }
 
     "return error if there is a problem connecting to the message service" in {
