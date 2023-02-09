@@ -40,7 +40,7 @@ class MessageFormatSpec extends AnyWordSpec with Fixtures with Matchers {
       val json = Json.parse(conversationItems(id1, id2))
       val messageResult = json.validate[List[ConversationItem]]
       messageResult.isSuccess shouldBe true
-      messageResult.get.map { _.id } should contain allOf ("5d02201b5b0000360151779e", "5d021fbe5b0000200151779c")
+      messageResult.get.map { _.id } should contain allElementsOf List("5d02201b5b0000360151779e", "5d021fbe5b0000200151779c")
     }
   }
 

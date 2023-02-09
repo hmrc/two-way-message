@@ -51,7 +51,7 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
   "The TwoWayMessageController.getContentBy method" should {
 
     "return 200 (OK) with the content of the conversation in html for the advisor" in {
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
+      mockAuthorisation()
       when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(listOfConversationItems())))
 
@@ -85,7 +85,7 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
     }
 
     "return 200 (OK) with the content of the conversation in html for the customer" in {
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
+      mockAuthorisation()
       when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(listOfConversationItems())))
 
@@ -121,7 +121,7 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
     }
 
     "return 200 (OK) with the content of the conversation in html for the customer and epaye-general enquiry type" in {
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
+      mockAuthorisation()
       when(mockMessageService.findMessagesBy(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(listOfConversationItems(enquiryType = "epaye-general"))))
 
@@ -168,7 +168,7 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
     }
 
     "return 400 (BAD_REQUEST) when the message type is invalid" in {
-      mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful())
+      mockAuthorisation()
 
       val result = testTwoWayMessageController.getContentBy(id = "1", msgType = "nfejwk")(FakeRequest())
 
@@ -216,4 +216,7 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
       content = Some("Hello, my friend!")
     )
   )
+  
+  private def mockAuthorisation(): Unit =
+    mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful(()))
 }

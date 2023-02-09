@@ -69,7 +69,7 @@ class TwoWayMessageController @Inject()(
         InternalServerError(error)
     }
 
-  private def handleError(): PartialFunction[Throwable, Result] = {
+  private def handleError: PartialFunction[Throwable, Result] = {
     case _: NoActiveSession =>
       logger.debug("Request did not have an Active Session, returning Unauthorised - Unauthenticated Error")
       Unauthorized(Json.toJson("Not authenticated"))
