@@ -216,7 +216,7 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
       content = Some("Hello, my friend!")
     )
   )
-  
+
   private def mockAuthorisation(): Unit =
     mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful(()))
 }
