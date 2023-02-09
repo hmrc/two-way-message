@@ -17,24 +17,20 @@
 import sbt._
 
 object AppDependencies {
+  
+  private val bootstrapVersion = "7.13.0"
 
   val compile = Seq(
-    "uk.gov.hmrc"           %% "bootstrap-backend-play-28" % "7.13.0",
-    "com.google.inject"     % "guice"                      % "5.1.0",
-    "com.kenshoo"           %% "metrics-play"              % "2.7.3_0.8.2",
+    "uk.gov.hmrc"           %% "bootstrap-backend-play-28" % bootstrapVersion,
     "com.typesafe.play"     %% "play-json-joda"            % "2.9.4",
-    "uk.gov.hmrc"           %% "domain"                    % "8.1.0-play-28",
-    "javax.inject"          % "javax.inject"               % "1",
-    "org.mongodb.scala"     %% "mongo-scala-driver"        % "4.8.1"
+    "uk.gov.hmrc"           %% "domain"                    % "8.1.0-play-28"
   )
 
   val test = Set(
-    "com.vladsch.flexmark"   % "flexmark-profile-pegdown"     % "0.62.2"        % "test,it",
-    "org.scalatest"          %% "scalatest"                   % "3.2.15"        % "test,it",
-    "org.mockito"            % "mockito-core"                 % "2.23.4"        % "test",
-    "com.github.tomakehurst" % "wiremock-standalone"          % "2.27.2"        % "test,it",
-    "org.scalatestplus"      %% "mockito-4-6"                 % "3.2.15.0"      % "test,it",
-    "org.scalatestplus.play" %% "scalatestplus-play"          % "5.1.0"         % "test,it"
+    "uk.gov.hmrc"            %% "bootstrap-test-play-28"      % bootstrapVersion % "test,it",
+    "org.scalatestplus"      %% "mockito-4-6"                 % "3.2.15.0"       % "test,it",
+    "com.vladsch.flexmark"   %  "flexmark-profile-pegdown"    % "0.62.2"         % "test,it",
+    "org.mongodb.scala"      %% "mongo-scala-driver"          % "4.8.1"          % "it"
   )
 
 }
