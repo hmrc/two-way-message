@@ -29,7 +29,7 @@ object AppDependencies {
   val test = Set(
     "uk.gov.hmrc"            %% "bootstrap-test-play-28"      % bootstrapVersion % "test,it",
     "org.scalatestplus"      %% "mockito-4-6"                 % "3.2.15.0"       % "test,it",
-    "com.vladsch.flexmark"   %  "flexmark-profile-pegdown"    % "0.62.2"         % "test,it",
+    "com.vladsch.flexmark"   %  "flexmark-profile-pegdown"    % "0.64.0"         % "test,it",
     "org.mongodb.scala"      %% "mongo-scala-driver"          % "4.8.1"          % "it"
   )
 
