@@ -14,33 +14,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import play.core.PlayVersion.current
 import sbt._
 
 object AppDependencies {
+  
+  private val bootstrapVersion = "7.13.0"
 
   val compile = Seq(
-    "uk.gov.hmrc"           %% "bootstrap-backend-play-28" % "7.12.0",
-    "com.google.inject"     % "guice"                      % "4.2.0",
-    "com.kenshoo"           %% "metrics-play"              % "2.6.6_0.6.2",
-    "com.typesafe.play"     %% "play-json-joda"            % "2.9.3",
-    "uk.gov.hmrc"           %% "domain"                    % "8.1.0-play-28",
-    "javax.inject"          % "javax.inject"               % "1",
-    "org.mongodb.scala"     %% "mongo-scala-driver"        % "4.8.1"
+    "uk.gov.hmrc"           %% "bootstrap-backend-play-28" % bootstrapVersion,
+    "com.typesafe.play"     %% "play-json-joda"            % "2.9.4",
+    "uk.gov.hmrc"           %% "domain"                    % "8.1.0-play-28"
   )
 
   val test = Set(
-    "com.vladsch.flexmark"   % "flexmark-profile-pegdown"     % "0.62.2"        % "test,it",
-    "org.scalatest"          %% "scalatest"                   % "3.2.14"        % "test,it",
-    "com.typesafe.play"      %% "play-test"                   % current         % "test",
-    "org.mockito"            % "mockito-core"                 % "2.23.4"        % "test",
-    "org.pegdown"            % "pegdown"                      % "1.6.0"         % "test,it",
-    "com.github.tomakehurst" % "wiremock-standalone"          % "2.20.0"        % "test,it",
-    "org.scalacheck"         %% "scalacheck"                  % "1.14.0"        % "test,it",
-    "org.scalamock"          %% "scalamock-scalatest-support" % "3.6.0"         % "test,it",
-    "org.scalatestplus"      %% "mockito-4-6"                 % "3.2.14.0"      % "test,it",
-    "org.scalatestplus.play" %% "scalatestplus-play"          % "5.1.0"         % "test,it",
-    "io.github.cloudify"     %% "spdf"                        % "1.4.0"         % "test"
+    "uk.gov.hmrc"            %% "bootstrap-test-play-28"      % bootstrapVersion % "test,it",
+    "org.scalatestplus"      %% "mockito-4-6"                 % "3.2.15.0"       % "test,it",
+    "com.vladsch.flexmark"   %  "flexmark-profile-pegdown"    % "0.64.0"         % "test,it",
+    "org.mongodb.scala"      %% "mongo-scala-driver"          % "4.8.1"          % "it"
   )
 
 }

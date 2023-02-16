@@ -62,7 +62,7 @@ class GetMessageContentByIdSpec extends IntegrationSpec with BeforeAndAfterEach 
 
   private def createMessage(source: String): Unit = {
     val jsonMessage = Source.fromResource(source).mkString
-    messageCollection.insertOne(Document(jsonMessage)).toFuture.futureValue
+    messageCollection.insertOne(Document(jsonMessage)).toFuture().futureValue
   }
 
   private def governmentGatewayUserToken: (String, String) = {
@@ -88,6 +88,6 @@ class GetMessageContentByIdSpec extends IntegrationSpec with BeforeAndAfterEach 
   }
 
   override def beforeEach(): Unit =
-    messageCollection.deleteMany(Document()).toFuture.futureValue
+    messageCollection.deleteMany(Document()).toFuture().futureValue
 
 }

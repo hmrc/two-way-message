@@ -18,6 +18,7 @@ import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.DefaultBuildSettings.oneForkedJvmPerTest
 import uk.gov.hmrc.DefaultBuildSettings.addTestReportOption
+import uk.gov.hmrc.DefaultBuildSettings.targetJvm
 import uk.gov.hmrc.ExternalService
 import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 
@@ -49,7 +50,8 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.12.13",
+    scalaVersion := "2.13.8",
+    targetJvm := "jvm-11",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     scalacOptions ++= Seq(
       // Silence unused warnings on Play `routes` files

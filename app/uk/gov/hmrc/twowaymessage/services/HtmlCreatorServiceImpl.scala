@@ -96,9 +96,9 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
     val linkSpaceFix = ("<a", "&#160;<a")
     val nonBreakingSpaceFix = ("&nbsp;", "&#160;")
     htmlString
-      .replaceAllLiterally(lineBreakFix._1, lineBreakFix._2)
-      .replaceAllLiterally(linkSpaceFix._1, linkSpaceFix._2)
-      .replaceAllLiterally(nonBreakingSpaceFix._1, nonBreakingSpaceFix._2)
+      .replace(lineBreakFix._1, lineBreakFix._2)
+      .replace(linkSpaceFix._1, linkSpaceFix._2)
+      .replace(nonBreakingSpaceFix._1, nonBreakingSpaceFix._2)
   }
 
   private def getContentDiv(maybeContent: Option[String]): Node =

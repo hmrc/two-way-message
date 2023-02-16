@@ -19,6 +19,7 @@ package uk.gov.hmrc.twowaymessage.services
 import com.codahale.metrics.SharedMetricRegistries
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,7 +36,7 @@ import uk.gov.hmrc.twowaymessage.connectors.MessageConnector
 import scala.concurrent.Future
 
 class TwoWayMessageServiceSpec
-    extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
+    extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar with EitherValues {
 
   implicit private val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
   private val mockMessageConnector: MessageConnector = mock[MessageConnector]
@@ -56,7 +57,7 @@ class TwoWayMessageServiceSpec
 
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
 
-      messagesResult.right.get.head.validFrom.toString should be("2013-12-01")
+      messagesResult.value.head.validFrom.toString should be("2013-12-01")
     }
 
     "return error if invalid message list json" in {
@@ -67,7 +68,7 @@ class TwoWayMessageServiceSpec
 
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
 
-      messagesResult.right should not be None
+      messagesResult.isLeft should be(true)
     }
 
     "return error if there is a problem connecting to the message service" in {
@@ -76,7 +77,7 @@ class TwoWayMessageServiceSpec
 
       val messageResult = await(messageService.findMessagesBy("1234567890"))
 
-      messageResult.left.get should be("Error retrieving messages")
+      messageResult.left.value should be("Error retrieving messages")
     }
 
     SharedMetricRegistries.clear()
