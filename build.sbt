@@ -51,7 +51,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     majorVersion := 0,
     scalaVersion := "2.13.8",
-    targetJvm := "jvm-11",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     scalacOptions ++= Seq(
       // Silence unused warnings on Play `routes` files
