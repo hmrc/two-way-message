@@ -17,6 +17,7 @@
 package uk.gov.hmrc.twowaymessage.connectors.mocks
 
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{ BeforeAndAfterEach, Suite }
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,13 +35,13 @@ trait MockAuthConnector extends BeforeAndAfterEach with MockitoSugar {
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
   def mockAuthorise[T](predicate: Predicate = EmptyPredicate, retrievals: Retrieval[T] = EmptyRetrieval)(
-    response: Future[T]): Unit =
+    response: Future[T]): Unit = {
     when(
-      mockAuthConnector.authorise(
-        ArgumentMatchers.eq(predicate),
-        ArgumentMatchers.eq(retrievals)
-      )(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext])
-    ) thenReturn response
+      mockAuthConnector.authorise(ArgumentMatchers.eq(predicate), ArgumentMatchers.eq(retrievals))(
+        any[HeaderCarrier],
+        any[ExecutionContext])) thenReturn response
+    ()
+  }
 
   override def beforeEach(): Unit = {
     super.beforeEach()
