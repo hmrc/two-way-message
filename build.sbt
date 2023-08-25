@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@ import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.DefaultBuildSettings.oneForkedJvmPerTest
 import uk.gov.hmrc.DefaultBuildSettings.addTestReportOption
-import uk.gov.hmrc.DefaultBuildSettings.targetJvm
-import uk.gov.hmrc.ExternalService
-import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 
 val appName = "two-way-message"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
+  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(
@@ -37,7 +35,7 @@ lazy val microservice = Project(appName, file("."))
       (IntegrationTest / definedTests).value
     ),
     IntegrationTest / parallelExecution := false,
-    IntegrationTest / unmanagedClasspath += baseDirectory.value / "target/scala-2.12/it-classes",
+    IntegrationTest / unmanagedClasspath += baseDirectory.value / "target/scala-2.13/it-classes",
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
         Seq(
@@ -58,13 +56,4 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:cat=unused-privates&src=.*routes.*:s"
     )
   )
-  .settings(ServiceManagerPlugin.serviceManagerSettings)
-  .settings(
-    itDependenciesList := List(
-      ExternalService("AUTH"),
-      ExternalService("AUTH_LOGIN_API"),
-      ExternalService("DATASTREAM"),
-      ExternalService("IDENTITY_VERIFICATION"),
-      ExternalService("MESSAGE"),
-      ExternalService("USER_DETAILS")
-    ))
+
