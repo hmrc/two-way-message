@@ -12,12 +12,9 @@ Return Status Codes:
 ## Note on Integration Tests
 
 For integration tests to run successfully you need the following apps run by sm externally:
- - AUTH
- - AUTH_LOGIN_API
- - DATASTREAM
- - IDENTITY_VERIFICATION
- - MESSAGE
- - USER_DETAILS
+
+`sm2 --start DC_TWO_WAY_MESSAGE_IT`
+
 
 ## Deprecation notes
 This service used to be able to create two-way messages between a customer and a HMRC advisor

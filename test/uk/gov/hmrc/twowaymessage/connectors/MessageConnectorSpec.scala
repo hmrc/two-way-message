@@ -71,7 +71,8 @@ class MessageConnectorSpec
 trait WithWireMock extends BeforeAndAfterAll with BeforeAndAfterEach {
   suite: Suite =>
 
-  def dependenciesPort = 8910
+  // Deliberate to avoid clash with service manager
+  def dependenciesPort = 8911
 
   lazy val wireMockServer = new WireMockServer(wireMockConfig().port(dependenciesPort))
 
