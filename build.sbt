@@ -1,3 +1,5 @@
+import sbt.Test
+
 /*
  * Copyright 2023 HM Revenue & Customs
  *
@@ -14,29 +16,29 @@
  * limitations under the License.
  */
 
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
-import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
-import uk.gov.hmrc.DefaultBuildSettings.oneForkedJvmPerTest
-import uk.gov.hmrc.DefaultBuildSettings.addTestReportOption
-
 val appName = "two-way-message"
+
+Global / majorVersion := 0
+Global / scalaVersion := "2.13.12"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
   .settings(
-    IntegrationTest / Keys.fork := false,
-    IntegrationTest / unmanagedSourceDirectories := (IntegrationTest / baseDirectory) (base => Seq(base / "it")).value,
-    addTestReportOption(IntegrationTest, "int-test-reports"),
-    IntegrationTest / resourceDirectory := (IntegrationTest / baseDirectory)(base => base / "it" / "resources").value,
-    IntegrationTest / testGrouping := oneForkedJvmPerTest(
-      (IntegrationTest / definedTests).value
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    scalacOptions ++= Seq(
+      // Silence unused warnings on Play `routes` files
+      "-Wconf:cat=unused-imports&src=.*routes.*:s",
+      "-Wconf:cat=unused-privates&src=.*routes.*:s"
     ),
-    IntegrationTest / parallelExecution := false,
-    IntegrationTest / unmanagedClasspath += baseDirectory.value / "target/scala-2.13/it-classes",
-    inConfig(IntegrationTest)(
+    Test / parallelExecution := false,
+    Test / fork := false,
+    retrieveManaged := true,
+    routesGenerator := InjectedRoutesGenerator,
+    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+  )
+  .settings(
+    inConfig(Test)(
       scalafmtCoreSettings ++
         Seq(
           compile / compileInputs := Def.taskDyn {
@@ -44,16 +46,13 @@ lazy val microservice = Project(appName, file("."))
             val previousInputs = (compile / compileInputs).value
             task.map(_ => previousInputs)
           }.value
-        ))
-  )
-  .settings(
-    majorVersion := 0,
-    scalaVersion := "2.13.8",
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    scalacOptions ++= Seq(
-      // Silence unused warnings on Play `routes` files
-      "-Wconf:cat=unused-imports&src=.*routes.*:s",
-      "-Wconf:cat=unused-privates&src=.*routes.*:s"
+        )
     )
   )
 
+lazy val it = (project in file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test")
+  .settings(
+    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+  )

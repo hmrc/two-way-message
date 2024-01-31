@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.twowaymessage
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.mongodb.scala.{ Document, MongoClient, MongoCollection, MongoDatabase }
 import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatest.flatspec.AnyFlatSpec

@@ -16,19 +16,21 @@
 
 package uk.gov.hmrc.twowaymessage.services
 
-import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormat
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.twowaymessage.model.{ ConversationItem, ItemMetadata, MessageType }
 import uk.gov.hmrc.twowaymessage.utils.HtmlUtil._
 import uk.gov.hmrc.twowaymessage.utils.XmlConversion
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import scala.annotation.nowarn
 import scala.concurrent.Future
 import scala.util.{ Failure, Success }
 import scala.xml._
 
+@nowarn("msg=add `: Unit` to discard silently")
 class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends HtmlCreatorService {
 
   override def createConversation(
@@ -191,8 +193,7 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
       case None            => formatter(message.validFrom)
     }
 
-  private val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+  private val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
-  private def formatter(date: LocalDate): String = date.toString(dateFormatter)
-
+  private def formatter(date: LocalDate): String = date.format(dateFormatter)
 }
