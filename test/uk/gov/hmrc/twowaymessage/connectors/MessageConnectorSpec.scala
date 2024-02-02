@@ -26,9 +26,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Mode
 import play.api.http.Status
-import play.api.inject.{ Injector, bind }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{ JsSuccess, Json }
 import play.api.test.Helpers._
@@ -40,11 +38,12 @@ import uk.gov.hmrc.twowaymessage.model._
 class MessageConnectorSpec
     extends AnyWordSpec with WithWireMock with Matchers with GuiceOneAppPerSuite with Fixtures with MockitoSugar {
 
-  val injector: Injector = new GuiceApplicationBuilder()
-    .overrides(bind[Mode].to(Mode.Test))
+  val messageConnector: MessageConnector = new GuiceApplicationBuilder()
+    .configure(
+      "microservice.services.message.port" -> dependenciesPort
+    )
     .injector()
-
-  val messageConnector: MessageConnector = injector.instanceOf[MessageConnector]
+    .instanceOf[MessageConnector]
 
   "GET list of messages via message connector" should {
 
@@ -72,7 +71,7 @@ trait WithWireMock extends BeforeAndAfterAll with BeforeAndAfterEach {
   suite: Suite =>
 
   // Deliberate to avoid clash with service manager
-  def dependenciesPort = 8911
+  def dependenciesPort = 8910
 
   lazy val wireMockServer = new WireMockServer(wireMockConfig().port(dependenciesPort))
 
