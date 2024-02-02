@@ -71,7 +71,7 @@ trait WithWireMock extends BeforeAndAfterAll with BeforeAndAfterEach {
   suite: Suite =>
 
   // Deliberate to avoid clash with service manager
-  def dependenciesPort = 8910
+  def dependenciesPort = 8911
 
   lazy val wireMockServer = new WireMockServer(wireMockConfig().port(dependenciesPort))
 
