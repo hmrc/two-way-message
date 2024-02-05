@@ -17,14 +17,14 @@
 package uk.gov.hmrc.twowaymessage.controllers
 
 import com.codahale.metrics.SharedMetricRegistries
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{ Injector, bind }
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
+import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication }
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.twowaymessage.assets.TestUtil
@@ -218,5 +218,5 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
   )
 
   private def mockAuthorisation(): Unit =
-    mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify))(Future.successful(()))
+    mockAuthorise(AuthProviders(GovernmentGateway, PrivilegedApplication))(Future.successful(()))
 }

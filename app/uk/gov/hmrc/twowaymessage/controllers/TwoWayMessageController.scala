@@ -19,7 +19,7 @@ package uk.gov.hmrc.twowaymessage.controllers
 import play.api.Logging
 import play.api.libs.json._
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication, Verify }
+import uk.gov.hmrc.auth.core.AuthProvider.{ GovernmentGateway, PrivilegedApplication }
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -39,7 +39,7 @@ class TwoWayMessageController @Inject()(
   def getContentBy(id: String, msgType: String): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
-    authorised(AuthProviders(GovernmentGateway, PrivilegedApplication, Verify)) {
+    authorised(AuthProviders(GovernmentGateway, PrivilegedApplication)) {
 
       def createMsg(replyType: RenderType.ReplyType): Future[Result] =
         twms.findMessagesBy(id).flatMap {

@@ -16,21 +16,33 @@
 
 package uk.gov.hmrc.twowaymessage.model
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{ JodaReads, JodaWrites, Json, Reads, _ }
+import play.api.libs.json.{ Json, Reads, _ }
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 
+import java.time.format.DateTimeFormatter
 import java.util.Base64
+import scala.util.Try
 
 object MessageFormat {
 
   def decodeBase64String(input: String): String =
     new String(Base64.getDecoder.decode(input.getBytes("UTF-8")))
 
-  implicit val dateFormat: Format[LocalDate] =
-    Format[LocalDate](JodaReads.jodaLocalDateReads("yyyy-MM-dd"), JodaWrites.jodaLocalDateWrites("yyyy-MM-dd"))
+  implicit val dateFormat: Format[LocalDate] = {
+    val datePattern = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val dateWrites: Writes[LocalDate] = new Writes[LocalDate] {
+      def writes(localDate: LocalDate): JsValue = JsString(localDate.format(datePattern))
+    }
+
+    val dateReads: Reads[LocalDate] = new Reads[LocalDate] {
+      override def reads(json: JsValue): JsResult[LocalDate] =
+        Try(JsSuccess(LocalDate.parse(json.as[String], datePattern), JsPath)).getOrElse(JsError())
+    }
+    Format[LocalDate](dateReads, dateWrites)
+  }
 
   implicit val formIdFormat: Format[FormId] =
     Format(
