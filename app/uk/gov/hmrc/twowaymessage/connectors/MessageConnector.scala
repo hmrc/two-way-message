@@ -23,8 +23,9 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-class MessageConnector @Inject()(httpClient: HttpClient, servicesConfig: ServicesConfig)(
-  implicit ec: ExecutionContext) {
+class MessageConnector @Inject() (httpClient: HttpClient, servicesConfig: ServicesConfig)(implicit
+  ec: ExecutionContext
+) {
 
   val messageBaseUrl: String = servicesConfig.baseUrl("message")
 

@@ -31,12 +31,13 @@ import scala.util.{ Failure, Success }
 import scala.xml._
 
 @nowarn("msg=add `: Unit` to discard silently")
-class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends HtmlCreatorService {
+class HtmlCreatorServiceImpl @Inject() (servicesConfig: ServicesConfig) extends HtmlCreatorService {
 
   override def createConversation(
     latestMessageId: String,
     messages: List[ConversationItem],
-    replyType: RenderType.ReplyType): Future[Either[String, Html]] = {
+    replyType: RenderType.ReplyType
+  ): Future[Either[String, Html]] = {
 
     val conversation = createConversationList(messages.sortWith(_.id > _.id), replyType)
     val fullConversation = conversation.mkString(Xhtml.toXhtml(<hr/>))
@@ -52,7 +53,8 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
           .headOption
           .map { hm =>
             format2wsMessageForCustomer(hm, ItemMetadata(isLatestMessage = true)) :: messages.tail.map(m =>
-              format2wsMessageForCustomer(m, ItemMetadata(isLatestMessage = false)))
+              format2wsMessageForCustomer(m, ItemMetadata(isLatestMessage = false))
+            )
           }
           .getOrElse(List.empty)
       case RenderType.CustomerForm =>
@@ -60,7 +62,10 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
           .sortWith(_.id > _.id)
           .headOption
           .map { hm =>
-            format2wsMessageForCustomer(hm, ItemMetadata(isLatestMessage = true, hasSmallSubject = true)) :: messages.tail
+            format2wsMessageForCustomer(
+              hm,
+              ItemMetadata(isLatestMessage = true, hasSmallSubject = true)
+            ) :: messages.tail
               .map(m => format2wsMessageForCustomer(m, ItemMetadata(isLatestMessage = false)))
           }
           .getOrElse(List.empty)
@@ -68,6 +73,7 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
     }
 
   private def format2wsMessageForCustomer(item: ConversationItem, metadata: ItemMetadata): String =
+    // format: off
     Xhtml.toXhtml(
       getHeader(metadata, item.subject) ++ <p class="faded-text--small">{getCustomerDateText(item)}</p>
         ++ getContentDiv(item.content) ++
@@ -78,7 +84,9 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
           .fold(getContactLink(metadata, item))(_ => getReplyLink(metadata, item))
           .getOrElse(NodeSeq.Empty)
     )
+    // format: on
 
+  // format: off
   private def format2wsMessageForAdviser(item: ConversationItem): String =
     Xhtml.toXhtml(<p class="faded-text--small">{getAdviserDatesText(item)}</p> ++ getContentDiv(item.content))
 
@@ -90,6 +98,7 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
       <h2 class={headingClass}>{Unparsed(escapeForXhtml(subject))}</h2>
     }
   }
+  // format: on
 
   private def fixHtmlString(htmlString: String): String = {
     // makes line breaks XHTML valid
@@ -103,6 +112,7 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
       .replace(nonBreakingSpaceFix._1, nonBreakingSpaceFix._2)
   }
 
+  // format: off
   private def getContentDiv(maybeContent: Option[String]): Node =
     maybeContent match {
       case Some(content) =>
@@ -158,6 +168,7 @@ class HtmlCreatorServiceImpl @Inject()(servicesConfig: ServicesConfig) extends H
         </svg>
       </a>
     </span>)
+  // format: on
 
   private def getCustomerDateText(message: ConversationItem): String = {
     val messageDate = extractMessageDate(message)

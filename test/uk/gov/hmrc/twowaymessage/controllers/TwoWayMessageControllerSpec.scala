@@ -164,7 +164,8 @@ class TwoWayMessageControllerSpec extends TestUtil with MockAuthConnector {
           <hr/>
           <h2 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h2>
           <p class="faded-text--small">You sent this message on 13 June 2019</p>
-          <div>Hello, my friend!</div>)
+          <div>Hello, my friend!</div>
+      )
     }
 
     "return 400 (BAD_REQUEST) when the message type is invalid" in {

@@ -56,7 +56,9 @@ class MessageConnectorSpec
           .willReturn(
             aResponse()
               .withStatus(Status.OK)
-              .withBody(jsonResponseBody)))
+              .withBody(jsonResponseBody)
+          )
+      )
 
       val httpResult = await(messageConnector.getMessages(messageId)(new HeaderCarrier()))
       httpResult.status shouldBe 200

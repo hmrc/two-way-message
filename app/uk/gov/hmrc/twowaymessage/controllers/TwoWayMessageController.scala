@@ -30,10 +30,11 @@ import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class TwoWayMessageController @Inject()(
+class TwoWayMessageController @Inject() (
   twms: TwoWayMessageService,
   val authConnector: AuthConnector,
-  val htmlCreatorService: HtmlCreatorService)(implicit ec: ExecutionContext)
+  val htmlCreatorService: HtmlCreatorService
+)(implicit ec: ExecutionContext)
     extends InjectedController with AuthorisedFunctions with Logging {
 
   def getContentBy(id: String, msgType: String): Action[AnyContent] = Action.async { implicit request =>
@@ -61,7 +62,8 @@ class TwoWayMessageController @Inject()(
   private def getHtmlResponse(
     id: String,
     msgList: List[ConversationItem],
-    replyType: RenderType.ReplyType): Future[Result] =
+    replyType: RenderType.ReplyType
+  ): Future[Result] =
     htmlCreatorService.createConversation(id, msgList, replyType).map {
       case Right(html) => Ok(html)
       case Left(error) =>

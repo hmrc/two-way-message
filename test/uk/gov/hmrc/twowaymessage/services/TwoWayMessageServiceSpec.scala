@@ -53,7 +53,8 @@ class TwoWayMessageServiceSpec
       val fixtureMessages = conversationItems("5c2dec526900006b000d53b1", "5c2dec526900006b000d53b1")
       when(mockMessageConnector.getMessages(any[String])(any[HeaderCarrier]))
         .thenReturn(
-          Future.successful(HttpResponse(Http.Status.OK, Json.parse(fixtureMessages), Map("" -> Seq("", "")))))
+          Future.successful(HttpResponse(Http.Status.OK, Json.parse(fixtureMessages), Map("" -> Seq("", ""))))
+        )
 
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
 
@@ -64,7 +65,8 @@ class TwoWayMessageServiceSpec
       val invalidFixtureMessages = "{}"
       when(mockMessageConnector.getMessages(any[String])(any[HeaderCarrier]))
         .thenReturn(
-          Future.successful(HttpResponse(Http.Status.OK, Json.parse(invalidFixtureMessages), Map("" -> Seq("", "")))))
+          Future.successful(HttpResponse(Http.Status.OK, Json.parse(invalidFixtureMessages), Map("" -> Seq("", ""))))
+        )
 
       val messagesResult = await(messageService.findMessagesBy("1234567890"))
 
