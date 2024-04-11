@@ -99,7 +99,8 @@ case class ConversationItemDetails(
   issueDate: Option[LocalDate],
   replyTo: Option[String] = None,
   enquiryType: Option[String] = None,
-  adviser: Option[Adviser] = None)
+  adviser: Option[Adviser] = None
+)
 
 case class ConversationItem(
   id: String,

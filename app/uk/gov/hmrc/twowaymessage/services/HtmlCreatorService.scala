@@ -28,7 +28,8 @@ trait HtmlCreatorService {
   def createConversation(
     messageId: String,
     listMsg: List[ConversationItem],
-    replyType: RenderType.ReplyType): Future[Either[String, Html]]
+    replyType: RenderType.ReplyType
+  ): Future[Either[String, Html]]
 
 }
 

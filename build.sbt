@@ -37,18 +37,6 @@ lazy val microservice = Project(appName, file("."))
     routesGenerator := InjectedRoutesGenerator,
     Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
-  .settings(
-    inConfig(Test)(
-      scalafmtCoreSettings ++
-        Seq(
-          compile / compileInputs := Def.taskDyn {
-            val task = resolvedScoped.value.scope / scalafmt.key / test
-            val previousInputs = (compile / compileInputs).value
-            task.map(_ => previousInputs)
-          }.value
-        )
-    )
-  )
 
 lazy val it = (project in file("it"))
   .enablePlugins(PlayScala)
@@ -56,3 +44,11 @@ lazy val it = (project in file("it"))
   .settings(
     Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
+
+Test / test := (Test / test)
+  .dependsOn(scalafmtCheckAll)
+  .value
+
+it / test := (it / Test / test)
+  .dependsOn(scalafmtCheckAll, it/scalafmtCheckAll)
+  .value

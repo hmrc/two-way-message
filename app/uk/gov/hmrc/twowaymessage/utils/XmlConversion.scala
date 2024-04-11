@@ -21,9 +21,8 @@ import scala.xml.{ Node, SAXParseException, Text }
 
 object XmlConversion {
 
-  /**
-    * Returns one or more XML nodes parsed from the given string or an exception if the parsing fails.
-    * If the string is empty an empty text node will be returned.
+  /** Returns one or more XML nodes parsed from the given string or an exception if the parsing fails. If the string is
+    * empty an empty text node will be returned.
     */
   def stringToXmlNodes(string: String): Try[Seq[Node]] =
     try {

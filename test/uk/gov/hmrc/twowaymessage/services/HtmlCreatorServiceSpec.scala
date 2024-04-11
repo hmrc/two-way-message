@@ -49,13 +49,16 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
           FormId.Reply,
           Some(LocalDate.parse("2019-06-13")),
           Some("5d021fbe5b0000200151779c"),
-          Some(enquiryType))),
+          Some(enquiryType)
+        )
+      ),
       LocalDate.parse("2019-06-13"),
       Some(
         "<p>Dear TestUser</p><p>Thank you for your message of 13 June 2019.</p><p>To recap your question, " +
           "I think you're asking for help with</p><p>I believe this answers your question and hope you are satisfied with the response.</p>" +
           "<p>If you think there is something important missing, use the link at the end of this message to find out how to contact HMRC.</p>" +
-          "<p>Regards<br>Matthew Groom<br>HMRC digital team</p>")
+          "<p>Regards<br>Matthew Groom<br>HMRC digital team</p>"
+      )
     ),
     ConversationItem(
       "5d021fbe5b0000200151779c",
@@ -66,7 +69,9 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
           FormId.Question,
           Some(LocalDate.parse("2019-06-13")),
           None,
-          Some(enquiryType))),
+          Some(enquiryType)
+        )
+      ),
       LocalDate.parse("2019-06-13"),
       Some("<p>Hello&nbsp;this&nbsp;is&nbsp;a&nbsp;test!</p>")
     )
@@ -82,9 +87,10 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
       result mustBe
         Right(
           Html.apply(
-            Xhtml.toXhtml(<h1 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h1>
+            Xhtml.toXhtml(
+              <h1 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h1>
           <p class="faded-text--small">This message was sent to you on 13 June 2019</p> ++
-              Utility.trim(<div>
+                Utility.trim(<div>
               <p>Dear TestUser</p>
               <p>Thank you for your message of 13 June 2019.</p>
               <p>To recap your question, I think you're asking for help with</p>
@@ -92,11 +98,14 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
               <p>If you think there is something important missing, use the link at the end of this message to find out how to contact HMRC.</p>
               <p>Regards<br/>Matthew Groom<br/>HMRC digital team</p>
             </div>) ++
-              <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees" target="_blank" rel="noopener noreferrer">Contact HMRC (opens in a new window or tab)</a>
+                <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees" target="_blank" rel="noopener noreferrer">Contact HMRC (opens in a new window or tab)</a>
           <hr/>
           <h2 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h2>
           <p class="faded-text--small">You sent this message on 13 June 2019</p>
-          <div><p>Hello&#160;this&#160;is&#160;a&#160;test!</p></div>)))
+          <div><p>Hello&#160;this&#160;is&#160;a&#160;test!</p></div>
+            )
+          )
+        )
     }
 
     "create HTML for a customer and epaye-general enquiryType" in {
@@ -138,7 +147,10 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
                 <hr/>
           <h2 class="govuk-heading-xl margin-top-small margin-bottom-small">Matt Test 1</h2>
           <p class="faded-text--small">You sent this message on 13 June 2019</p>
-          <div><p>Hello&#160;this&#160;is&#160;a&#160;test!</p></div>)))
+          <div><p>Hello&#160;this&#160;is&#160;a&#160;test!</p></div>
+            )
+          )
+        )
     }
 
     "create HTML content for an advisor" in {
@@ -149,8 +161,9 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
       result mustBe
         Right(
           Html(
-            Xhtml.toXhtml(<p class="faded-text--small">13 June 2019 by HMRC:</p> ++
-              Utility.trim(<div>
+            Xhtml.toXhtml(
+              <p class="faded-text--small">13 June 2019 by HMRC:</p> ++
+                Utility.trim(<div>
               <p>Dear TestUser</p>
               <p>Thank you for your message of 13 June 2019.</p>
               <p>To recap your question, I think you're asking for help with</p>
@@ -158,9 +171,12 @@ class HtmlCreatorServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Fixt
               <p>If you think there is something important missing, use the link at the end of this message to find out how to contact HMRC.</p>
               <p>Regards<br/>Matthew Groom<br/>HMRC digital team</p>
             </div>) ++
-              <hr/>
+                <hr/>
           <p class="faded-text--small">13 June 2019 by the customer:</p>
-          <div><p>Hello&#160;this&#160;is&#160;a&#160;test!</p></div>)))
+          <div><p>Hello&#160;this&#160;is&#160;a&#160;test!</p></div>
+            )
+          )
+        )
     }
     SharedMetricRegistries.clear()
   }

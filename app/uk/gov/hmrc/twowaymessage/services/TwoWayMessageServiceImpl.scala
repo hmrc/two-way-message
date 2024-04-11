@@ -26,11 +26,12 @@ import uk.gov.hmrc.twowaymessage.model._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-class TwoWayMessageServiceImpl @Inject()(messageConnector: MessageConnector)(implicit ec: ExecutionContext)
+class TwoWayMessageServiceImpl @Inject() (messageConnector: MessageConnector)(implicit ec: ExecutionContext)
     extends TwoWayMessageService {
 
-  override def findMessagesBy(messageId: String)(
-    implicit hc: HeaderCarrier): Future[Either[String, List[ConversationItem]]] =
+  override def findMessagesBy(
+    messageId: String
+  )(implicit hc: HeaderCarrier): Future[Either[String, List[ConversationItem]]] =
     messageConnector.getMessages(messageId).flatMap { response =>
       response.status match {
         case OK =>
