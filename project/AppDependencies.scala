@@ -18,17 +18,18 @@ import sbt._
 
 object AppDependencies {
 
-  private val bootstrapVersion = "8.4.0"
+  private val bootstrapVersion = "9.0.0"
 
   val compile = Seq(
     "uk.gov.hmrc" %% "bootstrap-backend-play-30" % bootstrapVersion,
-    "uk.gov.hmrc" %% "domain-play-30"            % "9.0.0"
+    "uk.gov.hmrc" %% "domain-play-30"            % "10.0.0"
   )
 
   val test = Set(
     "uk.gov.hmrc"       %% "bootstrap-test-play-30" % bootstrapVersion % Test,
-    "org.scalatestplus" %% "mockito-4-6"            % "3.2.15.0"       % Test,
-    "org.mongodb.scala" %% "mongo-scala-driver"     % "4.11.1"         % Test
+    "org.scalatestplus" %% "mockito-4-11"           % "3.2.17.0"       % Test,
+    "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"     % "2.1.0"          % Test
+    // "org.mongodb.scala" %% "mongo-scala-driver"     % "4.11.1"         % Test
   )
 
 }

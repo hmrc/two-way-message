@@ -18,8 +18,8 @@ import sbt.Test
 
 val appName = "two-way-message"
 
-Global / majorVersion := 0
-Global / scalaVersion := "2.13.12"
+ThisBuild / majorVersion := 1
+ThisBuild / scalaVersion := "3.3.3"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
@@ -34,16 +34,12 @@ lazy val microservice = Project(appName, file("."))
     Test / parallelExecution := false,
     Test / fork := false,
     retrieveManaged := true,
-    routesGenerator := InjectedRoutesGenerator,
-    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+    routesGenerator := InjectedRoutesGenerator
   )
 
 lazy val it = (project in file("it"))
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test")
-  .settings(
-    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
-  )
 
 Test / test := (Test / test)
   .dependsOn(scalafmtCheckAll)

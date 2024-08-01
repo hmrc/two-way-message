@@ -18,7 +18,7 @@ package uk.gov.hmrc.twowaymessage.model
 
 import java.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{ Json, Reads, _ }
+import play.api.libs.json.{ Json, Reads, Writes, _ }
 import uk.gov.hmrc.twowaymessage.model.FormId.FormId
 import uk.gov.hmrc.twowaymessage.model.MessageType.MessageType
 
@@ -45,16 +45,10 @@ object MessageFormat {
   }
 
   implicit val formIdFormat: Format[FormId] =
-    Format(
-      Reads.enumNameReads(FormId),
-      Writes.enumNameWrites
-    )
+    Format(Reads.enumNameReads(FormId), Writes.enumNameWrites[FormId.type])
 
   implicit val messageTypeFormat: Format[MessageType] =
-    Format(
-      Reads.enumNameReads(MessageType),
-      Writes.enumNameWrites
-    )
+    Format(Reads.enumNameReads(MessageType), Writes.enumNameWrites[MessageType.type])
 
   implicit val conversationItemDetailsFormat: Format[ConversationItemDetails] = Json.format[ConversationItemDetails]
 
