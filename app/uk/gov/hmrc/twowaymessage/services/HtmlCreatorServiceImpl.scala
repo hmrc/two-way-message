@@ -25,12 +25,10 @@ import uk.gov.hmrc.twowaymessage.utils.XmlConversion
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import scala.annotation.nowarn
 import scala.concurrent.Future
 import scala.util.{ Failure, Success }
 import scala.xml._
 
-@nowarn("msg=add `: Unit` to discard silently")
 class HtmlCreatorServiceImpl @Inject() (servicesConfig: ServicesConfig) extends HtmlCreatorService {
 
   override def createConversation(

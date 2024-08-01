@@ -33,7 +33,8 @@ import scala.concurrent.{ ExecutionContext, Future }
 class TwoWayMessageController @Inject() (
   twms: TwoWayMessageService,
   val authConnector: AuthConnector,
-  val htmlCreatorService: HtmlCreatorService
+  val htmlCreatorService: HtmlCreatorService,
+  override val controllerComponents: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends InjectedController with AuthorisedFunctions with Logging {
 

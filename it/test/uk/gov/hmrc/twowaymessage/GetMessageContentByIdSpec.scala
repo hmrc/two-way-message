@@ -18,8 +18,10 @@ package uk.gov.hmrc.twowaymessage
 
 import org.bson.types.ObjectId
 import org.mongodb.scala.Document
+import org.mongodb.scala.SingleObservableFuture
 import org.scalatest.BeforeAndAfterEach
-
+import play.api.libs.ws.WSBodyReadables.readableAsString
+import play.api.libs.ws.writeableOf_String
 import scala.io.Source
 
 class GetMessageContentByIdSpec extends IntegrationSpec with BeforeAndAfterEach {
